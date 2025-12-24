@@ -120,4 +120,3 @@ C:\Users\Admin\Desktop\CDAC\Final Project\PeerGrid\backend\obj\Debug\net9.0\refi
 C:\Users\Admin\Desktop\CDAC\Final Project\PeerGrid\backend\obj\Debug\net9.0\PeerGrid.Backend.pdb
 C:\Users\Admin\Desktop\CDAC\Final Project\PeerGrid\backend\obj\Debug\net9.0\PeerGrid.Backend.genruntimeconfig.cache
 C:\Users\Admin\Desktop\CDAC\Final Project\PeerGrid\backend\obj\Debug\net9.0\ref\PeerGrid.Backend.dll
-C:\Users\Admin\Desktop\CDAC\Final Project\PeerGrid\backend\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

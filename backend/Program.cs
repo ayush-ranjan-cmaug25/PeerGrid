@@ -17,6 +17,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<SessionService>();
 builder.Services.AddScoped<MatchingService>();
 builder.Services.AddSignalR();
+builder.Services.AddControllers();
 
 builder.Services.AddCors(options =>
 {
@@ -39,6 +40,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
 
+app.MapControllers();
 app.MapHub<ChatHub>("/chatHub");
 
 app.Run();
