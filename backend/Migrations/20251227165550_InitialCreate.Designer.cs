@@ -12,7 +12,7 @@ using PeerGrid.Backend.Data;
 namespace PeerGrid.Backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251226192412_InitialCreate")]
+    [Migration("20251227165550_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -186,13 +186,13 @@ namespace PeerGrid.Backend.Migrations
                     b.HasOne("PeerGrid.Backend.Models.User", "Learner")
                         .WithMany()
                         .HasForeignKey("LearnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("PeerGrid.Backend.Models.User", "Tutor")
                         .WithMany()
                         .HasForeignKey("TutorId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Learner");
