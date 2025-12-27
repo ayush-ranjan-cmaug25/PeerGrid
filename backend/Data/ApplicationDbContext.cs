@@ -40,6 +40,19 @@ namespace PeerGrid.Backend.Data
                 .HasConversion(
                     v => string.Join(',', v),
                     v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList());
+
+            // Fix for multiple cascade paths in SQL Server
+            modelBuilder.Entity<Session>()
+                .HasOne(s => s.Tutor)
+                .WithMany()
+                .HasForeignKey(s => s.TutorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Session>()
+                .HasOne(s => s.Learner)
+                .WithMany()
+                .HasForeignKey(s => s.LearnerId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
