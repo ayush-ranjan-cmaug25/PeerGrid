@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PeerGrid.Backend.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PeerGrid.Backend.Data
 {
@@ -11,13 +13,14 @@ namespace PeerGrid.Backend.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<Session> Sessions { get; set; }
+        public DbSet<Feedback> Feedbacks { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                var connectionString = "server=localhost;database=peergrid;user=root;password=cdac";
-                optionsBuilder.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 43)));
+                optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=PeerGridDb;Trusted_Connection=True;MultipleActiveResultSets=true");
             }
         }
 
@@ -25,14 +28,18 @@ namespace PeerGrid.Backend.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configure List<string> to be stored as JSON
+            // Convert List<string> to comma-separated string for SQLite
             modelBuilder.Entity<User>()
                 .Property(u => u.SkillsOffered)
-                .HasColumnType("json");
+                .HasConversion(
+                    v => string.Join(',', v),
+                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList());
 
             modelBuilder.Entity<User>()
                 .Property(u => u.SkillsNeeded)
-                .HasColumnType("json");
+                .HasConversion(
+                    v => string.Join(',', v),
+                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList());
         }
     }
 }

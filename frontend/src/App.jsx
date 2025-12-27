@@ -1,92 +1,114 @@
-import ApiDocs from './components/ApiDocs';
-import DoubtBoard from './components/DoubtBoard';
-import SessionDashboard from './components/SessionDashboard';
-import SkillProfile from './components/SkillProfile';
-import './App.css';
-import { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import Lenis from 'lenis';
+import 'lenis/dist/lenis.css';
 
-import logo from './assets/logo.svg';
+import Layout from './components/Layout';
+import Dashboard from './pages/Dashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import LandingPage from './pages/LandingPage';
+import DoubtBoard from './pages/DoubtBoard';
+import Profile from './pages/Profile';
+import Wallet from './pages/Wallet';
+import FindPeer from './pages/FindPeer';
+import MySessions from './pages/MySessions';
+import Chat from './pages/Chat';
+import AnimatedBackground from './components/AnimatedBackground';
+import ContactUs from './pages/ContactUs';
+import Feedback from './pages/Feedback';
+import './App.css';
 
 function App() {
-  const [showDocs, setShowDocs] = useState(false);
+  const [theme, setTheme] = useState('light');
+  const [userRole, setUserRole] = useState('guest');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  useEffect(() => {
+    const lenis = new Lenis();
+
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+  }, []);
+
+  const toggleTheme = async (e) => {
+    if (!document.startViewTransition) {
+      setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+      return;
+    }
+
+    const x = e?.clientX ?? window.innerWidth / 2;
+    const y = e?.clientY ?? window.innerHeight / 2;
+
+    const endRadius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    );
+
+    const transition = document.startViewTransition(() => {
+      setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+    });
+
+    await transition.ready;
+
+    document.documentElement.animate(
+      {
+        clipPath: [
+          `circle(0px at ${x}px ${y}px)`,
+          `circle(${endRadius}px at ${x}px ${y}px)`,
+        ],
+      },
+      {
+        duration: 500,
+        easing: 'ease-in',
+        pseudoElement: '::view-transition-new(root)',
+      }
+    );
+  };
+
+  const handleLogin = (role) => {
+    setUserRole(role);
+  };
+
+  const handleLogout = () => {
+    setUserRole('guest');
+  };
 
   return (
-    <div className="app-container">
-      <nav className="glass-nav">
-        <div className="logo">
-            <img src={logo} alt="PeerGrid Logo" className="logo-img" /> PeerGrid
-        </div>
-        <div className="nav-links">
-            <button className="nav-btn active">Dashboard</button>
-            <button className="nav-btn">Community</button>
-            <button className="nav-btn" onClick={() => setShowDocs(!showDocs)}>
-                {showDocs ? 'Back to App' : 'API Docs'}
-            </button>
-        </div>
-      </nav>
-      
-      {showDocs ? (
-        <div className="pt-24 px-6 h-screen">
-            <ApiDocs />
-        </div>
-      ) : (
-        <>
-            <header className="hero-section">
-                <div className="hero-content">
-                    <div className="hero-text">
-                        <h1 className="hero-title">The Knowledge <span className="text-gradient">Exchange</span></h1>
-                        <p className="hero-subtitle">Connect, Teach, and Earn. The decentralized grid for peer-to-peer learning.</p>
-                    </div>
-                    
-                    <div className="hero-visuals">
-                        <div className="exchange-card teaching">
-                            <div className="card-glow"></div>
-                            <div className="card-content">
-                                <div className="user-avatar">👨‍💻</div>
-                                <div className="action-details">
-                                    <span className="action-label">TEACHING</span>
-                                    <span className="action-subject">React Hooks</span>
-                                    <span className="grid-points positive">+30 GP</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="connection-line">
-                            <div className="moving-particle"></div>
-                            <div className="center-logo-glow">
-                                <img src={logo} alt="PG" className="center-logo" />
-                            </div>
-                        </div>
-
-                        <div className="exchange-card learning">
-                            <div className="card-glow"></div>
-                            <div className="card-content">
-                                <div className="user-avatar">👩‍🎓</div>
-                                <div className="action-details">
-                                    <span className="action-label">LEARNING</span>
-                                    <span className="action-subject">Calculus II</span>
-                                    <span className="grid-points negative">-30 GP</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <main className="main-grid">
-                <div className="grid-col">
-                    <SkillProfile />
-                </div>
-                <div className="grid-col">
-                    <SessionDashboard />
-                </div>
-                <div className="grid-col">
-                    <DoubtBoard />
-                </div>
-            </main>
-        </>
-      )}
-    </div>
+    <BrowserRouter>
+      <div className="app-container">
+        <AnimatedBackground theme={theme} />
+        
+        <Routes>
+          <Route path="/landing" element={<LandingPage theme={theme} toggleTheme={toggleTheme} />} />
+          <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          <Route path="/register" element={<Register />} />
+          
+          <Route path="/" element={userRole === 'guest' ? <LandingPage theme={theme} toggleTheme={toggleTheme} /> : <Navigate to={userRole === 'admin' ? "/admin-dashboard" : "/dashboard"} replace />} />
+          
+          <Route element={<Layout theme={theme} toggleTheme={toggleTheme} userRole={userRole} onLogout={handleLogout} />}>
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="admin-dashboard" element={<AdminDashboard />} />
+            <Route path="find-peer" element={<FindPeer />} />
+            <Route path="doubt-board" element={<DoubtBoard />} />
+            <Route path="my-sessions" element={<MySessions />} />
+            <Route path="chat" element={<Chat />} />
+            <Route path="grid-points" element={<Wallet />} />
+            <Route path="user-profile" element={<Profile />} />
+            <Route path="contact-us" element={<ContactUs />} />
+            <Route path="feedback" element={<Feedback />} />
+          </Route>
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
 

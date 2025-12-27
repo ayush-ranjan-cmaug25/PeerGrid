@@ -2,16 +2,37 @@ using Microsoft.EntityFrameworkCore;
 using PeerGrid.Backend.Data;
 using PeerGrid.Backend.Services;
 using PeerGrid.Backend.Hubs;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
-// MySQL Configuration
+// SQL Server Configuration
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 43))));
+    options.UseSqlServer(connectionString));
+
+// JWT Authentication
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "REDACTED_JWT_SECRET";
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"] ?? "PeerGrid",
+            ValidAudience = builder.Configuration["Jwt:Audience"] ?? "PeerGridUsers",
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
+    });
 
 // Register Services
 builder.Services.AddScoped<SessionService>();
@@ -31,16 +52,27 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+
+app.UseCors("AllowReactApp");
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-app.UseCors("AllowReactApp");
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<ChatHub>("/chatHub");
+
+// Ensure DB is created
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.EnsureCreated();
+}
 
 app.Run();

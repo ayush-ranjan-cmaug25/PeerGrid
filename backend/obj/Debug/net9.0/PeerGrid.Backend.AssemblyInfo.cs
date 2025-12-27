@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PeerGrid.Backend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1e9f876205d0e095fe0f21a3007b1ced9ca12c04")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0f7495c03e8a6e5cf2e47bea8d85371a9a8e2394")]
 [assembly: System.Reflection.AssemblyProductAttribute("PeerGrid.Backend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PeerGrid.Backend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
