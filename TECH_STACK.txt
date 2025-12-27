@@ -1,0 +1,28 @@
+PeerGrid Project Tech Stack
+
+Frontend
+--------
+- Framework: React 19 (using Vite 7 as build tool)
+- Language: JavaScript (ESModules)
+- Styling: 
+  - Bootstrap 5.3
+  - Bootstrap Icons
+- Routing: React Router DOM 7
+- Animations: Framer Motion, Lenis (smooth scrolling)
+- HTTP Client: Axios
+- Real-time Communication: @microsoft/signalr
+- API Documentation: Swagger UI React
+
+Backend
+-------
+- Framework: ASP.NET Core Web API (.NET 8.0)
+- Language: C#
+- Database ORM: Entity Framework Core 8
+- Database Provider: SQL Server (Microsoft.EntityFrameworkCore.SqlServer)
+- Authentication: ASP.NET Core Identity with JWT Bearer Tokens
+- API Documentation: Swashbuckle (Swagger)
+
+Key Features Implementation
+---------------------------
+- State Management: React Hooks (useState, useEffect).
+- Real-time: SignalR integration.

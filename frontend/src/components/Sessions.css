@@ -1,0 +1,97 @@
+.session-dashboard-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+}
+
+.session-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.session-card {
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card-hover);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.session-card:hover {
+    border-color: var(--text-muted);
+    background: var(--bg-card);
+    transform: translateY(-2px);
+}
+
+.session-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.session-topic {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-main);
+}
+
+.session-tutor {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.tutor-name {
+    color: var(--text-main);
+    font-weight: 500;
+}
+
+.session-time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.join-btn {
+    font-size: 0.75rem;
+    padding: 8px 16px;
+    white-space: nowrap;
+    background: var(--text-main);
+    color: var(--bg-primary);
+    border-radius: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.join-btn:active {
+    transform: scale(0.95);
+}
+
+.no-sessions {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 32px 0;
+    font-size: 0.875rem;
+}
