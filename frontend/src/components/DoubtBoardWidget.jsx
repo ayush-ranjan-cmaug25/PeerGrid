@@ -1,12 +1,47 @@
 import React, { useState } from 'react';
+import GlassCard from './GlassCard';
+import { API_BASE_URL } from '../config';
 import './DoubtBoardWidget.css';
 
-const DoubtBoardWidget = ({ doubts }) => {
+const DoubtBoardWidget = ({ doubts, onRefresh }) => {
     const [selectedBounty, setSelectedBounty] = useState(null);
+    const [loading, setLoading] = useState(false);
     const bountyList = doubts || [];
 
+    const handleAccept = async () => {
+        if (!selectedBounty) return;
+        
+        if (!window.confirm(`Are you sure you want to accept "${selectedBounty.title}" for ${selectedBounty.points} GP?`)) {
+            return;
+        }
+
+        setLoading(true);
+        const token = localStorage.getItem('token');
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/sessions/accept/${selectedBounty.id}`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                alert('Challenge accepted! You can now start the session from your dashboard.');
+                setSelectedBounty(null);
+                if (onRefresh) onRefresh();
+            } else {
+                const data = await response.json();
+                alert(data.message || 'Failed to accept challenge');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to connect to server');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
-        <div className="glass-card doubt-board-container">
+        <GlassCard className="doubt-board-container p-4">
             <h2 className="section-title">Doubt Board</h2>
             <div className="bounty-grid">
                 {bountyList.map(bounty => (
@@ -33,13 +68,15 @@ const DoubtBoardWidget = ({ doubts }) => {
                             <span className="modal-points">{selectedBounty.points} Grid Points Reward</span>
                         </div>
                         <div className="modal-actions">
-                            <button onClick={() => alert(`Accepted challenge: ${selectedBounty.title}`)} className="btn-accept">Accept Challenge</button>
+                            <button onClick={handleAccept} className="btn-accept" disabled={loading}>
+                                {loading ? 'Accepting...' : 'Accept Challenge'}
+                            </button>
                             <button onClick={() => setSelectedBounty(null)} className="btn-close">Close</button>
                         </div>
                     </div>
                 </div>
             )}
-        </div>
+        </GlassCard>
     );
 };
 

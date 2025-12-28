@@ -44,7 +44,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",
         builder => builder
-            .WithOrigins("http://localhost:5173")
+            .SetIsOriginAllowed(origin => true) // Allow any origin for development (e.g. mobile testing)
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());

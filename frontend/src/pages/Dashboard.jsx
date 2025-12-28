@@ -3,6 +3,7 @@ import ScrollReveal from '../components/ScrollReveal';
 import Profile from '../components/Profile';
 import Sessions from '../components/Sessions';
 import DoubtBoardWidget from '../components/DoubtBoardWidget';
+import { API_BASE_URL } from '../config';
 
 const Dashboard = () => {
     const [dashboardData, setDashboardData] = useState(null);
@@ -12,7 +13,7 @@ const Dashboard = () => {
         const fetchDashboardData = async () => {
             const token = localStorage.getItem('token');
             try {
-                const response = await fetch('http://localhost:5000/api/users/dashboard', {
+                const response = await fetch(`${API_BASE_URL}/users/dashboard`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (response.ok) {

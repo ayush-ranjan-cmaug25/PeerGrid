@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import UserProfile from '../components/Profile';
+import { API_BASE_URL } from '../config';
 
 const SessionsTab = () => {
     const [sessions, setSessions] = useState([]);
@@ -9,7 +10,7 @@ const SessionsTab = () => {
         const fetchSessions = async () => {
             const token = localStorage.getItem('token');
             try {
-                const response = await fetch('http://localhost:5000/api/sessions/my', {
+                const response = await fetch(`${API_BASE_URL}/sessions/my`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (response.ok) {
@@ -92,7 +93,7 @@ const WalletTab = ({ user }) => {
         const fetchTransactions = async () => {
             const token = localStorage.getItem('token');
             try {
-                const response = await fetch('http://localhost:5000/api/transactions/my', {
+                const response = await fetch(`${API_BASE_URL}/transactions/my`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (response.ok) {
@@ -192,7 +193,7 @@ const Profile = () => {
             }
 
             try {
-                const response = await fetch('http://localhost:5000/api/users/me', {
+                const response = await fetch(`${API_BASE_URL}/users/me`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (response.ok) {
@@ -287,10 +288,20 @@ const Profile = () => {
 
                             <h3 className="h5 mb-3" style={{ color: 'var(--text-main)' }}>Verified Endorsements</h3>
                             <div className="d-flex gap-3 mb-4 flex-wrap">
-                                <div className="badge-card px-3 py-2 rounded-pill d-flex align-items-center gap-2" style={{ border: '1px solid var(--accent-primary)', background: 'rgba(99, 102, 241, 0.1)', color: 'var(--accent-primary)' }}>
-                                    <i className="bi bi-patch-check-fill"></i>
-                                    <span className="fw-medium">Verified Peer</span>
-                                </div>
+                                {user.badges && user.badges.length > 0 ? (
+                                    user.badges.map((badge, index) => (
+                                        <div key={index} className="badge-card px-3 py-2 rounded-pill d-flex align-items-center gap-2" style={{ 
+                                            border: badge === 'Verified Peer' ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)', 
+                                            background: badge === 'Verified Peer' ? 'rgba(99, 102, 241, 0.1)' : 'var(--bg-card-hover)', 
+                                            color: badge === 'Verified Peer' ? 'var(--accent-primary)' : 'var(--text-muted)' 
+                                        }}>
+                                            <i className={`bi ${badge === 'Verified Peer' ? 'bi-patch-check-fill' : 'bi-patch-check'}`}></i>
+                                            <span className="fw-medium">{badge}</span>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="text-muted small">No endorsements yet. Complete 5 sessions with high ratings to get verified!</div>
+                                )}
                             </div>
                             
                             <h3 className="h5 mb-3" style={{ color: 'var(--text-main)' }}>Recent Sessions</h3>

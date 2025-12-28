@@ -1,11 +1,12 @@
 import React from 'react';
+import GlassCard from './GlassCard';
 import './Sessions.css';
 
 const Sessions = ({ sessions }) => {
     const sessionList = sessions || [];
 
     return (
-        <div className="glass-card session-dashboard-container">
+        <GlassCard className="session-dashboard-container p-4">
             <h2 className="section-title">Upcoming Sessions</h2>
             <div className="session-list">
                 {sessionList.map(session => (
@@ -22,7 +23,7 @@ const Sessions = ({ sessions }) => {
                 ))}
                 {sessionList.length === 0 && <p className="no-sessions">No upcoming sessions.</p>}
             </div>
-        </div>
+        </GlassCard>
     );
 };
 

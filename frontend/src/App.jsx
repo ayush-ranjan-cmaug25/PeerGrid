@@ -14,14 +14,16 @@ import Profile from './pages/Profile';
 import FindPeer from './pages/FindPeer';
 import AnimatedBackground from './components/AnimatedBackground';
 import Feedback from './pages/Feedback';
+import PageTitleUpdater from './components/PageTitleUpdater';
 import './App.css';
 
 function App() {
-  const [theme, setTheme] = useState('light');
-  const [userRole, setUserRole] = useState('guest');
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+  const [userRole, setUserRole] = useState(localStorage.getItem('userRole') || 'guest');
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
   }, [theme]);
 
   useEffect(() => {
@@ -36,8 +38,10 @@ function App() {
   }, []);
 
   const toggleTheme = async (e) => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    
     if (!document.startViewTransition) {
-      setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+      setTheme(newTheme);
       return;
     }
 
@@ -50,7 +54,7 @@ function App() {
     );
 
     const transition = document.startViewTransition(() => {
-      setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+      setTheme(newTheme);
     });
 
     await transition.ready;
@@ -72,23 +76,27 @@ function App() {
 
   const handleLogin = (role) => {
     setUserRole(role);
+    localStorage.setItem('userRole', role);
   };
 
   const handleLogout = () => {
     setUserRole('guest');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('token');
   };
 
   return (
     <BrowserRouter>
+      <PageTitleUpdater />
       <div className="app-container">
         <AnimatedBackground theme={theme} />
         
         <Routes>
           <Route path="/landing" element={<Home theme={theme} toggleTheme={toggleTheme} />} />
-          <Route path="/login" element={<Login onLogin={handleLogin} />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login onLogin={handleLogin} theme={theme} toggleTheme={toggleTheme} />} />
+          <Route path="/register" element={<Register theme={theme} toggleTheme={toggleTheme} />} />
           
-          <Route path="/" element={userRole === 'guest' ? <Home theme={theme} toggleTheme={toggleTheme} /> : <Navigate to={userRole === 'admin' ? "/admin-dashboard" : "/dashboard"} replace />} />
+          <Route path="/" element={<Home theme={theme} toggleTheme={toggleTheme} userRole={userRole} />} />
           
           <Route element={<Layout theme={theme} toggleTheme={toggleTheme} userRole={userRole} onLogout={handleLogout} />}>
             <Route path="dashboard" element={<Dashboard />} />

@@ -1,37 +1,44 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import DoubtBoardWidget from '../components/DoubtBoardWidget';
 import ScrollReveal from '../components/ScrollReveal';
+import CreateDoubtModal from '../components/CreateDoubtModal';
+import { API_BASE_URL } from '../config';
 
 const DoubtBoard = () => {
     const [doubts, setDoubts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showModal, setShowModal] = useState(false);
+
+    const fetchDoubts = useCallback(async () => {
+        const token = localStorage.getItem('token');
+        try {
+            const response = await fetch(`${API_BASE_URL}/sessions/doubts`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setDoubts(data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch doubts", error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
-        const fetchDoubts = async () => {
-            const token = localStorage.getItem('token');
-            try {
-                const response = await fetch('http://localhost:5000/api/sessions/doubts', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    setDoubts(data);
-                }
-            } catch (error) {
-                console.error("Failed to fetch doubts", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchDoubts();
-    }, []);
+    }, [fetchDoubts]);
 
     return (
         <div className="container-fluid px-4 px-md-5 py-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2 className="display-5 fw-bold mb-0" style={{ color: 'var(--text-main)', letterSpacing: '-0.03em' }}>Doubt Board</h2>
-                <button className="btn btn-primary px-4 py-2 rounded-pill fw-bold" style={{ background: 'var(--text-main)', color: 'var(--bg-primary)', border: 'none' }}>
+                <button 
+                    className="btn btn-primary px-4 py-2 rounded-pill fw-bold" 
+                    style={{ background: 'var(--text-main)', color: 'var(--bg-primary)', border: 'none' }}
+                    onClick={() => setShowModal(true)}
+                >
                     Post a Doubt
                 </button>
             </div>
@@ -42,7 +49,7 @@ const DoubtBoard = () => {
                         {loading ? (
                             <div className="text-center text-muted">Loading doubts...</div>
                         ) : (
-                            <DoubtBoardWidget doubts={doubts} />
+                            <DoubtBoardWidget doubts={doubts} onRefresh={fetchDoubts} />
                         )}
                     </ScrollReveal>
                 </div>
@@ -66,6 +73,13 @@ const DoubtBoard = () => {
                     </div>
                 </div>
             </div>
+
+            {showModal && (
+                <CreateDoubtModal 
+                    onClose={() => setShowModal(false)} 
+                    onSuccess={fetchDoubts} 
+                />
+            )}
         </div>
     );
 };

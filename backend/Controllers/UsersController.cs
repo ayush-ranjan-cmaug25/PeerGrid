@@ -32,7 +32,7 @@ namespace PeerGrid.Backend.Controllers
                 var idClaim = User.FindFirst(ClaimTypes.NameIdentifier);
                 if (idClaim == null) return Unauthorized();
                 
-                var userId = int.Parse(idClaim.Value!);
+                var userId = int.Parse(idClaim?.Value ?? "0");
                 var user = await _context.Users.FindAsync(userId);
 
                 if (user == null)
@@ -43,11 +43,10 @@ namespace PeerGrid.Backend.Controllers
                 // Calculate Stats
                 var totalSessions = await _context.Sessions.CountAsync(s => (s.TutorId == userId || s.LearnerId == userId) && s.Status == "Completed");
                 
-                // Calculate hours taught (simplified: assuming 1 hour per session for now if EndTime is null, or use DateDiff)
-                // Using client-side evaluation for simplicity in this prototype if needed, but let's try server-side
+                // Calculate hours taught
                 var hoursTaught = await _context.Sessions
                     .Where(s => s.TutorId == userId && s.Status == "Completed")
-                    .Select(s => (s.EndTime.HasValue ? EF.Functions.DateDiffMinute(s.StartTime, s.EndTime.Value) : 60) / 60.0)
+                    .Select(s => EF.Functions.DateDiffMinute(s.StartTime, s.EndTime) / 60.0)
                     .SumAsync();
 
                 var averageRating = await _context.Transactions
@@ -70,6 +69,25 @@ namespace PeerGrid.Backend.Controllers
                     })
                     .ToListAsync();
 
+                // Calculate Badges
+                var badges = new List<string>();
+                if (totalSessions >= 5 && averageRating >= 4.0)
+                {
+                    badges.Add("Verified Peer");
+                }
+
+                var topSkills = await _context.Sessions
+                    .Where(s => s.TutorId == userId && s.Status == "Completed")
+                    .GroupBy(s => s.Topic)
+                    .Select(g => new { Topic = g.Key, Count = g.Count() })
+                    .Where(x => x.Count >= 3)
+                    .ToListAsync();
+
+                foreach (var skill in topSkills)
+                {
+                    badges.Add($"{skill.Topic} Specialist");
+                }
+
                 return new UserDto
                 {
                     Id = user.Id,
@@ -84,7 +102,8 @@ namespace PeerGrid.Backend.Controllers
                     TotalSessions = totalSessions,
                     HoursTaught = Math.Round(hoursTaught, 1),
                     AverageRating = Math.Round(averageRating, 1),
-                    RecentSessions = recentSessions
+                    RecentSessions = recentSessions,
+                    Badges = badges
                 };
             }
             catch (Exception ex)
@@ -100,7 +119,7 @@ namespace PeerGrid.Backend.Controllers
         {
             var idClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (idClaim == null) return Unauthorized();
-            var userId = int.Parse(idClaim.Value!);
+            var userId = int.Parse(idClaim?.Value ?? "0");
 
             var user = await _context.Users.FindAsync(userId);
 
@@ -169,7 +188,7 @@ namespace PeerGrid.Backend.Controllers
         {
             var idClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (idClaim == null) return Unauthorized();
-            var userId = int.Parse(idClaim.Value!);
+            var userId = int.Parse(idClaim?.Value ?? "0");
 
             var user = await _context.Users.FindAsync(userId);
 

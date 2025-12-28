@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import GlassCard from './GlassCard';
 import './Profile.css';
 
 const Profile = ({ user }) => {
@@ -23,7 +24,7 @@ const Profile = ({ user }) => {
     };
 
     return (
-        <div className="glass-card profile-container">
+        <GlassCard className="profile-container p-4">
             <div className="profile-header">
                 <div className="profile-avatar">
                     {user.name ? user.name.substring(0, 2).toUpperCase() : 'PG'}
@@ -56,7 +57,7 @@ const Profile = ({ user }) => {
                     ))}
                 </div>
             </div>
-        </div>
+        </GlassCard>
     );
 };
 
