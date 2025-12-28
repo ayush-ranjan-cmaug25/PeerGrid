@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as signalR from '@microsoft/signalr';
+import { API_BASE_URL, HUB_URL } from '../config';
 
 const ChatWidget = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -24,13 +25,13 @@ const ChatWidget = () => {
         scrollToBottom();
     }, [messages, activeChat, isOpen]);
 
-    // Initialize SignalR
+
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) return;
 
         const newConnection = new signalR.HubConnectionBuilder()
-            .withUrl("http://localhost:5000/chatHub", {
+            .withUrl(HUB_URL, {
                 accessTokenFactory: () => token
             })
             .withAutomaticReconnect()
@@ -52,9 +53,9 @@ const ChatWidget = () => {
                 .catch(e => console.error('Connection failed: ', e));
 
             connection.on('ReceiveMessage', (newMsg) => {
-                fetchConversations(); // Update list
+                fetchConversations();
                 
-                // If chat is open with this user, append message
+
                 if (activeChatIdRef.current === newMsg.senderId) {
                     setMessages(prev => [...prev, newMsg]);
                 }
@@ -67,7 +68,7 @@ const ChatWidget = () => {
         if (!token) return;
 
         try {
-            const res = await fetch('http://localhost:5000/api/chat/conversations', {
+            const res = await fetch(`${API_BASE_URL}/chat/conversations`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.ok) {
@@ -90,7 +91,7 @@ const ChatWidget = () => {
             const fetchMessages = async () => {
                 const token = localStorage.getItem('token');
                 try {
-                    const res = await fetch(`http://localhost:5000/api/chat/messages/${activeChat.id}`, {
+                    const res = await fetch(`${API_BASE_URL}/chat/messages/${activeChat.id}`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (res.ok) {
@@ -111,7 +112,7 @@ const ChatWidget = () => {
 
         const token = localStorage.getItem('token');
         try {
-            const res = await fetch('http://localhost:5000/api/chat/send', {
+            const res = await fetch(`${API_BASE_URL}/chat/send`, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -132,7 +133,7 @@ const ChatWidget = () => {
     };
 
     return (
-        <div className="position-fixed bottom-0 end-0 p-4 z-3" style={{ zIndex: 1050 }}>
+        <div className="position-fixed bottom-0 end-0 p-4 z-3 d-flex flex-column align-items-end gap-3" style={{ zIndex: 1050 }}>
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
@@ -140,7 +141,7 @@ const ChatWidget = () => {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.95 }}
                         transition={{ duration: 0.2 }}
-                        className="mb-3 rounded-4 overflow-hidden shadow-lg d-flex flex-column"
+                        className="rounded-4 overflow-hidden shadow-lg d-flex flex-column"
                         style={{
                             width: '350px',
                             height: '500px',
@@ -150,7 +151,7 @@ const ChatWidget = () => {
                             WebkitBackdropFilter: 'blur(16px)',
                         }}
                     >
-                        {/* Header */}
+
                         <div className="p-3 border-bottom border-secondary-subtle d-flex align-items-center justify-content-between" 
                              style={{ background: 'rgba(var(--bg-primary-rgb), 0.5)' }}>
                             {activeChat ? (
@@ -178,7 +179,7 @@ const ChatWidget = () => {
                             </div>
                         </div>
 
-                        {/* Body */}
+
                         <div className="flex-grow-1 overflow-y-auto custom-scrollbar bg-opacity-10" style={{ background: 'rgba(0,0,0,0.02)' }}>
                             {activeChat ? (
                                 <div className="p-3 d-flex flex-column gap-3">
@@ -235,7 +236,7 @@ const ChatWidget = () => {
                             )}
                         </div>
 
-                        {/* Footer */}
+
                         {activeChat && (
                             <div className="p-3 border-top border-secondary-subtle" style={{ background: 'rgba(var(--bg-primary-rgb), 0.5)' }}>
                                 <form onSubmit={handleSendMessage} className="d-flex gap-2">
@@ -271,7 +272,16 @@ const ChatWidget = () => {
                     fontSize: '1.5rem'
                 }}
             >
-                <i className={`bi ${isOpen ? 'bi-x-lg' : 'bi-chat-dots-fill'}`}></i>
+                <AnimatePresence mode="wait" initial={false}>
+                    <motion.i
+                        key={isOpen ? 'close' : 'open'}
+                        initial={{ opacity: 0, scale: 0.5, rotate: -90 }}
+                        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                        exit={{ opacity: 0, scale: 0.5, rotate: 90 }}
+                        transition={{ duration: 0.2 }}
+                        className={`bi ${isOpen ? 'bi-x-lg' : 'bi-chat-dots-fill'}`}
+                    />
+                </AnimatePresence>
                 {!isOpen && <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white"></span>}
             </motion.button>
         </div>

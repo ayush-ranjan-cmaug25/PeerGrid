@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ScrollReveal from '../components/ScrollReveal';
+import GlassCard from '../components/GlassCard';
+import { API_BASE_URL } from '../config';
 
 const FindPeer = () => {
     const [peers, setPeers] = useState([]);
@@ -10,7 +12,7 @@ const FindPeer = () => {
         const fetchPeers = async () => {
             const token = localStorage.getItem('token');
             try {
-                const response = await fetch('http://localhost:5000/api/users', {
+                const response = await fetch(`${API_BASE_URL}/users`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (response.ok) {
@@ -37,7 +39,7 @@ const FindPeer = () => {
             <ScrollReveal width="100%">
                 <h2 className="display-5 fw-bold mb-4" style={{ color: 'var(--text-main)', letterSpacing: '-0.03em' }}>Find a Peer</h2>
                 
-                <div className="glass-card p-4 mb-5">
+                <GlassCard className="p-4 mb-5">
                     <div className="position-relative">
                         <i className="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
                         <input 
@@ -49,7 +51,7 @@ const FindPeer = () => {
                             style={{ background: 'var(--bg-primary)', color: 'var(--text-main)' }}
                         />
                     </div>
-                </div>
+                </GlassCard>
 
                 {loading ? (
                     <div className="text-center text-muted">Loading peers...</div>
@@ -57,7 +59,7 @@ const FindPeer = () => {
                     <div className="row g-4">
                         {filteredPeers.map(peer => (
                             <div key={peer.id} className="col-xl-3 col-lg-4 col-md-6">
-                                <div className="glass-card h-100 p-4 d-flex flex-column align-items-center text-center transition-hover">
+                                <GlassCard className="h-100 p-4 d-flex flex-column align-items-center text-center transition-hover">
                                     <div className="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white mb-3"
                                         style={{ width: '80px', height: '80px', background: 'var(--accent-primary)', fontSize: '1.5rem' }}>
                                         {peer.name.substring(0, 2).toUpperCase()}
@@ -84,7 +86,7 @@ const FindPeer = () => {
                                             View Profile
                                         </button>
                                     </div>
-                                </div>
+                                </GlassCard>
                             </div>
                         ))}
                         {filteredPeers.length === 0 && (

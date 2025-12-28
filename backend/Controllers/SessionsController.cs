@@ -27,7 +27,7 @@ namespace PeerGrid.Backend.Controllers
         [HttpGet("my")]
         public async Task<IActionResult> GetMySessions()
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
             var sessions = await _context.Sessions
                 .Include(s => s.Tutor)
                 .Include(s => s.Learner)
@@ -67,6 +67,36 @@ namespace PeerGrid.Backend.Controllers
                 .ToListAsync();
 
             return Ok(doubts);
+        }
+
+        [HttpPost("doubts")]
+        public async Task<IActionResult> CreateDoubt([FromBody] CreateDoubtRequest request)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                var session = await _sessionService.CreateDoubtAsync(userId, request.Title, request.Description, request.Topic, request.Bounty);
+                return Ok(new { message = "Doubt posted successfully", doubtId = session.Id });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("accept/{id}")]
+        public async Task<IActionResult> AcceptDoubt(int id)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                await _sessionService.AcceptDoubtAsync(id, userId);
+                return Ok(new { message = "Doubt accepted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPost("book")]
@@ -130,5 +160,13 @@ namespace PeerGrid.Backend.Controllers
     {
         public int TransactionId { get; set; }
         public double Rating { get; set; }
+    }
+
+    public class CreateDoubtRequest
+    {
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public string Topic { get; set; }
+        public decimal Bounty { get; set; }
     }
 }

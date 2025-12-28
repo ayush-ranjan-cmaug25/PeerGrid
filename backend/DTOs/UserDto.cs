@@ -17,6 +17,7 @@ namespace PeerGrid.Backend.DTOs
         public int TotalSessions { get; set; }
         public double HoursTaught { get; set; }
         public List<SessionDto> RecentSessions { get; set; }
+        public List<string> Badges { get; set; }
     }
 
     public class SessionDto
