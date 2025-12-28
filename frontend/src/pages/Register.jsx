@@ -13,10 +13,38 @@ const Register = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Registering", formData);
-        navigate('/dashboard');
+        
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    name: formData.name,
+                    email: formData.email,
+                    passwordHash: formData.password, // Backend expects PasswordHash, but usually we send 'password' and backend hashes it. 
+                                                     // Looking at AuthController.cs: user.PasswordHash = ...GetBytes(user.PasswordHash). 
+                                                     // So it expects the password in the PasswordHash field for the model binding to work directly 
+                                                     // OR we should update the backend DTO. 
+                                                     // Let's check AuthController again. It takes `User` model. 
+                                                     // User model has `PasswordHash`. 
+                                                     // So we send `passwordHash`: 'plainPassword'.
+                    role: 'User'
+                })
+            });
+
+            if (response.ok) {
+                alert('Registration successful! Please login.');
+                navigate('/login');
+            } else {
+                const data = await response.json();
+                alert(data.message || 'Registration failed');
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
+            alert('Registration failed (Backend unreachable)');
+        }
     };
 
     return (

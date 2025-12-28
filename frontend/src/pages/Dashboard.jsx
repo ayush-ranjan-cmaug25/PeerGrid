@@ -1,10 +1,38 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ScrollReveal from '../components/ScrollReveal';
-import Portfolio from '../components/Portfolio';
+import Profile from '../components/Profile';
 import Sessions from '../components/Sessions';
 import DoubtBoardWidget from '../components/DoubtBoardWidget';
 
 const Dashboard = () => {
+    const [dashboardData, setDashboardData] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch('http://localhost:5000/api/users/dashboard', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setDashboardData(data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch dashboard data", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+    }, []);
+
+    if (loading) {
+        return <div className="d-flex justify-content-center align-items-center vh-100 text-white">Loading...</div>;
+    }
+
     return (
         <>
             <header className="py-5">
@@ -12,7 +40,7 @@ const Dashboard = () => {
                     <ScrollReveal width="100%">
                         <div className="mb-4">
                             <h1 className="display-5 fw-bold" style={{ color: 'var(--text-main)', letterSpacing: '-0.03em' }}>
-                                Welcome Back
+                                Welcome Back, {dashboardData?.user?.name}
                             </h1>
                             <p className="fs-5" style={{ color: 'var(--text-muted)' }}>
                                 Your learning network is active.
@@ -26,17 +54,17 @@ const Dashboard = () => {
                 <div className="row g-4">
                     <div className="col-xl-4 col-lg-6 col-md-12">
                         <ScrollReveal width="100%">
-                            <Portfolio />
+                            <Profile user={dashboardData?.user} />
                         </ScrollReveal>
                     </div>
                     <div className="col-xl-4 col-lg-6 col-md-12">
                         <ScrollReveal width="100%">
-                            <Sessions />
+                            <Sessions sessions={dashboardData?.upcomingSessions} />
                         </ScrollReveal>
                     </div>
                     <div className="col-xl-4 col-lg-12 col-md-12">
                         <ScrollReveal width="100%">
-                            <DoubtBoardWidget />
+                            <DoubtBoardWidget doubts={dashboardData?.activeDoubts} />
                         </ScrollReveal>
                     </div>
                 </div>
