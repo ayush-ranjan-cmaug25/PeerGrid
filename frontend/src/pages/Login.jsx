@@ -7,16 +7,38 @@ const Login = ({ onLogin }) => {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Logging in with", email, password);
         
-        if (email === 'admin@peergrid.com' && password === 'admin123') {
-            onLogin('admin');
-            navigate('/admin-dashboard');
-        } else {
-            onLogin('user');
-            navigate('/dashboard');
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                onLogin(data.role);
+                navigate(data.role === 'admin' ? '/admin-dashboard' : '/dashboard');
+            } else {
+                alert(data.message || 'Login failed');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            // Fallback for demo if backend is not running
+            if (email === 'admin@peergrid.com' && password === 'admin123') {
+                onLogin('admin');
+                navigate('/admin-dashboard');
+            } else if (email === 'user@peergrid.com' && password === 'user123') {
+                onLogin('user');
+                navigate('/dashboard');
+            } else {
+                alert('Login failed (Backend unreachable)');
+            }
         }
     };
 

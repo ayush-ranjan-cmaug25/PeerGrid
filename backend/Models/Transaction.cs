@@ -15,5 +15,8 @@ namespace PeerGrid.Backend.Models
         public DateTime Timestamp { get; set; }
 
         public double? Rating { get; set; } // 1-5 stars
+
+        public virtual User Learner { get; set; }
+        public virtual User Tutor { get; set; }
     }
 }

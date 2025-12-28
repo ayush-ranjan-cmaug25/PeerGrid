@@ -48,7 +48,6 @@ namespace PeerGrid.Backend.Controllers
             if (existingUser == null) return NotFound();
 
             existingUser.Role = user.Role;
-            existingUser.IsVerifiedTutor = user.IsVerifiedTutor;
             // Update other fields as needed
 
             await _context.SaveChangesAsync();

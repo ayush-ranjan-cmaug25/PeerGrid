@@ -72,26 +72,6 @@ namespace PeerGrid.Backend.Services
 
             transactionRecord.Rating = rating;
             await _context.SaveChangesAsync();
-
-            await CheckAndVerifyTutorAsync(transactionRecord.TutorId, transactionRecord.Skill);
-        }
-
-        private async Task CheckAndVerifyTutorAsync(int tutorId, string skill)
-        {
-            // Check if user has >5 ratings above 4.5 stars for this skill
-            var count = await _context.Transactions
-                .Where(t => t.TutorId == tutorId && t.Skill == skill && t.Rating > 4.5)
-                .CountAsync();
-
-            if (count > 5)
-            {
-                var tutor = await _context.Users.FindAsync(tutorId);
-                if (tutor != null)
-                {
-                    tutor.IsVerifiedTutor = true;
-                    await _context.SaveChangesAsync();
-                }
-            }
         }
     }
 }

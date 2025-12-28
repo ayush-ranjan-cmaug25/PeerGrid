@@ -1,20 +1,15 @@
 import React, { useState } from 'react';
 import './DoubtBoardWidget.css';
 
-const DoubtBoardWidget = () => {
-    const [bounties, setBounties] = useState([
-        { id: 1, title: 'Calculus Derivatives', points: 50, description: 'Need help with chain rule.', tags: ['Math', 'Calculus'] },
-        { id: 2, title: 'React Hooks', points: 30, description: 'Explain useEffect dependency array.', tags: ['React', 'Frontend'] },
-        { id: 3, title: 'MongoDB Aggregation', points: 40, description: 'How to use $lookup?', tags: ['Database', 'NoSQL'] },
-    ]);
-
+const DoubtBoardWidget = ({ doubts }) => {
     const [selectedBounty, setSelectedBounty] = useState(null);
+    const bountyList = doubts || [];
 
     return (
         <div className="glass-card doubt-board-container">
             <h2 className="section-title">Doubt Board</h2>
             <div className="bounty-grid">
-                {bounties.map(bounty => (
+                {bountyList.map(bounty => (
                     <div key={bounty.id} className="bounty-card" onClick={() => setSelectedBounty(bounty)}>
                         <div className="bounty-header">
                             <h3 className="bounty-title">{bounty.title}</h3>
@@ -22,10 +17,11 @@ const DoubtBoardWidget = () => {
                         </div>
                         <p className="bounty-desc">{bounty.description}</p>
                         <div className="bounty-tags">
-                            {bounty.tags.map(tag => <span key={tag} className="bounty-tag">{tag}</span>)}
+                            {bounty.tags && bounty.tags.map(tag => <span key={tag} className="bounty-tag">{tag}</span>)}
                         </div>
                     </div>
                 ))}
+                {bountyList.length === 0 && <p className="text-muted text-center w-100">No active doubts.</p>}
             </div>
 
             {selectedBounty && (

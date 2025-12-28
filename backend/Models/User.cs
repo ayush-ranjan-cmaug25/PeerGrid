@@ -19,7 +19,6 @@ namespace PeerGrid.Backend.Models
         public decimal GridPoints { get; set; } // Balance
         public decimal LockedPoints { get; set; } // Escrow
         
-        public bool IsVerifiedTutor { get; set; }
         public bool IsAvailable { get; set; } = true;
     }
 }

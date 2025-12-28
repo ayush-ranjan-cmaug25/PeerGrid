@@ -15,6 +15,7 @@ namespace PeerGrid.Backend.Data
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<Session> Sessions { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
+        public DbSet<Message> Messages { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -52,6 +53,30 @@ namespace PeerGrid.Backend.Data
                 .HasOne(s => s.Learner)
                 .WithMany()
                 .HasForeignKey(s => s.LearnerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Message>()
+                .HasOne(m => m.Sender)
+                .WithMany()
+                .HasForeignKey(m => m.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Message>()
+                .HasOne(m => m.Receiver)
+                .WithMany()
+                .HasForeignKey(m => m.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Transaction>()
+                .HasOne(t => t.Learner)
+                .WithMany()
+                .HasForeignKey(t => t.LearnerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Transaction>()
+                .HasOne(t => t.Tutor)
+                .WithMany()
+                .HasForeignKey(t => t.TutorId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

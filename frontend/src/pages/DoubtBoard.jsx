@@ -1,13 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import DoubtBoardWidget from '../components/DoubtBoardWidget';
 import ScrollReveal from '../components/ScrollReveal';
 
 const DoubtBoard = () => {
+    const [doubts, setDoubts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchDoubts = async () => {
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch('http://localhost:5000/api/sessions/doubts', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setDoubts(data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch doubts", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDoubts();
+    }, []);
+
     return (
-        <div className="container-fluid px-5 py-5">
+        <div className="container-fluid px-4 px-md-5 py-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
-                <h2 className="section-title mb-0">Doubt Board</h2>
-                <button className="btn btn-primary" style={{ background: 'var(--text-main)', color: 'var(--bg-primary)', border: 'none' }}>
+                <h2 className="display-5 fw-bold mb-0" style={{ color: 'var(--text-main)', letterSpacing: '-0.03em' }}>Doubt Board</h2>
+                <button className="btn btn-primary px-4 py-2 rounded-pill fw-bold" style={{ background: 'var(--text-main)', color: 'var(--bg-primary)', border: 'none' }}>
                     Post a Doubt
                 </button>
             </div>
@@ -15,21 +39,25 @@ const DoubtBoard = () => {
             <div className="row g-4">
                 <div className="col-lg-8">
                     <ScrollReveal width="100%">
-                        <DoubtBoardWidget />
+                        {loading ? (
+                            <div className="text-center text-muted">Loading doubts...</div>
+                        ) : (
+                            <DoubtBoardWidget doubts={doubts} />
+                        )}
                     </ScrollReveal>
                 </div>
                 <div className="col-lg-4">
                     <div className="glass-card p-4">
                         <h4 className="mb-3" style={{ color: 'var(--text-main)' }}>Top Solvers</h4>
                         <div className="d-flex align-items-center gap-3 mb-3">
-                            <div className="user-avatar" style={{ width: '40px', height: '40px', fontSize: '1.2rem' }}>🏆</div>
+                            <div className="rounded-circle d-flex align-items-center justify-content-center bg-warning bg-opacity-25" style={{ width: '40px', height: '40px', fontSize: '1.2rem' }}>🏆</div>
                             <div>
                                 <div style={{ color: 'var(--text-main)', fontWeight: '600' }}>Alex Chen</div>
                                 <div className="small text-muted">1500 GP Earned</div>
                             </div>
                         </div>
                         <div className="d-flex align-items-center gap-3 mb-3">
-                            <div className="user-avatar" style={{ width: '40px', height: '40px', fontSize: '1.2rem' }}>🥈</div>
+                            <div className="rounded-circle d-flex align-items-center justify-content-center bg-secondary bg-opacity-25" style={{ width: '40px', height: '40px', fontSize: '1.2rem' }}>🥈</div>
                             <div>
                                 <div style={{ color: 'var(--text-main)', fontWeight: '600' }}>Sarah Jones</div>
                                 <div className="small text-muted">1200 GP Earned</div>

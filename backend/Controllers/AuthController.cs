@@ -63,7 +63,8 @@ namespace PeerGrid.Backend.Controllers
 
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Role, user.Role)
@@ -73,7 +74,7 @@ namespace PeerGrid.Backend.Controllers
                 issuer: _configuration["Jwt:Issuer"] ?? "PeerGrid",
                 audience: _configuration["Jwt:Audience"] ?? "PeerGridUsers",
                 claims: claims,
-                expires: DateTime.Now.AddDays(1),
+                expires: DateTime.Now.AddMinutes(30),
                 signingCredentials: creds
             );
 

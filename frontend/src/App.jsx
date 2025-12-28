@@ -8,15 +8,11 @@ import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import LandingPage from './pages/LandingPage';
+import Home from './pages/Home';
 import DoubtBoard from './pages/DoubtBoard';
 import Profile from './pages/Profile';
-import Wallet from './pages/Wallet';
 import FindPeer from './pages/FindPeer';
-import MySessions from './pages/MySessions';
-import Chat from './pages/Chat';
 import AnimatedBackground from './components/AnimatedBackground';
-import ContactUs from './pages/ContactUs';
 import Feedback from './pages/Feedback';
 import './App.css';
 
@@ -88,22 +84,21 @@ function App() {
         <AnimatedBackground theme={theme} />
         
         <Routes>
-          <Route path="/landing" element={<LandingPage theme={theme} toggleTheme={toggleTheme} />} />
+          <Route path="/landing" element={<Home theme={theme} toggleTheme={toggleTheme} />} />
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
           <Route path="/register" element={<Register />} />
           
-          <Route path="/" element={userRole === 'guest' ? <LandingPage theme={theme} toggleTheme={toggleTheme} /> : <Navigate to={userRole === 'admin' ? "/admin-dashboard" : "/dashboard"} replace />} />
+          <Route path="/" element={userRole === 'guest' ? <Home theme={theme} toggleTheme={toggleTheme} /> : <Navigate to={userRole === 'admin' ? "/admin-dashboard" : "/dashboard"} replace />} />
           
           <Route element={<Layout theme={theme} toggleTheme={toggleTheme} userRole={userRole} onLogout={handleLogout} />}>
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="admin-dashboard" element={<AdminDashboard />} />
             <Route path="find-peer" element={<FindPeer />} />
             <Route path="doubt-board" element={<DoubtBoard />} />
-            <Route path="my-sessions" element={<MySessions />} />
-            <Route path="chat" element={<Chat />} />
-            <Route path="grid-points" element={<Wallet />} />
+            <Route path="find-peer" element={<FindPeer />} />
+            <Route path="doubt-board" element={<DoubtBoard />} />
+
             <Route path="user-profile" element={<Profile />} />
-            <Route path="contact-us" element={<ContactUs />} />
             <Route path="feedback" element={<Feedback />} />
           </Route>
         </Routes>

@@ -2,18 +2,71 @@ using Microsoft.AspNetCore.Mvc;
 using PeerGrid.Backend.Services;
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using PeerGrid.Backend.Data;
+using System.Linq;
+using System.Security.Claims;
 
 namespace PeerGrid.Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class SessionsController : ControllerBase
     {
         private readonly SessionService _sessionService;
+        private readonly ApplicationDbContext _context;
 
-        public SessionsController(SessionService sessionService)
+        public SessionsController(SessionService sessionService, ApplicationDbContext context)
         {
             _sessionService = sessionService;
+            _context = context;
+        }
+
+        [HttpGet("my")]
+        public async Task<IActionResult> GetMySessions()
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var sessions = await _context.Sessions
+                .Include(s => s.Tutor)
+                .Include(s => s.Learner)
+                .Where(s => s.TutorId == userId || s.LearnerId == userId)
+                .OrderByDescending(s => s.StartTime)
+                .Select(s => new {
+                    Id = s.Id,
+                    Topic = s.Topic,
+                    Title = s.Title,
+                    Description = s.Description,
+                    OtherParty = s.TutorId == userId ? s.Learner.Name : (s.Tutor != null ? s.Tutor.Name : "Open"),
+                    Time = s.StartTime,
+                    Status = s.Status,
+                    Cost = s.Cost
+                })
+                .ToListAsync();
+
+            return Ok(sessions);
+        }
+
+        [HttpGet("doubts")]
+        public async Task<IActionResult> GetDoubts()
+        {
+            var doubts = await _context.Sessions
+                .Include(s => s.Learner)
+                .Where(s => s.Status == "Open")
+                .OrderByDescending(s => s.Id)
+                .Select(s => new {
+                    Id = s.Id,
+                    Title = s.Title,
+                    Description = s.Description,
+                    Topic = s.Topic,
+                    Points = s.Cost,
+                    Learner = s.Learner.Name,
+                    Tags = new[] { s.Topic }
+                })
+                .ToListAsync();
+
+            return Ok(doubts);
         }
 
         [HttpPost("book")]
