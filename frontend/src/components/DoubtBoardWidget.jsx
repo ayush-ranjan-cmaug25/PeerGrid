@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import GlassCard from './GlassCard';
 import { API_BASE_URL } from '../config';
 import './DoubtBoardWidget.css';
@@ -25,16 +26,16 @@ const DoubtBoardWidget = ({ doubts, onRefresh }) => {
             });
 
             if (response.ok) {
-                alert('Challenge accepted! You can now start the session from your dashboard.');
+                toast.success('Challenge accepted! You can now start the session from your dashboard.');
                 setSelectedBounty(null);
                 if (onRefresh) onRefresh();
             } else {
                 const data = await response.json();
-                alert(data.message || 'Failed to accept challenge');
+                toast.error(data.message || 'Failed to accept challenge');
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Failed to connect to server');
+            toast.error('Failed to connect to server');
         } finally {
             setLoading(false);
         }

@@ -31,7 +31,7 @@ const PageTitleUpdater = () => {
             case '/doubt-board':
                 title = 'PeerGrid - Doubt Board';
                 break;
-            case '/user-profile':
+            case '/profile':
                 title = 'PeerGrid - Profile';
                 break;
             case '/feedback':

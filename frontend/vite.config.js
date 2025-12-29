@@ -10,6 +10,9 @@ export default defineConfig({
     strictPort: true,
     watch: {
       usePolling: true
+    },
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups'
     }
   }
 })

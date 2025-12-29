@@ -12,6 +12,7 @@ namespace PeerGrid.Backend.Models
         public int TutorId { get; set; }
         public string Skill { get; set; } = string.Empty;
         public decimal Points { get; set; }
+        public string Type { get; set; } = "Transfer"; // Earned, Spent, Transfer
         public DateTime Timestamp { get; set; }
 
         public double? Rating { get; set; } // 1-5 stars

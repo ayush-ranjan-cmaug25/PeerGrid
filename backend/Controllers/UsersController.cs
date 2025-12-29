@@ -94,6 +94,8 @@ namespace PeerGrid.Backend.Controllers
                     Name = user.Name,
                     Email = user.Email,
                     Role = user.Role,
+                    Bio = user.Bio,
+                    ProfilePictureUrl = user.ProfilePictureUrl,
                     SkillsOffered = user.SkillsOffered,
                     SkillsNeeded = user.SkillsNeeded,
                     GridPoints = user.GridPoints,
@@ -196,6 +198,9 @@ namespace PeerGrid.Backend.Controllers
 
             user.SkillsOffered = updatedUser.SkillsOffered;
             user.SkillsNeeded = updatedUser.SkillsNeeded;
+            user.Bio = updatedUser.Bio;
+            user.Name = updatedUser.Name;
+            user.ProfilePictureUrl = updatedUser.ProfilePictureUrl;
             // Add other fields as needed
 
             await _context.SaveChangesAsync();

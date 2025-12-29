@@ -6,6 +6,7 @@ using PeerGrid.Backend.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Google.Apis.Auth;
 
 namespace PeerGrid.Backend.Controllers
 {
@@ -55,6 +56,53 @@ namespace PeerGrid.Backend.Controllers
             return Ok(new { token, role = user.Role, user });
         }
 
+        [HttpPost("google-login")]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest request)
+        {
+            Console.WriteLine($"Received Google Login Request. Token length: {request.IdToken?.Length}");
+            try
+            {
+                var settings = new GoogleJsonWebSignature.ValidationSettings()
+                {
+                    Audience = new List<string>() { "308348501964-j00m5qv6n7a3905oan7oqf1305f8dn01.apps.googleusercontent.com" }
+                };
+                
+                var payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken, settings);
+                Console.WriteLine($"Token validated for email: {payload.Email}");
+                
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == payload.Email);
+                if (user == null)
+                {
+                    Console.WriteLine("User not found, creating new user.");
+                    user = new User
+                    {
+                        Email = payload.Email,
+                        Name = payload.Name,
+                        Role = "User",
+                        PasswordHash = Convert.ToBase64String(Guid.NewGuid().ToByteArray()), // Random password
+                        GridPoints = 100,
+                        IsAvailable = true,
+                        ProfilePictureUrl = payload.Picture // Use Google profile picture
+                    };
+                    _context.Users.Add(user);
+                    await _context.SaveChangesAsync();
+                }
+
+                var token = GenerateJwtToken(user);
+                return Ok(new { token, role = user.Role, user });
+            }
+            catch (InvalidJwtException ex)
+            {
+                Console.WriteLine($"InvalidJwtException: {ex.Message}");
+                return BadRequest($"Invalid Google Token: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception in GoogleLogin: {ex}");
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
+        }
+
         private string GenerateJwtToken(User user)
         {
             var jwtKey = _configuration["Jwt:Key"] ?? "REDACTED_JWT_SECRET";
@@ -86,5 +134,10 @@ namespace PeerGrid.Backend.Controllers
     {
         public string Email { get; set; }
         public string Password { get; set; }
+    }
+
+    public class GoogleLoginRequest
+    {
+        public string IdToken { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Lenis from 'lenis';
+import { Toaster } from 'react-hot-toast';
 import 'lenis/dist/lenis.css';
 
 import Layout from './components/Layout';
@@ -88,6 +89,24 @@ function App() {
   return (
     <BrowserRouter>
       <PageTitleUpdater />
+      <Toaster 
+        position="top-right" 
+        reverseOrder={false}
+        toastOptions={{
+          style: {
+            background: theme === 'dark' ? 'rgba(30, 41, 59, 0.9)' : '#fff',
+            color: theme === 'dark' ? '#fff' : '#333',
+            backdropFilter: 'blur(10px)',
+            border: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #e2e8f0',
+          },
+          success: {
+            iconTheme: {
+              primary: theme === 'dark' ? '#818cf8' : '#4f46e5',
+              secondary: theme === 'dark' ? '#fff' : '#fff',
+            },
+          },
+        }} 
+      />
       <div className="app-container">
         <AnimatedBackground theme={theme} />
         
@@ -106,7 +125,7 @@ function App() {
             <Route path="find-peer" element={<FindPeer />} />
             <Route path="doubt-board" element={<DoubtBoard />} />
 
-            <Route path="user-profile" element={<Profile />} />
+            <Route path="profile/:id?" element={<Profile />} />
             <Route path="feedback" element={<Feedback />} />
           </Route>
         </Routes>

@@ -44,7 +44,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",
         builder => builder
-            .SetIsOriginAllowed(origin => true) // Allow any origin for development (e.g. mobile testing)
+            .SetIsOriginAllowed(origin => true) // Allow any origin for development
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());

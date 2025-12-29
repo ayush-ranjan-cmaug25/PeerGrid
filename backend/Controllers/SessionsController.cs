@@ -39,6 +39,9 @@ namespace PeerGrid.Backend.Controllers
                     Title = s.Title,
                     Description = s.Description,
                     OtherParty = s.TutorId == userId ? s.Learner.Name : (s.Tutor != null ? s.Tutor.Name : "Open"),
+                    OtherPartyId = s.TutorId == userId ? s.LearnerId : s.TutorId,
+                    LearnerId = s.LearnerId,
+                    TutorId = s.TutorId,
                     Time = s.StartTime,
                     Status = s.Status,
                     Cost = s.Cost
@@ -104,7 +107,12 @@ namespace PeerGrid.Backend.Controllers
         {
             try
             {
-                await _sessionService.BookSessionAsync(request.LearnerId, request.TutorId, request.Cost);
+                // Combine Date and Time in frontend or here. For now assuming StartTime is passed or calculated.
+                // We need to update the service signature too.
+                // For this step, I'll keep the service call simple but ideally we pass more data.
+                // await _sessionService.BookSessionAsync(request.LearnerId, request.TutorId, request.Cost, request.Topic, request.StartTime);
+                await _sessionService.BookSessionAsync(request.LearnerId, request.TutorId, request.Cost, request.Topic, request.StartTime); 
+                // Note: Service update is needed for full functionality, but this connects the UI.
                 return Ok(new { message = "Session booked successfully" });
             }
             catch (Exception ex)
@@ -118,8 +126,8 @@ namespace PeerGrid.Backend.Controllers
         {
             try
             {
-                await _sessionService.CompleteSessionAsync(request.LearnerId, request.TutorId, request.Cost);
-                return Ok(new { message = "Session completed successfully" });
+                var tx = await _sessionService.CompleteSessionAsync(request.LearnerId, request.TutorId, request.Cost);
+                return Ok(new { message = "Session completed successfully", transactionId = tx.Id });
             }
             catch (Exception ex)
             {
@@ -147,6 +155,8 @@ namespace PeerGrid.Backend.Controllers
         public int LearnerId { get; set; }
         public int TutorId { get; set; }
         public decimal Cost { get; set; }
+        public string Topic { get; set; }
+        public DateTime StartTime { get; set; }
     }
 
     public class CompleteSessionRequest

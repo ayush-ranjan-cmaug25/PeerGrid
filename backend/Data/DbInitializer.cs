@@ -1,4 +1,5 @@
 using PeerGrid.Backend.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace PeerGrid.Backend.Data
     {
         public static void Initialize(ApplicationDbContext context)
         {
-            context.Database.EnsureCreated();
+            context.Database.Migrate();
 
             // Check if DB has been seeded with the new admin
             if (context.Users.Any(u => u.Email == "admin@peergrid.com"))

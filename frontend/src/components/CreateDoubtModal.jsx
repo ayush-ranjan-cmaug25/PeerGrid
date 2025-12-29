@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import GlassCard from './GlassCard';
 import { API_BASE_URL } from '../config';
 
@@ -29,13 +30,14 @@ const CreateDoubtModal = ({ onClose, onSuccess }) => {
             if (response.ok) {
                 onSuccess();
                 onClose();
+                toast.success('Doubt posted successfully!');
             } else {
                 const data = await response.json();
-                alert(data.message || 'Failed to post doubt');
+                toast.error(data.message || 'Failed to post doubt');
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Failed to connect to server');
+            toast.error('Failed to connect to server');
         } finally {
             setLoading(false);
         }

@@ -175,7 +175,7 @@ const ChatWidget = () => {
                                 <h5 className="m-0 fw-bold" style={{ color: 'var(--text-main)' }}>Chats</h5>
                             )}
                             <div className="d-flex gap-2">
-                                <button className="btn btn-sm btn-icon border-0 text-muted"><i className="bi bi-three-dots"></i></button>
+                                
                             </div>
                         </div>
 

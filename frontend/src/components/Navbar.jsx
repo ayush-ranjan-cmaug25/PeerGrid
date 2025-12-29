@@ -66,7 +66,7 @@ const Navbar = ({ theme, toggleTheme, userRole, onLogout }) => {
                                 <Link to="/admin-dashboard" onClick={closeNav} className="text-decoration-none fw-medium py-2" style={{ color: activeTab === 'admin-dashboard' ? 'var(--accent-primary)' : 'var(--text-main)', fontSize: '1rem', opacity: activeTab === 'admin-dashboard' ? 1 : 0.8 }}>
                                     Admin
                                 </Link>
-                                <Link to="/user-profile" onClick={closeNav} className="text-decoration-none fw-medium py-2" style={{ color: activeTab === 'user-profile' ? 'var(--accent-primary)' : 'var(--text-main)', fontSize: '1rem', opacity: activeTab === 'user-profile' ? 1 : 0.8 }}>
+                                <Link to="/profile" onClick={closeNav} className="text-decoration-none fw-medium py-2" style={{ color: activeTab === 'profile' ? 'var(--accent-primary)' : 'var(--text-main)', fontSize: '1rem', opacity: activeTab === 'profile' ? 1 : 0.8 }}>
                                     Profile
                                 </Link>
                             </>
@@ -84,7 +84,7 @@ const Navbar = ({ theme, toggleTheme, userRole, onLogout }) => {
                                 <Link to="/feedback" onClick={closeNav} className="text-decoration-none fw-medium py-2" style={{ color: activeTab === 'feedback' ? 'var(--accent-primary)' : 'var(--text-main)', fontSize: '1rem', opacity: activeTab === 'feedback' ? 1 : 0.8 }}>
                                     Feedback
                                 </Link>
-                                <Link to="/user-profile" onClick={closeNav} className="text-decoration-none fw-medium py-2" style={{ color: activeTab === 'user-profile' ? 'var(--accent-primary)' : 'var(--text-main)', fontSize: '1rem', opacity: activeTab === 'user-profile' ? 1 : 0.8 }}>
+                                <Link to="/profile" onClick={closeNav} className="text-decoration-none fw-medium py-2" style={{ color: activeTab === 'profile' ? 'var(--accent-primary)' : 'var(--text-main)', fontSize: '1rem', opacity: activeTab === 'profile' ? 1 : 0.8 }}>
                                     Profile
                                 </Link>
                             </>
