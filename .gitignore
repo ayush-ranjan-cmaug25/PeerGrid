@@ -1,33 +1,70 @@
+# -------------------------------------------------------------------------
+# .NET / C# / Visual Studio
+# -------------------------------------------------------------------------
+# Build results
+[Bb]in/
+[Oo]bj/
+
+# User-specific files
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+*.mdf
+*.ldf
+
+# Environment Variables (Backend)
+appsettings.Development.json
+appsettings.Production.json
+
+
+# -------------------------------------------------------------------------
+# Frontend / Node.js
+# -------------------------------------------------------------------------
 # Dependencies
 node_modules/
 .pnp
 .pnp.js
 
-# Testing
-coverage/
-
-# Production
+# Production / Build
 dist/
+dist-ssr/
 build/
 
-# Misc
-.DS_Store
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment Variables (Frontend)
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Testing
+coverage/
 
-# Editor directories and files
-.idea
-.vscode
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# -------------------------------------------------------------------------
+# OS / Misc
+# -------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
