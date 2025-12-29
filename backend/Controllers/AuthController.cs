@@ -64,7 +64,7 @@ namespace PeerGrid.Backend.Controllers
             {
                 var settings = new GoogleJsonWebSignature.ValidationSettings()
                 {
-                    Audience = new List<string>() { "308348501964-j00m5qv6n7a3905oan7oqf1305f8dn01.apps.googleusercontent.com" }
+                    Audience = new List<string>() { _configuration["Google:ClientId"] }
                 };
                 
                 var payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken, settings);
