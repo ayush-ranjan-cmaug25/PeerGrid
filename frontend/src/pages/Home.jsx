@@ -19,7 +19,7 @@ const Home = ({ theme, toggleTheme, userRole }) => {
     });
 
     return (
-        <div className="min-vh-100 d-flex flex-column position-relative" style={{ color: 'var(--text-main)', overflowX: 'hidden' }}>
+        <div className="min-vh-100 d-flex flex-column position-relative" style={{ color: 'var(--text-main)', overflowX: 'hidden', position: 'relative' }}>
             <motion.div
                 style={{
                     scaleX,

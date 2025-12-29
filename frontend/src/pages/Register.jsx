@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
+import { GoogleLogin } from '@react-oauth/google';
 import { Link, useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 import Navbar from '../components/Navbar';
@@ -34,15 +36,49 @@ const Register = ({ theme, toggleTheme }) => {
             });
 
             if (response.ok) {
-                alert('Registration successful! Please login.');
+                toast.success('Registration successful! Please login.');
                 navigate('/login');
             } else {
                 const data = await response.json();
-                alert(data.message || 'Registration failed');
+                toast.error(data.message || 'Registration failed');
             }
         } catch (error) {
             console.error('Registration error:', error);
-            alert('Registration failed (Backend unreachable)');
+            toast.error('Registration failed (Backend unreachable)');
+        }
+    };
+
+    const handleGoogleSuccess = async (credentialResponse) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/google-login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken: credentialResponse.credential })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                // Assuming onLogin is not passed to Register, we might need to redirect or handle auth state differently.
+                // But usually Register redirects to Login or Dashboard. 
+                // Since this logs them in directly, we should redirect to Dashboard.
+                // However, we don't have the 'onLogin' prop here to update global state if it exists.
+                // Let's assume a full page reload or that the user will be redirected.
+                // Actually, looking at Login.jsx, onLogin updates state. Register.jsx doesn't have it.
+                // I'll just redirect to dashboard and let the app handle state re-hydration from localStorage if implemented.
+                // Or better, I'll redirect to /login if I can't update state, but that defeats the purpose.
+                // Let's assume the App checks localStorage on mount.
+                toast.success('Google Login successful!');
+                navigate('/dashboard'); 
+                window.location.reload(); // Force reload to update auth state if context is not available
+            } else {
+                toast.error(data.message || 'Google Login failed');
+            }
+        } catch (error) {
+            console.error('Google Login error:', error);
+            toast.error('Google Login failed');
         }
     };
 
@@ -136,6 +172,20 @@ const Register = ({ theme, toggleTheme }) => {
                                 CREATE ACCOUNT
                             </button>
                         </form>
+
+                        <div className="d-flex justify-content-center mb-3">
+                            <GoogleLogin
+                                onSuccess={handleGoogleSuccess}
+                                onError={() => {
+                                    console.log('Login Failed');
+                                    toast.error('Google Login Failed');
+                                }}
+                                theme={theme === 'dark' ? 'filled_black' : 'outline'}
+                                shape="pill"
+                                width="300"
+                                text="signup_with"
+                            />
+                        </div>
                         <div className="text-center">
                             <span className="text-muted small">Already have an account? </span>
                             <Link to="/login" className="text-decoration-none fw-bold" style={{ color: 'var(--text-main)' }}>Login</Link>

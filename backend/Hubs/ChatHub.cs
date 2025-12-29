@@ -8,7 +8,7 @@ namespace PeerGrid.Backend.Hubs
     {
         public override async Task OnConnectedAsync()
         {
-            var userId = Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId != null)
             {
                 await Groups.AddToGroupAsync(Context.ConnectionId, $"User_{userId}");

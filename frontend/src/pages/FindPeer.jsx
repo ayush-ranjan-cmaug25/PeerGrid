@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ScrollReveal from '../components/ScrollReveal';
 import GlassCard from '../components/GlassCard';
 import { API_BASE_URL } from '../config';
@@ -7,6 +8,7 @@ const FindPeer = () => {
     const [peers, setPeers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchPeers = async () => {
@@ -82,7 +84,8 @@ const FindPeer = () => {
 
                                     <div className="mt-auto w-100">
                                         <button className="btn btn-primary w-100 rounded-pill py-2" 
-                                            style={{ background: 'var(--accent-primary)', border: 'none' }}>
+                                            style={{ background: 'var(--accent-primary)', border: 'none' }}
+                                            onClick={() => navigate(`/profile/${peer.id}`)}>
                                             View Profile
                                         </button>
                                     </div>

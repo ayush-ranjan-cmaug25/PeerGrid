@@ -11,10 +11,11 @@ using System;
 using System.Reflection;
 
 [assembly: Microsoft.AspNetCore.Identity.UI.UIFrameworkAttribute("Bootstrap5")]
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("c6412dfc-ee5e-4135-b891-37cc99a457ec")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("PeerGrid.Backend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63450e75e33c9d675330721b14c8b4652c3d7ee5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2645ea2a90e153ac1a51ab7e52e351755a96f7fd")]
 [assembly: System.Reflection.AssemblyProductAttribute("PeerGrid.Backend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PeerGrid.Backend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

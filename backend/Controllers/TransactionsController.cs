@@ -23,7 +23,9 @@ namespace PeerGrid.Backend.Controllers
         [HttpGet("my")]
         public async Task<ActionResult<object>> GetMyTransactions()
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
+            var userId = int.Parse(userIdStr);
 
             var transactions = await _context.Transactions
                 .Include(t => t.Learner)

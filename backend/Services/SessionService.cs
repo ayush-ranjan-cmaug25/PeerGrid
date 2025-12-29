@@ -16,7 +16,7 @@ namespace PeerGrid.Backend.Services
             _context = context;
         }
 
-        public async Task BookSessionAsync(int learnerId, int tutorId, decimal cost)
+        public async Task BookSessionAsync(int learnerId, int tutorId, decimal cost, string topic, DateTime startTime)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -30,6 +30,21 @@ namespace PeerGrid.Backend.Services
                 learner.GridPoints -= cost;
                 learner.LockedPoints += cost;
 
+                // Create Session
+                var session = new Session
+                {
+                    LearnerId = learnerId,
+                    TutorId = tutorId,
+                    Cost = cost,
+                    Topic = topic ?? "General",
+                    Title = $"Session on {topic ?? "General"}",
+                    Description = "Booked via Profile",
+                    Status = "Confirmed",
+                    StartTime = startTime,
+                    EndTime = startTime.AddHours(1) // Default 1 hour
+                };
+                _context.Sessions.Add(session);
+
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
             }
@@ -40,7 +55,7 @@ namespace PeerGrid.Backend.Services
             }
         }
 
-        public async Task CompleteSessionAsync(int learnerId, int tutorId, decimal cost)
+        public async Task<Transaction> CompleteSessionAsync(int learnerId, int tutorId, decimal cost)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -55,8 +70,22 @@ namespace PeerGrid.Backend.Services
                 learner.LockedPoints -= cost;
                 tutor.GridPoints += cost;
 
+                // Create Transaction Record
+                var tx = new Transaction
+                {
+                    LearnerId = learnerId,
+                    TutorId = tutorId,
+                    Points = cost,
+                    Skill = "Session", // Ideally pass topic
+                    Type = "Earned", // Or "Transfer"
+                    Timestamp = DateTime.UtcNow
+                };
+                _context.Transactions.Add(tx);
+
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
+                
+                return tx;
             }
             catch (Exception)
             {

@@ -13,6 +13,7 @@ namespace PeerGrid.Backend.Models
         public string PasswordHash { get; set; } = string.Empty;
         public string Role { get; set; } = "User"; // Admin, User
         public string Bio { get; set; } = string.Empty;
+        public string ProfilePictureUrl { get; set; } = string.Empty;
 
         public List<string> SkillsOffered { get; set; } = new List<string>();
         public List<string> SkillsNeeded { get; set; } = new List<string>();

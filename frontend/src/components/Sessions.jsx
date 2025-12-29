@@ -1,4 +1,4 @@
-import React from 'react';
+import toast from 'react-hot-toast';
 import GlassCard from './GlassCard';
 import './Sessions.css';
 
@@ -16,7 +16,7 @@ const Sessions = ({ sessions }) => {
                             <div className="session-tutor">with <span className="tutor-name">{session.otherParty}</span></div>
                             <div className="session-time">{new Date(session.time).toLocaleString()}</div>
                         </div>
-                        <button onClick={() => alert('Entering Video Room...')} className="join-btn">
+                        <button onClick={() => toast.success('Entering Video Room...')} className="join-btn">
                             Join Room
                         </button>
                     </div>

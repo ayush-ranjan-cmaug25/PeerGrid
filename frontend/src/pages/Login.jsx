@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
+import { GoogleLogin } from '@react-oauth/google';
 import { Link, useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 import Navbar from '../components/Navbar';
@@ -28,22 +30,50 @@ const Login = ({ onLogin, theme, toggleTheme }) => {
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
                 onLogin(data.role);
+                toast.success('Login successful!');
                 navigate(data.role === 'admin' ? '/admin-dashboard' : '/dashboard');
             } else {
-                alert(data.message || 'Login failed');
+                toast.error(data.message || 'Login failed');
             }
         } catch (error) {
             console.error('Login error:', error);
 
             if (email === 'admin@peergrid.com' && password === 'admin123') {
                 onLogin('admin');
+                toast.success('Login successful (Admin Fallback)');
                 navigate('/admin-dashboard');
             } else if (email === 'user@peergrid.com' && password === 'user123') {
-                onLogin('user');
+                toast.success('Login successful (User Fallback)');
                 navigate('/dashboard');
             } else {
-                alert('Login failed (Backend unreachable)');
+                toast.error('Login failed (Backend unreachable)');
             }
+        }
+    };
+    
+    const handleGoogleSuccess = async (credentialResponse) => {
+        try {
+            console.log('Sending Google Login request to:', `${API_BASE_URL}/auth/google-login`);
+            const response = await fetch(`${API_BASE_URL}/auth/google-login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken: credentialResponse.credential })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                onLogin(data.role);
+                toast.success('Google Login successful!');
+                navigate(data.role === 'admin' ? '/admin-dashboard' : '/dashboard');
+            } else {
+                toast.error(data.message || 'Google Login failed');
+            }
+        } catch (error) {
+            console.error('Google Login error:', error);
+            toast.error(`Backend Error: ${error.message}`);
         }
     };
 
@@ -119,6 +149,19 @@ const Login = ({ onLogin, theme, toggleTheme }) => {
                                 SIGN IN
                             </button>
                         </form>
+                        
+                        <div className="d-flex justify-content-center mb-3">
+                            <GoogleLogin
+                                onSuccess={handleGoogleSuccess}
+                                onError={() => {
+                                    console.log('Login Failed');
+                                    toast.error('Google Popup Failed (Client Side)');
+                                }}
+                                theme={theme === 'dark' ? 'filled_black' : 'outline'}
+                                shape="pill"
+                                width="300"
+                            />
+                        </div>
                         <div className="text-center">
                             <span className="text-muted small">Don't have an account? </span>
                             <Link to="/register" className="text-decoration-none fw-bold" style={{ color: 'var(--text-main)' }}>Create Account</Link>
