@@ -119,7 +119,38 @@ npm run dev
 ```
 The application will be accessible at `http://localhost:5173`.
 
-### 4️⃣ Payment Gateway Setup (Razorpay)
+### 4️⃣ Google OAuth Setup
+To enable "Sign in with Google", you need to configure a Google Cloud Project.
+
+#### A. Create Credentials
+1.  Go to the [Google Cloud Console](https://console.cloud.google.com/).
+2.  Create a new project (e.g., "PeerGrid").
+3.  Navigate to **APIs & Services** -> **OAuth consent screen**.
+    *   Select **External** and create.
+    *   Fill in the app name and user support email.
+4.  Navigate to **Credentials** -> **Create Credentials** -> **OAuth client ID**.
+    *   Application type: **Web application**.
+    *   **Authorized JavaScript origins**: Add `http://localhost:5173`.
+    *   **Authorized redirect URIs**: Add `http://localhost:5173`.
+5.  Copy your **Client ID**.
+
+#### B. Backend Configuration
+The backend needs the Client ID to validate tokens sent by the frontend.
+```bash
+cd backend
+dotnet user-secrets set "Google:ClientId" "YOUR_GOOGLE_CLIENT_ID"
+```
+
+#### C. Frontend Configuration
+The frontend needs the Client ID to initialize the Google Sign-In button.
+1.  Navigate to the `frontend` directory.
+2.  Create a file named `.env` (if it doesn't exist).
+3.  Add the following line:
+    ```env
+    VITE_GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID
+    ```
+
+### 5️⃣ Payment Gateway Setup (Razorpay)
 To enable payments, you need to configure Razorpay Test Keys.
 1.  Sign up for a [Razorpay Dashboard](https://dashboard.razorpay.com/) account.
 2.  Switch to **Test Mode**.
