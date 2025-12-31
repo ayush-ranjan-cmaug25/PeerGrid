@@ -11,7 +11,7 @@ namespace PeerGrid.Backend.Models
 
         public int? TutorId { get; set; }
         [ForeignKey("TutorId")]
-        public User? Tutor { get; set; }
+        public User Tutor { get; set; }
 
         public int LearnerId { get; set; }
         [ForeignKey("LearnerId")]
