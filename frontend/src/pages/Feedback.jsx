@@ -16,9 +16,24 @@ const Feedback = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+
+        const sessionIdRegex = /^[a-zA-Z0-9-]{5,}$/;
+        const commentRegex = /^[\w\s.,!?'"-]{5,500}$/;
+
+        if (!sessionIdRegex.test(formData.sessionId)) {
+
+            alert("Invalid Session ID format (Alphanumeric, min 5 chars).");
+            return;
+        }
+        if (!commentRegex.test(formData.comment)) {
+            alert("Comment must be between 5 and 500 characters and avoid special symbols.");
+            return;
+        }
+
         console.log("Feedback Submitted", formData);
         setSubmitted(true);
-        // Backend API call here
+
     };
 
     return (

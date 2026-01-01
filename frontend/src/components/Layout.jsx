@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import logoLight from '../assets/logo-light.jpg';
 import logoDark from '../assets/logo-dark.jpg';
 import Footer from './Footer';
@@ -7,6 +7,10 @@ import ChatWidget from './ChatWidget';
 import Navbar from './Navbar';
 
 const Layout = ({ theme, toggleTheme, userRole, onLogout }) => {
+    if (userRole === 'guest') {
+        return <Navigate to="/login" replace />;
+    }
+
     const location = useLocation();
     const navigate = useNavigate();
     const activeTab = location.pathname.split('/')[1] || 'dashboard';

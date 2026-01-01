@@ -16,6 +16,7 @@ import FindPeer from './pages/FindPeer';
 import AnimatedBackground from './components/AnimatedBackground';
 import Feedback from './pages/Feedback';
 import PageTitleUpdater from './components/PageTitleUpdater';
+import { ChatProvider } from './context/ChatContext';
 import './App.css';
 
 function App() {
@@ -86,51 +87,80 @@ function App() {
     localStorage.removeItem('token');
   };
 
-  return (
-    <BrowserRouter>
-      <PageTitleUpdater />
-      <Toaster 
-        position="top-right" 
-        reverseOrder={false}
-        toastOptions={{
-          style: {
-            background: theme === 'dark' ? 'rgba(30, 41, 59, 0.9)' : '#fff',
-            color: theme === 'dark' ? '#fff' : '#333',
-            backdropFilter: 'blur(10px)',
-            border: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #e2e8f0',
-          },
-          success: {
-            iconTheme: {
-              primary: theme === 'dark' ? '#818cf8' : '#4f46e5',
-              secondary: theme === 'dark' ? '#fff' : '#fff',
-            },
-          },
-        }} 
-      />
-      <div className="app-container">
-        <AnimatedBackground theme={theme} />
-        
-        <Routes>
-          <Route path="/landing" element={<Home theme={theme} toggleTheme={toggleTheme} />} />
-          <Route path="/login" element={<Login onLogin={handleLogin} theme={theme} toggleTheme={toggleTheme} />} />
-          <Route path="/register" element={<Register theme={theme} toggleTheme={toggleTheme} />} />
-          
-          <Route path="/" element={<Home theme={theme} toggleTheme={toggleTheme} userRole={userRole} />} />
-          
-          <Route element={<Layout theme={theme} toggleTheme={toggleTheme} userRole={userRole} onLogout={handleLogout} />}>
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="admin-dashboard" element={<AdminDashboard />} />
-            <Route path="find-peer" element={<FindPeer />} />
-            <Route path="doubt-board" element={<DoubtBoard />} />
-            <Route path="find-peer" element={<FindPeer />} />
-            <Route path="doubt-board" element={<DoubtBoard />} />
+  const parseJwt = (token) => {
+    try {
+      return JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    } catch (e) {
+      return null;
+    }
+  };
 
-            <Route path="profile/:id?" element={<Profile />} />
-            <Route path="feedback" element={<Feedback />} />
-          </Route>
-        </Routes>
-      </div>
-    </BrowserRouter>
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        if (userRole !== 'guest') {
+           handleLogout();
+        }
+        return;
+      }
+
+      const decoded = parseJwt(token);
+      if (!decoded || decoded.exp * 1000 < Date.now()) {
+        handleLogout();
+      }
+    };
+
+    checkAuth();
+    const interval = setInterval(checkAuth, 60000);
+    return () => clearInterval(interval);
+  }, [userRole]);
+
+  return (
+    <ChatProvider>
+      <BrowserRouter>
+        <PageTitleUpdater />
+        <Toaster 
+          position="top-right" 
+          reverseOrder={false}
+          toastOptions={{
+            style: {
+              background: theme === 'dark' ? 'rgba(30, 41, 59, 0.9)' : '#fff',
+              color: theme === 'dark' ? '#fff' : '#333',
+              backdropFilter: 'blur(10px)',
+              border: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #e2e8f0',
+            },
+            success: {
+              iconTheme: {
+                primary: theme === 'dark' ? '#818cf8' : '#4f46e5',
+                secondary: theme === 'dark' ? '#fff' : '#fff',
+              },
+            },
+          }} 
+        />
+        <div className="app-container">
+          <AnimatedBackground theme={theme} />
+          
+          <Routes>
+            <Route path="/landing" element={<Home theme={theme} toggleTheme={toggleTheme} />} />
+            <Route path="/login" element={<Login onLogin={handleLogin} theme={theme} toggleTheme={toggleTheme} userRole={userRole} />} />
+            <Route path="/register" element={<Register theme={theme} toggleTheme={toggleTheme} userRole={userRole} />} />
+            
+            <Route path="/" element={<Home theme={theme} toggleTheme={toggleTheme} userRole={userRole} onLogout={handleLogout} />} />
+            
+            <Route element={<Layout theme={theme} toggleTheme={toggleTheme} userRole={userRole} onLogout={handleLogout} />}>
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="admin-dashboard" element={<AdminDashboard />} />
+              <Route path="find-peer" element={<FindPeer />} />
+              <Route path="doubt-board" element={<DoubtBoard />} />
+
+              <Route path="profile/:id?" element={<Profile />} />
+              <Route path="feedback" element={<Feedback />} />
+            </Route>
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </ChatProvider>
   );
 }
 

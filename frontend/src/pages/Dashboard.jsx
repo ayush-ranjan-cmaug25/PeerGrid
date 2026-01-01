@@ -55,7 +55,7 @@ const Dashboard = () => {
                 <div className="row g-4">
                     <div className="col-xl-4 col-lg-6 col-md-12">
                         <ScrollReveal width="100%">
-                            <Profile user={dashboardData?.user} />
+                            <Profile user={dashboardData?.user} isOwnProfile={true} />
                         </ScrollReveal>
                     </div>
                     <div className="col-xl-4 col-lg-6 col-md-12">

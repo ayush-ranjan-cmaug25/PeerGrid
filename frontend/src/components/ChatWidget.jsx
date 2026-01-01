@@ -1,134 +1,25 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import * as signalR from '@microsoft/signalr';
-import { API_BASE_URL, HUB_URL } from '../config';
+import { useChat } from '../context/ChatContext';
 
 const ChatWidget = () => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [activeChat, setActiveChat] = useState(null);
+    const { isOpen, setIsOpen, activeChat, setActiveChat, chats, messages, sendMessage } = useChat();
     const [message, setMessage] = useState('');
-    const [chats, setChats] = useState([]);
-    const [messages, setMessages] = useState([]);
-    const [connection, setConnection] = useState(null);
-    const activeChatIdRef = useRef(null);
-    const messagesEndRef = useRef(null);
-
-    useEffect(() => {
-        activeChatIdRef.current = activeChat?.id;
-    }, [activeChat]);
+    const messagesEndRef = React.useRef(null);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
 
-    useEffect(() => {
+    React.useEffect(() => {
         scrollToBottom();
     }, [messages, activeChat, isOpen]);
 
-
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (!token) return;
-
-        const newConnection = new signalR.HubConnectionBuilder()
-            .withUrl(HUB_URL, {
-                accessTokenFactory: () => token
-            })
-            .withAutomaticReconnect()
-            .build();
-
-        setConnection(newConnection);
-
-        return () => {
-            if (newConnection) {
-                newConnection.stop();
-            }
-        };
-    }, []);
-
-    useEffect(() => {
-        if (connection) {
-            connection.start()
-                .then(() => console.log('Connected to SignalR'))
-                .catch(e => console.error('Connection failed: ', e));
-
-            connection.on('ReceiveMessage', (newMsg) => {
-                fetchConversations();
-                
-
-                if (activeChatIdRef.current === newMsg.senderId) {
-                    setMessages(prev => [...prev, newMsg]);
-                }
-            });
-        }
-    }, [connection]);
-
-    const fetchConversations = async () => {
-        const token = localStorage.getItem('token');
-        if (!token) return;
-
-        try {
-            const res = await fetch(`${API_BASE_URL}/chat/conversations`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (res.ok) {
-                const data = await res.json();
-                setChats(data);
-            }
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
-    useEffect(() => {
-        if (isOpen) {
-            fetchConversations();
-        }
-    }, [isOpen]);
-
-    useEffect(() => {
-        if (activeChat) {
-            const fetchMessages = async () => {
-                const token = localStorage.getItem('token');
-                try {
-                    const res = await fetch(`${API_BASE_URL}/chat/messages/${activeChat.id}`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (res.ok) {
-                        const data = await res.json();
-                        setMessages(data);
-                    }
-                } catch (err) {
-                    console.error(err);
-                }
-            };
-            fetchMessages();
-        }
-    }, [activeChat]);
-
     const handleSendMessage = async (e) => {
         e.preventDefault();
-        if (!message.trim() || !activeChat) return;
-
-        const token = localStorage.getItem('token');
-        try {
-            const res = await fetch(`${API_BASE_URL}/chat/send`, {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ receiverId: activeChat.id, content: message })
-            });
-
-            if (res.ok) {
-                const newMessage = await res.json();
-                setMessages([...messages, newMessage]);
-                setMessage('');
-                fetchConversations();
-            }
-        } catch (err) {
-            console.error(err);
+        const success = await sendMessage(message);
+        if (success) {
+            setMessage('');
         }
     };
 
