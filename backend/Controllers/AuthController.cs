@@ -28,11 +28,9 @@ namespace PeerGrid.Backend.Controllers
         {
             if (await _context.Users.AnyAsync(u => u.Email == user.Email))
             {
-                return BadRequest("Email already exists");
+                return BadRequest(new { message = "Email already exists" });
             }
 
-            // In a real app, use a proper password hasher like BCrypt or Argon2
-            // For this prototype, we'll simulate hashing
             user.PasswordHash = Convert.ToBase64String(Encoding.UTF8.GetBytes(user.PasswordHash)); 
             
             _context.Users.Add(user);
@@ -46,10 +44,9 @@ namespace PeerGrid.Backend.Controllers
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
             
-            // Verify password (simulated hash check)
             if (user == null || user.PasswordHash != Convert.ToBase64String(Encoding.UTF8.GetBytes(request.Password)))
             {
-                return Unauthorized("Invalid credentials");
+                return Unauthorized(new { message = "Invalid credentials" });
             }
 
             var token = GenerateJwtToken(user);
@@ -79,10 +76,10 @@ namespace PeerGrid.Backend.Controllers
                         Email = payload.Email,
                         Name = payload.Name,
                         Role = "User",
-                        PasswordHash = Convert.ToBase64String(Guid.NewGuid().ToByteArray()), // Random password
+                        PasswordHash = Convert.ToBase64String(Guid.NewGuid().ToByteArray()),
                         GridPoints = 100,
                         IsAvailable = true,
-                        ProfilePictureUrl = payload.Picture // Use Google profile picture
+                        ProfilePictureUrl = payload.Picture
                     };
                     _context.Users.Add(user);
                     await _context.SaveChangesAsync();

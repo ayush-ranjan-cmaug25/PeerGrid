@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useChat } from '../context/ChatContext';
 import PaymentButton from '../components/PaymentButton';
 import toast from 'react-hot-toast';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -6,7 +7,7 @@ import UserProfile from '../components/Profile';
 import { API_BASE_URL } from '../config';
 import GlassCard from '../components/GlassCard';
 
-// --- Constants ---
+
 const AVAILABLE_SKILLS = [
     "Python", "Java", "C#", "JavaScript", "TypeScript", "React", "Angular", "Vue", 
     "Node.js", "SQL", "NoSQL", "Docker", "Kubernetes", "AWS", "Azure", "GCP", 
@@ -14,7 +15,7 @@ const AVAILABLE_SKILLS = [
     "Flutter", "React Native", "Swift", "Kotlin", "HTML", "CSS", "Git", "Linux"
 ];
 
-// --- Modals ---
+
 
 const Modal = ({ title, children, onClose, onSubmit, actionLabel = "Save" }) => (
     <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ zIndex: 1050, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(5px)' }}>
@@ -88,10 +89,27 @@ const BookSessionModal = ({ user, onClose, onBook }) => {
     });
 
     const handleSubmit = () => {
-        // Combine date and time to ISO string
+
+        if (!formData.topic) {
+            toast.error("Please select a topic.");
+            return;
+        }
+        if (!formData.date || !formData.time) {
+            toast.error("Please select both date and time.");
+            return;
+        }
+        if (formData.cost <= 0) {
+            toast.error("Cost must be greater than 0.");
+            return;
+        }
+
         let startTime = new Date();
         if (formData.date && formData.time) {
             startTime = new Date(`${formData.date}T${formData.time}`);
+            if (startTime < new Date()) {
+                toast.error("Please select a future date and time.");
+                return;
+            }
         }
         
         onBook({
@@ -133,8 +151,16 @@ const RateSessionModal = ({ session, onClose, onRate }) => {
     const [rating, setRating] = useState(5);
     const [comment, setComment] = useState('');
 
+    const handleSubmit = () => {
+        if (comment && comment.length < 5) {
+            toast.error("Comment must be at least 5 characters long.");
+            return;
+        }
+        onRate(rating, comment);
+    };
+
     return (
-        <Modal title="Rate Session" onClose={onClose} onSubmit={() => onRate(rating, comment)} actionLabel="Submit Review">
+        <Modal title="Rate Session" onClose={onClose} onSubmit={handleSubmit} actionLabel="Submit Review">
             <p className="text-muted mb-4">How was your session on <strong>{session.topic}</strong>?</p>
             <div className="d-flex justify-content-center gap-2 mb-4">
                 {[1, 2, 3, 4, 5].map(star => (
@@ -151,7 +177,7 @@ const RateSessionModal = ({ session, onClose, onRate }) => {
     );
 };
 
-// --- Tabs ---
+
 
 const SessionsTab = ({ onComplete }) => {
     const [sessions, setSessions] = useState([]);
@@ -347,17 +373,18 @@ const WalletTab = ({ user }) => {
     );
 };
 
-// --- Main Component ---
+
 
 const Profile = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { openChat } = useChat();
     const [activeTab, setActiveTab] = useState('overview');
     const [user, setUser] = useState(null);
     const [currentUser, setCurrentUser] = useState(null);
     const [error, setError] = useState(null);
     
-    // Modal States
+
     const [showOfferedModal, setShowOfferedModal] = useState(false);
     const [showNeededModal, setShowNeededModal] = useState(false);
     const [showBookModal, setShowBookModal] = useState(false);
@@ -373,7 +400,6 @@ const Profile = () => {
             }
 
             try {
-                // 1. Fetch Current User (Me) to check ownership
                 const meResponse = await fetch(`${API_BASE_URL}/users/me`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -381,11 +407,9 @@ const Profile = () => {
                     const meData = await meResponse.json();
                     setCurrentUser(meData);
 
-                    // 2. Determine which profile to show
                     if (!id || id == meData.id) {
-                        setUser(meData); // It's me
+                        setUser(meData);
                     } else {
-                        // Fetch other user
                         const otherResponse = await fetch(`${API_BASE_URL}/users/${id}`, {
                             headers: { 'Authorization': `Bearer ${token}` }
                         });
@@ -410,7 +434,6 @@ const Profile = () => {
     const handleUpdateProfile = async (updatedData) => {
         const token = localStorage.getItem('token');
         try {
-            // Merge with existing data to avoid overwriting with nulls
             const payload = {
                 ...user,
                 ...updatedData
@@ -444,7 +467,6 @@ const Profile = () => {
     const handlePhotoUpload = async (file) => {
         if (!file) return;
 
-        // Convert to Base64
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = async () => {
@@ -506,7 +528,6 @@ const Profile = () => {
     const handleRateSession = async (rating, comment) => {
         const token = localStorage.getItem('token');
         try {
-            // 1. Complete the session
             const completeResponse = await fetch(`${API_BASE_URL}/sessions/complete`, {
                 method: 'POST',
                 headers: { 
@@ -528,7 +549,6 @@ const Profile = () => {
             const completeData = await completeResponse.json();
             const transactionId = completeData.transactionId;
 
-            // 2. Rate the session
             if (transactionId) {
                 const rateResponse = await fetch(`${API_BASE_URL}/sessions/rate`, {
                     method: 'POST',
@@ -565,7 +585,7 @@ const Profile = () => {
 
     if (!user) return <div className="text-center py-5">Loading profile...</div>;
 
-    const isOwnProfile = currentUser && user.id === currentUser.id;
+    const isOwnProfile = currentUser && user && (user.id == currentUser.id);
 
     return (
         <div className="container-fluid px-5 py-5">
@@ -578,6 +598,7 @@ const Profile = () => {
                         onEditSkillsOffered={() => setShowOfferedModal(true)}
                         onEditSkillsNeeded={() => setShowNeededModal(true)}
                         onBook={() => setShowBookModal(true)} 
+                        onMessage={() => openChat(user)}
                     />
                 </div>
                 <div className="col-lg-8">
@@ -678,7 +699,7 @@ const Profile = () => {
                 </div>
             </div>
 
-            {/* Modals */}
+
             {showOfferedModal && (
                 <SkillsEditModal 
                     title="Edit Skills Offered" 

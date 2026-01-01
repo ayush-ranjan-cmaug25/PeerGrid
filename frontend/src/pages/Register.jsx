@@ -8,13 +8,20 @@ import GlassCard from '../components/GlassCard';
 import logoLight from '../assets/logo-light.jpg';
 import logoDark from '../assets/logo-dark.jpg';
 
-const Register = ({ theme, toggleTheme }) => {
+const Register = ({ theme, toggleTheme, userRole }) => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         password: ''
     });
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
+
+    React.useEffect(() => {
+        if (userRole && userRole !== 'guest') {
+            navigate(userRole === 'admin' ? '/admin-dashboard' : '/dashboard');
+        }
+    }, [userRole, navigate]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,6 +29,24 @@ const Register = ({ theme, toggleTheme }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Regex Validation
+        const nameRegex = /^[a-zA-Z\s]{2,30}$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
+
+        if (!nameRegex.test(formData.name)) {
+            toast.error("Name must contain only letters and spaces (2-30 characters).");
+            return;
+        }
+        if (!emailRegex.test(formData.email)) {
+            toast.error("Please enter a valid email address.");
+            return;
+        }
+        if (!passwordRegex.test(formData.password)) {
+            toast.error("Password must be at least 8 characters long and contain at least one letter and one number.");
+            return;
+        }
         
         try {
             const response = await fetch(`${API_BASE_URL}/auth/register`, {
@@ -61,15 +86,6 @@ const Register = ({ theme, toggleTheme }) => {
             if (response.ok) {
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
-                // Assuming onLogin is not passed to Register, we might need to redirect or handle auth state differently.
-                // But usually Register redirects to Login or Dashboard. 
-                // Since this logs them in directly, we should redirect to Dashboard.
-                // However, we don't have the 'onLogin' prop here to update global state if it exists.
-                // Let's assume a full page reload or that the user will be redirected.
-                // Actually, looking at Login.jsx, onLogin updates state. Register.jsx doesn't have it.
-                // I'll just redirect to dashboard and let the app handle state re-hydration from localStorage if implemented.
-                // Or better, I'll redirect to /login if I can't update state, but that defeats the purpose.
-                // Let's assume the App checks localStorage on mount.
                 toast.success('Google Login successful!');
                 navigate('/dashboard'); 
                 window.location.reload(); // Force reload to update auth state if context is not available
@@ -156,7 +172,7 @@ const Register = ({ theme, toggleTheme }) => {
                                         <i className="bi bi-lock"></i>
                                     </span>
                                     <input 
-                                        type="password" 
+                                        type={showPassword ? "text" : "password"} 
                                         name="password"
                                         className="form-control border-0 border-bottom rounded-0 px-2" 
                                         placeholder="Create a password"
@@ -165,6 +181,14 @@ const Register = ({ theme, toggleTheme }) => {
                                         required 
                                         style={{ background: 'transparent', color: 'var(--text-main)', borderColor: 'var(--border-color)', boxShadow: 'none' }}
                                     />
+                                    <button 
+                                        type="button"
+                                        className="btn border-0 bg-transparent"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        style={{ color: 'var(--text-muted)' }}
+                                    >
+                                        <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+                                    </button>
                                 </div>
                             </div>
                             <button type="submit" className="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow-sm mb-3 transition-transform" 

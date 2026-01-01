@@ -10,7 +10,7 @@ import GlassCard from '../components/GlassCard';
 import PageSection from '../components/PageSection';
 import Navbar from '../components/Navbar';
 
-const Home = ({ theme, toggleTheme, userRole }) => {
+const Home = ({ theme, toggleTheme, userRole, onLogout }) => {
     const { scrollYProgress } = useScroll();
     const scaleX = useSpring(scrollYProgress, {
         stiffness: 100,
@@ -47,7 +47,7 @@ const Home = ({ theme, toggleTheme, userRole }) => {
                 zIndex: 0
             }}></div>
 
-            <Navbar theme={theme} toggleTheme={toggleTheme} userRole={userRole} />
+            <Navbar theme={theme} toggleTheme={toggleTheme} userRole={userRole} onLogout={onLogout} />
 
             <HeroSection userRole={userRole} />
 
@@ -334,73 +334,7 @@ const ContactSection = () => {
                             </h2>
                             <p className="text-center text-muted mb-5 fs-5">Have questions or need assistance? We're here to help.</p>
                             
-                            <form>
-                                <div className="row g-4">
-                                    <div className="col-md-6">
-                                        <div className="form-floating">
-                                            <input type="text" className="form-control rounded-4 border-0" id="name" placeholder="Your Name" 
-                                                style={{ 
-                                                    background: 'rgba(var(--bg-primary-rgb), 0.5)', 
-                                                    border: '1px solid var(--border-color)', 
-                                                    color: 'var(--text-main)',
-                                                    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)'
-                                                }} />
-                                            <label htmlFor="name" style={{ color: 'var(--text-muted)' }}>Your Name</label>
-                                        </div>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <div className="form-floating">
-                                            <input type="email" className="form-control rounded-4 border-0" id="email" placeholder="name@example.com"
-                                                style={{ 
-                                                    background: 'rgba(var(--bg-primary-rgb), 0.5)', 
-                                                    border: '1px solid var(--border-color)', 
-                                                    color: 'var(--text-main)',
-                                                    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)'
-                                                }} />
-                                            <label htmlFor="email" style={{ color: 'var(--text-muted)' }}>Email Address</label>
-                                        </div>
-                                    </div>
-                                    <div className="col-12">
-                                        <div className="form-floating">
-                                            <input type="text" className="form-control rounded-4 border-0" id="subject" placeholder="Subject"
-                                                style={{ 
-                                                    background: 'rgba(var(--bg-primary-rgb), 0.5)', 
-                                                    border: '1px solid var(--border-color)', 
-                                                    color: 'var(--text-main)',
-                                                    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)'
-                                                }} />
-                                            <label htmlFor="subject" style={{ color: 'var(--text-muted)' }}>Subject</label>
-                                        </div>
-                                    </div>
-                                    <div className="col-12">
-                                        <div className="form-floating">
-                                            <textarea className="form-control rounded-4 border-0" placeholder="Leave a comment here" id="message" 
-                                                style={{ 
-                                                    height: '150px', 
-                                                    background: 'rgba(var(--bg-primary-rgb), 0.5)', 
-                                                    border: '1px solid var(--border-color)', 
-                                                    color: 'var(--text-main)',
-                                                    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)'
-                                                }}
-                                            ></textarea>
-                                            <label htmlFor="message" style={{ color: 'var(--text-muted)' }}>Message</label>
-                                        </div>
-                                    </div>
-                                    <div className="col-12 text-center mt-4">
-                                        <button className="px-5 py-3 rounded-pill fw-bold border-0 shadow-lg position-relative overflow-hidden group" type="submit"
-                                            style={{ 
-                                                background: 'var(--accent-primary)', 
-                                                color: '#fff',
-                                                fontSize: '1.1rem',
-                                                transition: 'all 0.3s ease',
-                                                boxShadow: '0 10px 20px -10px var(--accent-primary)'
-                                            }}
-                                        >
-                                            <span className="position-relative z-1">Send Message</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
+                            <ContactForm />
                         </div>
                     </ScrollReveal>
                 </div>
@@ -408,6 +342,119 @@ const ContactSection = () => {
         </PageSection>
     );
 };
+
+const ContactForm = () => {
+    const [formData, setFormData] = React.useState({ name: '', email: '', subject: '', message: '' });
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.id]: e.target.value });
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        
+
+        const nameRegex = /^[a-zA-Z\s]{2,30}$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const subjectRegex = /^[\w\s.,!?'"-]{5,100}$/;
+        const messageRegex = /^[\w\s.,!?'"-]{10,1000}$/;
+
+        if (!nameRegex.test(formData.name)) {
+            alert("Name must contain only letters and spaces (2-30 characters).");
+            return;
+        }
+        if (!emailRegex.test(formData.email)) {
+            alert("Please enter a valid email address.");
+            return;
+        }
+        if (!subjectRegex.test(formData.subject)) {
+            alert("Subject must be 5-100 characters long.");
+            return;
+        }
+        if (!messageRegex.test(formData.message)) {
+            alert("Message must be 10-1000 characters long.");
+            return;
+        }
+
+        alert("Message sent successfully!");
+        setFormData({ name: '', email: '', subject: '', message: '' });
+    };
+
+    return (
+        <form onSubmit={handleSubmit}>
+            <div className="row g-4">
+                <div className="col-md-6">
+                    <div className="form-floating">
+                        <input type="text" className="form-control rounded-4 border-0" id="name" placeholder="Your Name" 
+                            value={formData.name} onChange={handleChange}
+                            style={{ 
+                                background: 'rgba(var(--bg-primary-rgb), 0.5)', 
+                                border: '1px solid var(--border-color)', 
+                                color: 'var(--text-main)',
+                                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)'
+                            }} />
+                        <label htmlFor="name" style={{ color: 'var(--text-muted)' }}>Your Name</label>
+                    </div>
+                </div>
+                <div className="col-md-6">
+                    <div className="form-floating">
+                        <input type="email" className="form-control rounded-4 border-0" id="email" placeholder="name@example.com"
+                            value={formData.email} onChange={handleChange}
+                            style={{ 
+                                background: 'rgba(var(--bg-primary-rgb), 0.5)', 
+                                border: '1px solid var(--border-color)', 
+                                color: 'var(--text-main)',
+                                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)'
+                            }} />
+                        <label htmlFor="email" style={{ color: 'var(--text-muted)' }}>Email Address</label>
+                    </div>
+                </div>
+                <div className="col-12">
+                    <div className="form-floating">
+                        <input type="text" className="form-control rounded-4 border-0" id="subject" placeholder="Subject"
+                            value={formData.subject} onChange={handleChange}
+                            style={{ 
+                                background: 'rgba(var(--bg-primary-rgb), 0.5)', 
+                                border: '1px solid var(--border-color)', 
+                                color: 'var(--text-main)',
+                                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)'
+                            }} />
+                        <label htmlFor="subject" style={{ color: 'var(--text-muted)' }}>Subject</label>
+                    </div>
+                </div>
+                <div className="col-12">
+                    <div className="form-floating">
+                        <textarea className="form-control rounded-4 border-0" placeholder="Leave a comment here" id="message" 
+                            value={formData.message} onChange={handleChange}
+                            style={{ 
+                                height: '150px', 
+                                background: 'rgba(var(--bg-primary-rgb), 0.5)', 
+                                border: '1px solid var(--border-color)', 
+                                color: 'var(--text-main)',
+                                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)'
+                            }}
+                        ></textarea>
+                        <label htmlFor="message" style={{ color: 'var(--text-muted)' }}>Message</label>
+                    </div>
+                </div>
+                <div className="col-12 text-center mt-4">
+                    <button className="px-5 py-3 rounded-pill fw-bold border-0 shadow-lg position-relative overflow-hidden group" type="submit"
+                        style={{ 
+                            background: 'var(--accent-primary)', 
+                            color: '#fff', 
+                            fontSize: '1.1rem',
+                            transition: 'all 0.3s ease',
+                            boxShadow: '0 10px 20px -10px var(--accent-primary)'
+                        }}
+                    >
+                        <span className="position-relative z-1">Send Message</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    );
+};
+
 
 const CTASection = () => {
     return (

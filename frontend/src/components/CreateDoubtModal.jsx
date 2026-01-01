@@ -14,6 +14,20 @@ const CreateDoubtModal = ({ onClose, onSuccess }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+
+        const titleRegex = /^[\w\s.,!?'"-]{5,100}$/;
+        const descriptionRegex = /^[\w\s.,!?'"-]{10,1000}$/;
+
+        if (!titleRegex.test(formData.title)) {
+            toast.error("Title must be 5-100 characters long and avoid special symbols.");
+            return;
+        }
+        if (!descriptionRegex.test(formData.description)) {
+            toast.error("Description must be 10-1000 characters long.");
+            return;
+        }
+
         setLoading(true);
         const token = localStorage.getItem('token');
 

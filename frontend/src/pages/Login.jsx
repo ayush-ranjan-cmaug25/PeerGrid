@@ -9,13 +9,33 @@ import logoLight from '../assets/logo-light.jpg';
 import logoDark from '../assets/logo-dark.jpg';
 import '../App.css';
 
-const Login = ({ onLogin, theme, toggleTheme }) => {
+const Login = ({ onLogin, theme, toggleTheme, userRole }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
+
+    React.useEffect(() => {
+        if (userRole && userRole !== 'guest') {
+            navigate(userRole === 'admin' ? '/admin-dashboard' : '/dashboard');
+        }
+    }, [userRole, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Regex Validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
+
+        if (!emailRegex.test(email)) {
+            toast.error("Please enter a valid email address.");
+            return;
+        }
+        if (!passwordRegex.test(password)) {
+            toast.error("Password must be at least 8 characters long and contain at least one letter and one number.");
+            return;
+        }
         
         try {
             const response = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -126,12 +146,13 @@ const Login = ({ onLogin, theme, toggleTheme }) => {
                             </div>
                             <div className="mb-4">
                                 <label className="form-label text-muted small text-uppercase fw-bold" style={{ fontSize: '0.75rem', letterSpacing: '0.05em' }}>Password</label>
+
                                 <div className="input-group">
                                     <span className="input-group-text border-0 bg-transparent ps-0" style={{ color: 'var(--text-muted)' }}>
                                         <i className="bi bi-lock"></i>
                                     </span>
                                     <input 
-                                        type="password" 
+                                        type={showPassword ? "text" : "password"} 
                                         className="form-control border-0 border-bottom rounded-0 px-2" 
                                         placeholder="Enter your password"
                                         value={password}
@@ -139,6 +160,14 @@ const Login = ({ onLogin, theme, toggleTheme }) => {
                                         required 
                                         style={{ background: 'transparent', color: 'var(--text-main)', borderColor: 'var(--border-color)', boxShadow: 'none' }}
                                     />
+                                    <button 
+                                        type="button"
+                                        className="btn border-0 bg-transparent"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        style={{ color: 'var(--text-muted)' }}
+                                    >
+                                        <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+                                    </button>
                                 </div>
                                 <div className="text-end mt-2">
                                     <a href="#" className="text-decoration-none small" style={{ color: 'var(--accent-primary)' }}>Forgot Password?</a>

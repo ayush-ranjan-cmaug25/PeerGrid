@@ -31,10 +31,15 @@ const FindPeer = () => {
         fetchPeers();
     }, []);
 
-    const filteredPeers = peers.filter(peer => 
-        peer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (peer.skillsOffered && peer.skillsOffered.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase())))
-    );
+    const filteredPeers = peers
+        .filter(peer => {
+            const currentUser = JSON.parse(localStorage.getItem('user'));
+            return peer.id !== currentUser?.id;
+        })
+        .filter(peer => 
+            peer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (peer.skillsOffered && peer.skillsOffered.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase())))
+        );
 
     return (
         <div className="container-fluid px-4 px-md-5 py-5">
