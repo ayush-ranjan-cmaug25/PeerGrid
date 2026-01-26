@@ -1,0 +1,80 @@
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  background: var(--bg-card-hover);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 6px 16px;
+  transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.input-wrapper:focus-within {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+  background: var(--bg-card);
+  transform: translateY(-1px);
+}
+
+.input-wrapper .input-icon {
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  transition: color 0.3s ease;
+}
+
+.input-wrapper:focus-within .input-icon {
+  color: var(--accent-primary);
+}
+
+.input-wrapper input {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 10px 0 !important;
+  margin: 0 !important;
+  width: 100%;
+  color: var(--text-main) !important;
+  font-size: 1rem;
+  height: auto;
+}
+
+.input-wrapper input:focus {
+  outline: none;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.input-wrapper .toggle-password {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 8px;
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  border-radius: 50%;
+}
+
+.input-wrapper .toggle-password:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Label styling improvement */
+.input-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-left: 4px;
+}

@@ -18,7 +18,6 @@ const SKILL_ICONS = {
     'Android': 'bi-android2',
     'Apple': 'bi-apple',
     'Windows': 'bi-windows',
-    // Default
     'default': 'bi-code-square'
 };
 

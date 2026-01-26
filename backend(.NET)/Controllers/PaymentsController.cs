@@ -39,10 +39,10 @@ namespace PeerGrid.Backend.Controllers
                 RazorpayClient client = new RazorpayClient(key, secret);
 
                 Dictionary<string, object> options = new Dictionary<string, object>();
-                options.Add("amount", request.Amount * 100); // Amount in paise
+                options.Add("amount", request.Amount * 100);
                 options.Add("receipt", Guid.NewGuid().ToString());
                 options.Add("currency", "INR");
-                options.Add("payment_capture", 1); // Auto capture
+                options.Add("payment_capture", 1);
 
                 Order order = client.Order.Create(options);
                 string orderId = order["id"].ToString();
@@ -65,7 +65,6 @@ namespace PeerGrid.Backend.Controllers
                 string secret = _configuration["Razorpay:KeySecret"];
 
                 // Verify Signature
-                // Verify Signature Manually
                 string payload = $"{request.OrderId}|{request.PaymentId}";
                 string generatedSignature;
                 using (var hmac = new System.Security.Cryptography.HMACSHA256(Encoding.UTF8.GetBytes(secret)))
@@ -76,19 +75,14 @@ namespace PeerGrid.Backend.Controllers
 
                 if (generatedSignature == request.Signature)
                 {
-                    // Signature matches
+
                 }
                 else
                 {
                     return BadRequest("Invalid payment signature");
                 }
 
-                // Note: The SDK's VerifyPaymentSignature method signature might vary slightly depending on version,
-                // simpler manual verification:
-                // HMACSHA256(order_id + "|" + payment_id, secret) == signature
 
-                // For this demo, we will trust the client if signature matches (or just proceed for testing if signature check fails but we want to allow it - NO, security first).
-                // Actually, let's just implement the logic to add points.
                 
                 var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userIdStr))
@@ -100,7 +94,7 @@ namespace PeerGrid.Backend.Controllers
 
                 if (user != null)
                 {
-                    // Add Grid Points (assuming 1 INR = 10 GP for example)
+                    // Add Grid Points
                     decimal pointsToAdd = request.Amount * 10; 
                     user.GridPoints += pointsToAdd; 
                     await _context.SaveChangesAsync();

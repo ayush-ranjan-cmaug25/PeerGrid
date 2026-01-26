@@ -56,7 +56,6 @@ namespace PeerGrid.Backend.Controllers
         [HttpPost("google-login")]
         public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest request)
         {
-            Console.WriteLine($"Received Google Login Request. Token length: {request.IdToken?.Length}");
             try
             {
                 var settings = new GoogleJsonWebSignature.ValidationSettings()
@@ -65,12 +64,10 @@ namespace PeerGrid.Backend.Controllers
                 };
                 
                 var payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken, settings);
-                Console.WriteLine($"Token validated for email: {payload.Email}");
                 
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == payload.Email);
                 if (user == null)
                 {
-                    Console.WriteLine("User not found, creating new user.");
                     user = new User
                     {
                         Email = payload.Email,
@@ -90,12 +87,10 @@ namespace PeerGrid.Backend.Controllers
             }
             catch (InvalidJwtException ex)
             {
-                Console.WriteLine($"InvalidJwtException: {ex.Message}");
                 return BadRequest($"Invalid Google Token: {ex.Message}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Exception in GoogleLogin: {ex}");
                 return StatusCode(500, $"Internal Server Error: {ex.Message}");
             }
         }

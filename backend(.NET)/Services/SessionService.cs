@@ -76,8 +76,8 @@ namespace PeerGrid.Backend.Services
                     LearnerId = learnerId,
                     TutorId = tutorId,
                     Points = cost,
-                    Skill = "Session", // Ideally pass topic
-                    Type = "Earned", // Or "Transfer"
+                    Skill = "Session", 
+                    Type = "Earned",
                     Timestamp = DateTime.UtcNow
                 };
                 _context.Transactions.Add(tx);

@@ -50,7 +50,7 @@ namespace PeerGrid.Backend.Controllers
                         Avatar = string.Join("", otherUser.Name.Split(' ').Select(n => n[0])), // Initials
                         LastMessage = lastMsg.Content,
                         Time = lastMsg.Timestamp.ToLocalTime().ToString("t"), // Short time format
-                        Online = false // Placeholder
+                        Online = false
                     };
                 })
                 .ToList();

@@ -64,12 +64,17 @@ const Register = ({ theme, toggleTheme, userRole }) => {
                 toast.success('Registration successful! Please login.');
                 navigate('/login');
             } else {
-                const data = await response.json();
+                let data;
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    data = { message: `Server Error: ${response.status} ${response.statusText}` };
+                }
                 toast.error(data.message || 'Registration failed');
             }
         } catch (error) {
             console.error('Registration error:', error);
-            toast.error('Registration failed (Backend unreachable)');
+            toast.error(`Registration failed: ${error.message}`);
         }
     };
 
@@ -88,7 +93,7 @@ const Register = ({ theme, toggleTheme, userRole }) => {
                 localStorage.setItem('user', JSON.stringify(data.user));
                 toast.success('Google Login successful!');
                 navigate('/dashboard'); 
-                window.location.reload(); // Force reload to update auth state if context is not available
+                window.location.reload();
             } else {
                 toast.error(data.message || 'Google Login failed');
             }
@@ -102,10 +107,10 @@ const Register = ({ theme, toggleTheme, userRole }) => {
         <div className="min-vh-100 position-relative d-flex flex-column">
             <Navbar theme={theme} toggleTheme={toggleTheme} userRole="guest" />
 
-            <div className="flex-grow-1 d-flex align-items-center justify-content-center px-4" style={{ paddingTop: '80px' }}>
+            <div className="flex-grow-1 d-flex align-items-center justify-content-center px-4" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
                 <GlassCard 
-                    className="p-4 p-md-5 animate-fade-in-up position-relative overflow-hidden"
-                    style={{ maxWidth: '450px', width: '100%' }}
+                    className="animate-fade-in-up position-relative overflow-hidden"
+                    style={{ maxWidth: '900px', width: '100%', padding: '0' }}
                 >
 
                     <div style={{
@@ -120,99 +125,99 @@ const Register = ({ theme, toggleTheme, userRole }) => {
                         zIndex: 0
                     }}></div>
 
-                    <div className="position-relative z-1">
-                        <div className="text-center mb-4">
-                            <img src={theme === 'dark' ? logoDark : logoLight} alt="Logo" className="mb-3 rounded-3 shadow-sm" style={{ width: '64px', height: '64px' }} />
-                            <h2 className="fw-bold mb-1" style={{ color: 'var(--text-main)' }}>Join PeerGrid</h2>
-                            <p className="text-muted small">Start exchanging skills today</p>
+                    <div className="position-relative z-1 row g-0">
+
+                        <div className="col-md-6 d-flex flex-column justify-content-center align-items-center p-4 p-md-5 text-center split-card-separator"
+                             style={{ 
+                                 background: theme === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)'
+                             }}>
+                            <img src={theme === 'dark' ? logoDark : logoLight} alt="Logo" className="mb-4 rounded-3 shadow-sm" style={{ width: '80px', height: '80px' }} />
+                            <h2 className="fw-bold mb-2" style={{ color: 'var(--text-main)' }}>Join PeerGrid</h2>
+                            <p className="text-muted mb-0" style={{ maxWidth: '300px' }}>Start exchanging skills today and grow your network.</p>
                         </div>
 
-                        <form onSubmit={handleSubmit}>
-                            <div className="mb-3">
-                                <label className="form-label text-muted small text-uppercase fw-bold" style={{ fontSize: '0.75rem', letterSpacing: '0.05em' }}>Full Name</label>
-                                <div className="input-group">
-                                    <span className="input-group-text border-0 bg-transparent ps-0" style={{ color: 'var(--text-muted)' }}>
-                                        <i className="bi bi-person"></i>
-                                    </span>
-                                    <input 
-                                        type="text" 
-                                        name="name"
-                                        className="form-control border-0 border-bottom rounded-0 px-2" 
-                                        placeholder="John Doe"
-                                        value={formData.name}
-                                        onChange={handleChange}
-                                        required 
-                                        style={{ background: 'transparent', color: 'var(--text-main)', borderColor: 'var(--border-color)', boxShadow: 'none' }}
-                                    />
-                                </div>
-                            </div>
-                            <div className="mb-3">
-                                <label className="form-label text-muted small text-uppercase fw-bold" style={{ fontSize: '0.75rem', letterSpacing: '0.05em' }}>Email Address</label>
-                                <div className="input-group">
-                                    <span className="input-group-text border-0 bg-transparent ps-0" style={{ color: 'var(--text-muted)' }}>
-                                        <i className="bi bi-envelope"></i>
-                                    </span>
-                                    <input 
-                                        type="email" 
-                                        name="email"
-                                        className="form-control border-0 border-bottom rounded-0 px-2" 
-                                        placeholder="name@example.com"
-                                        value={formData.email}
-                                        onChange={handleChange}
-                                        required 
-                                        style={{ background: 'transparent', color: 'var(--text-main)', borderColor: 'var(--border-color)', boxShadow: 'none' }}
-                                    />
-                                </div>
-                            </div>
 
-                            <div className="mb-4">
-                                <label className="form-label text-muted small text-uppercase fw-bold" style={{ fontSize: '0.75rem', letterSpacing: '0.05em' }}>Password</label>
-                                <div className="input-group">
-                                    <span className="input-group-text border-0 bg-transparent ps-0" style={{ color: 'var(--text-muted)' }}>
-                                        <i className="bi bi-lock"></i>
-                                    </span>
-                                    <input 
-                                        type={showPassword ? "text" : "password"} 
-                                        name="password"
-                                        className="form-control border-0 border-bottom rounded-0 px-2" 
-                                        placeholder="Create a password"
-                                        value={formData.password}
-                                        onChange={handleChange}
-                                        required 
-                                        style={{ background: 'transparent', color: 'var(--text-main)', borderColor: 'var(--border-color)', boxShadow: 'none' }}
-                                    />
-                                    <button 
-                                        type="button"
-                                        className="btn border-0 bg-transparent"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        style={{ color: 'var(--text-muted)' }}
-                                    >
-                                        <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
-                                    </button>
+                        <div className="col-md-6 p-4 p-md-5">
+                            <form onSubmit={handleSubmit}>
+                                <div className="mb-2">
+                                    <label className="input-label">Full Name</label>
+                                    <div className="input-wrapper">
+                                        <span className="input-icon">
+                                            <i className="bi bi-person"></i>
+                                        </span>
+                                        <input 
+                                            type="text" 
+                                            name="name"
+                                            placeholder="Enter your name"
+                                            value={formData.name}
+                                            onChange={handleChange}
+                                            required 
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                            <button type="submit" className="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow-sm mb-3 transition-transform" 
-                                style={{ background: 'var(--accent-primary)', border: 'none', letterSpacing: '0.03em' }}>
-                                CREATE ACCOUNT
-                            </button>
-                        </form>
+                                <div className="mb-2">
+                                    <label className="input-label">Email Address</label>
+                                    <div className="input-wrapper">
+                                        <span className="input-icon">
+                                            <i className="bi bi-envelope"></i>
+                                        </span>
+                                        <input 
+                                            type="email" 
+                                            name="email"
+                                            placeholder="name@example.com"
+                                            value={formData.email}
+                                            onChange={handleChange}
+                                            required 
+                                        />
+                                    </div>
+                                </div>
 
-                        <div className="d-flex justify-content-center mb-3">
-                            <GoogleLogin
-                                onSuccess={handleGoogleSuccess}
-                                onError={() => {
-                                    console.log('Login Failed');
-                                    toast.error('Google Login Failed');
-                                }}
-                                theme={theme === 'dark' ? 'filled_black' : 'outline'}
-                                shape="pill"
-                                width="300"
-                                text="signup_with"
-                            />
-                        </div>
-                        <div className="text-center">
-                            <span className="text-muted small">Already have an account? </span>
-                            <Link to="/login" className="text-decoration-none fw-bold" style={{ color: 'var(--text-main)' }}>Login</Link>
+                                <div className="mb-4">
+                                    <label className="input-label">Password</label>
+                                    <div className="input-wrapper">
+                                        <span className="input-icon">
+                                            <i className="bi bi-lock"></i>
+                                        </span>
+                                        <input 
+                                            type={showPassword ? "text" : "password"} 
+                                            name="password"
+                                            placeholder="Create a password"
+                                            value={formData.password}
+                                            onChange={handleChange}
+                                            required 
+                                        />
+                                        <button 
+                                            type="button"
+                                            className="toggle-password"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            aria-label={showPassword ? "Hide password" : "Show password"}
+                                        >
+                                            <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <button type="submit" className="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow-sm mb-3 transition-transform" 
+                                    style={{ background: 'var(--accent-primary)', border: 'none', letterSpacing: '0.03em' }}>
+                                    CREATE ACCOUNT
+                                </button>
+                            </form>
+
+                            <div className="d-flex justify-content-center mb-3">
+                                <GoogleLogin
+                                    onSuccess={handleGoogleSuccess}
+                                    onError={() => {
+                                        toast.error('Google Login Failed');
+                                    }}
+                                    theme={theme === 'dark' ? 'filled_black' : 'outline'}
+                                    shape="pill"
+                                    width="300"
+                                    text="signup_with"
+                                />
+                            </div>
+                            <div className="text-center">
+                                <span className="text-muted small">Already have an account? </span>
+                                <Link to="/login" className="text-decoration-none fw-bold" style={{ color: 'var(--text-main)' }}>Login</Link>
+                            </div>
                         </div>
                     </div>
                 </GlassCard>

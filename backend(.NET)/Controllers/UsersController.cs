@@ -201,7 +201,7 @@ namespace PeerGrid.Backend.Controllers
             user.Bio = updatedUser.Bio;
             user.Name = updatedUser.Name;
             user.ProfilePictureUrl = updatedUser.ProfilePictureUrl;
-            // Add other fields as needed
+
 
             await _context.SaveChangesAsync();
             return Ok(user);
