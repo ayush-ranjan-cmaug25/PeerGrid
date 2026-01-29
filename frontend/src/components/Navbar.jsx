@@ -19,6 +19,21 @@ const Navbar = ({ theme, toggleTheme, userRole, onLogout }) => {
     const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
     const closeNav = () => setIsNavCollapsed(true);
 
+    const handleNavigation = (e, sectionId) => {
+        e.preventDefault();
+        if (location.pathname !== '/') {
+            navigate('/', { state: { scrollTo: sectionId } });
+        } else {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            } else if (sectionId === 'home-top') {
+                 window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+        closeNav();
+    };
+
     return (
         <nav className="navbar navbar-expand-lg fixed-top mx-auto px-4 py-3" 
             style={{ 
@@ -37,7 +52,7 @@ const Navbar = ({ theme, toggleTheme, userRole, onLogout }) => {
             }}
         >
             <div className="container-fluid px-0 position-relative">
-                <Link to="/" className="d-flex align-items-center text-decoration-none fw-bold fs-4" style={{ color: 'var(--text-main)', letterSpacing: '-0.03em' }} onClick={closeNav}>
+                <Link to="/" className="d-flex align-items-center text-decoration-none fw-bold fs-4" style={{ color: 'var(--text-main)', letterSpacing: '-0.03em' }} onClick={(e) => handleNavigation(e, 'home-top')}>
                     <img src={theme === 'dark' ? logoDark : logoLight} alt="PeerGrid Logo" className="me-2" style={{ height: '32px', borderRadius: '6px' }} />
                     PeerGrid
                 </Link>
@@ -51,8 +66,14 @@ const Navbar = ({ theme, toggleTheme, userRole, onLogout }) => {
                     <div className="navbar-nav navbar-center-links d-flex align-items-center gap-3 gap-lg-4 my-4 my-lg-0 justify-content-center">
                         {userRole === 'guest' ? (
                             <>
-                                <Link to="/" onClick={closeNav} className="text-decoration-none fw-medium py-2" style={{ color: 'var(--text-main)', fontSize: '1rem', opacity: 0.8 }}>
+                                <Link to="/" onClick={(e) => handleNavigation(e, 'home-top')} className="text-decoration-none fw-medium py-2" style={{ color: 'var(--text-main)', fontSize: '1rem', opacity: 0.8 }}>
                                     Home
+                                </Link>
+                                <Link to="/" onClick={(e) => handleNavigation(e, 'how-it-works')} className="text-decoration-none fw-medium py-2" style={{ color: 'var(--text-main)', fontSize: '1rem', opacity: 0.8 }}>
+                                    About
+                                </Link>
+                                <Link to="/" onClick={(e) => handleNavigation(e, 'contact')} className="text-decoration-none fw-medium py-2" style={{ color: 'var(--text-main)', fontSize: '1rem', opacity: 0.8 }}>
+                                    Contact
                                 </Link>
                                 <Link to="/login" onClick={closeNav} className="text-decoration-none fw-medium py-2" style={{ color: activeTab === 'login' ? 'var(--accent-primary)' : 'var(--text-main)', fontSize: '1rem', opacity: activeTab === 'login' ? 1 : 0.8 }}>
                                     Login
@@ -61,7 +82,7 @@ const Navbar = ({ theme, toggleTheme, userRole, onLogout }) => {
                                     Register
                                 </Link>
                             </>
-                        ) : userRole === 'admin' ? (
+                        ) : userRole.toLowerCase() === 'admin' ? (
                             <>
                                 <Link to="/admin-dashboard" onClick={closeNav} className="text-decoration-none fw-medium py-2" style={{ color: activeTab === 'admin-dashboard' ? 'var(--accent-primary)' : 'var(--text-main)', fontSize: '1rem', opacity: activeTab === 'admin-dashboard' ? 1 : 0.8 }}>
                                     Admin

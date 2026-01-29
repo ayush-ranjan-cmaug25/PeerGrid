@@ -30,5 +30,11 @@ namespace PeerGrid.Backend.Hubs
         {
             await Clients.Group(groupName).SendAsync("ReceiveMessage", user, message);
         }
+
+        public async Task SendSignal(string targetUserId, string signalData)
+        {
+            // Send to the specific user's group
+            await Clients.Group($"User_{targetUserId}").SendAsync("ReceiveSignal", Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value, signalData);
+        }
     }
 }

@@ -32,6 +32,9 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private com.peergrid.backend.service.EmailService emailService;
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
@@ -41,7 +44,14 @@ public class AuthController {
         // Basic password encoding for prototype phase
         user.setPasswordHash(Base64.getEncoder().encodeToString(user.getPasswordHash().getBytes()));
         
+        // Set default Grid Points
+        user.setGridPoints(new BigDecimal(100));
+
         userRepository.save(user);
+
+        // Send welcome email
+        emailService.sendRegistrationEmail(user.getEmail(), user.getName());
+
         return ResponseEntity.ok().body("{\"message\": \"Registration successful\"}");
     }
 
@@ -128,6 +138,9 @@ public class AuthController {
                 user.setAvailable(true);
                 user.setProfilePictureUrl(picture);
                 userRepository.save(user);
+                
+                // Send welcome email
+                emailService.sendRegistrationEmail(user.getEmail(), user.getName());
             } else {
                 user = userOpt.get();
             }

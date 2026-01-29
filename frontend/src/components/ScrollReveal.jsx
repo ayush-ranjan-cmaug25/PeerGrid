@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 
-const ScrollReveal = ({ children, delay = 0, width = "100%" }) => {
+const ScrollReveal = ({ children, delay = 0, width = "100%", className = "" }) => {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, margin: "-10% 0px" });
 
@@ -12,6 +12,7 @@ const ScrollReveal = ({ children, delay = 0, width = "100%" }) => {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
             transition={{ duration: 0.8, delay: delay, ease: [0.16, 1, 0.3, 1] }}
             style={{ width }}
+            className={className}
         >
             {children}
         </motion.div>

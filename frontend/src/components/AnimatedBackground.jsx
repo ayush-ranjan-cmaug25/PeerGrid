@@ -87,8 +87,8 @@ const AnimatedBackground = ({ theme }) => {
                 zIndex: -1,
                 pointerEvents: 'none',
                 background: theme === 'dark' 
-                    ? 'radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%)'
-                    : 'radial-gradient(circle at 50% 50%, #ffffff 0%, #f1f5f9 100%)'
+                    ? 'radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0f172a 50%, #020617 100%)'
+                    : 'radial-gradient(circle at 50% 0%, #e0e7ff 0%, #ffffff 50%, #f1f5f9 100%)'
             }}
         />
     );

@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import ProtectedRoute from './components/ProtectedRoute';
 import { useState, useEffect } from 'react';
 import Lenis from 'lenis';
 import { Toaster } from 'react-hot-toast';
@@ -148,9 +149,17 @@ function App() {
             
             <Route path="/" element={<Home theme={theme} toggleTheme={toggleTheme} userRole={userRole} onLogout={handleLogout} />} />
             
+            <Route 
+              path="/admin-dashboard" 
+              element={
+                <ProtectedRoute allowedRoles={['admin']} onLogout={handleLogout}>
+                  <AdminDashboard theme={theme} toggleTheme={toggleTheme} onLogout={handleLogout} />
+                </ProtectedRoute>
+              } 
+            />
+            
             <Route element={<Layout theme={theme} toggleTheme={toggleTheme} userRole={userRole} onLogout={handleLogout} />}>
               <Route path="dashboard" element={<Dashboard />} />
-              <Route path="admin-dashboard" element={<AdminDashboard />} />
               <Route path="find-peer" element={<FindPeer />} />
               <Route path="doubt-board" element={<DoubtBoard />} />
 

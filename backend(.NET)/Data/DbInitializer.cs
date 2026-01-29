@@ -13,81 +13,171 @@ namespace PeerGrid.Backend.Data
         {
             context.Database.Migrate();
 
-            // Check if DB has been seeded with the new admin
-            if (context.Users.Any(u => u.Email == "admin@peergrid.com"))
+            // Check if data already exists
+            if (context.Users.Any())
             {
+                if (!context.Users.Any(u => u.Email == "admin@peergrid.com"))
+                {
+                    var admin = new User
+                    {
+                        Name = "Admin User",
+                        Email = "admin@peergrid.com",
+                        PasswordHash = Convert.ToBase64String(Encoding.UTF8.GetBytes("password123")),
+                        Role = "Admin",
+                        Bio = "System Administrator",
+                        GridPoints = 10000,
+                        LockedPoints = 0,
+                        IsAvailable = true,
+                        SkillsOffered = new List<string> { "System Administration" },
+                        SkillsNeeded = new List<string>(),
+                        ProfilePictureUrl = "https://ui-avatars.com/api/?name=Admin+User&background=000&color=fff"
+                    };
+                    context.Users.Add(admin);
+                    context.SaveChanges();
+                }
                 return;
             }
 
-            // 1. Users
-            var users = new List<User>
-            {
-                new User { Name = "Ayush Admin", Email = "admin@peergrid.com", PasswordHash = Convert.ToBase64String(Encoding.UTF8.GetBytes("admin123")), Role = "Admin", GridPoints = 5000, Bio = "System Administrator" },
-                new User { Name = "John Doe", Email = "user@peergrid.com", PasswordHash = Convert.ToBase64String(Encoding.UTF8.GetBytes("user123")), Role = "User", GridPoints = 150, Bio = "Aspiring Full Stack Developer", SkillsOffered = new List<string>{"HTML", "CSS"}, SkillsNeeded = new List<string>{"React", "Node.js"} },
-                new User { Name = "Alice Chen", Email = "alice@peergrid.com", PasswordHash = Convert.ToBase64String(Encoding.UTF8.GetBytes("password")), Role = "User", GridPoints = 1200, Bio = "Senior React Developer loving to teach.", SkillsOffered = new List<string>{"React", "JavaScript", "Redux"}, SkillsNeeded = new List<string>{"Python", "Machine Learning"} },
-                new User { Name = "Bob Smith", Email = "bob@peergrid.com", PasswordHash = Convert.ToBase64String(Encoding.UTF8.GetBytes("password")), Role = "User", GridPoints = 800, Bio = "Backend Wizard. C# & .NET Core enthusiast.", SkillsOffered = new List<string>{"C#", ".NET", "SQL"}, SkillsNeeded = new List<string>{"Angular", "Design"} },
-                new User { Name = "Charlie Kim", Email = "charlie@peergrid.com", PasswordHash = Convert.ToBase64String(Encoding.UTF8.GetBytes("password")), Role = "User", GridPoints = 50, Bio = "Student learning Python.", SkillsOffered = new List<string>{"Mathematics"}, SkillsNeeded = new List<string>{"Python", "Data Science"} },
-                new User { Name = "Diana Prince", Email = "diana@peergrid.com", PasswordHash = Convert.ToBase64String(Encoding.UTF8.GetBytes("password")), Role = "User", GridPoints = 3000, Bio = "UX/UI Designer and Frontend Dev.", SkillsOffered = new List<string>{"Figma", "UI/UX", "CSS"}, SkillsNeeded = new List<string>{"Backend", "API Design"} }
-            };
-
-            foreach (var user in users)
-            {
-                if (!context.Users.Any(u => u.Email == user.Email))
-                {
-                    context.Users.Add(user);
-                }
-            }
+            // Clear existing data in correct order to avoid FK constraints
+            if (context.Messages.Any()) context.Messages.RemoveRange(context.Messages);
+            if (context.Sessions.Any()) context.Sessions.RemoveRange(context.Sessions);
+            if (context.Transactions.Any()) context.Transactions.RemoveRange(context.Transactions);
+            if (context.Feedbacks.Any()) context.Feedbacks.RemoveRange(context.Feedbacks);
+            if (context.Users.Any()) context.Users.RemoveRange(context.Users);
+            
             context.SaveChanges();
 
-            // Retrieve users for linking
-            var admin = context.Users.First(u => u.Email == "admin@peergrid.com");
-            var john = context.Users.First(u => u.Email == "user@peergrid.com");
-            var alice = context.Users.First(u => u.Email == "alice@peergrid.com");
-            var bob = context.Users.First(u => u.Email == "bob@peergrid.com");
-            var charlie = context.Users.First(u => u.Email == "charlie@peergrid.com");
-            var diana = context.Users.First(u => u.Email == "diana@peergrid.com");
-
-            // 2. Messages
-            var messages = new Message[]
+            var names = new string[]
             {
-                new Message { SenderId = alice.Id, ReceiverId = john.Id, Content = "Hey John! I saw you needed help with React.", Timestamp = DateTime.UtcNow.AddDays(-2) },
-                new Message { SenderId = john.Id, ReceiverId = alice.Id, Content = "Hi Alice! Yes, I'm struggling with useEffect.", Timestamp = DateTime.UtcNow.AddDays(-2).AddMinutes(5) },
-                new Message { SenderId = alice.Id, ReceiverId = john.Id, Content = "No worries, it's tricky at first. Check out the doubt board, I can pick up your query there.", Timestamp = DateTime.UtcNow.AddDays(-2).AddMinutes(10) },
+                "Aakash Ashok Kharade", "Aasif Jamal", "Abhishek Anilkumar Borse", "Abhishek Dasondhi", "Abhishek Narayan Jagtap", "Abhishek Vilas Gaikwad",
+                "Adarsh Kumar Chandel", "Adarsh Kushwah", "Aditya Abhijeet Adhikari", "Aditya Sachin Korde", "Afsha Zarreen Sayeed Khan", "Ajay Raysing Patil",
+                "Akanksha Jeevan Puri", "Akanksha Somnath Dhanawade", "Akash Pandurang Kokulwar", "Akash Raghunath Bhadane", "Akshay Keshav Balte", "Amar Balasaheb Toge",
+                "Amarnath Ambadas Malpuri", "Amey Arun Parab", "Amey Shekhar Raut", "Aniket Bhagwat Sherkar", "Aniket Hanumant Darade", "Anirudha Dinesh Shinde",
+                "Ankita Ashok Kanthe", "Ankita Yatin Kher", "Annu Yadav", "Anuj Trivedi", "Anurag More", "Anushka Chavan", "Apurva Nandkishor Dhonde",
+                "Aryan Genbhau Gawade", "Aryan Manohar Pate", "Aryan Sunil Shambharkar", "Asfiya Naveed Ahmed Shaikh", "Asmit Ajay Upganlawar", "Asmita Vijaykumar Mhetre",
+                "Atharva Anil Thumbare", "Avneesh Dubey", "Ayush Ranjan", "Bhagyesh Tushar Wani", "Bhavna Yadav Balpande", "Bhushan Chandan Dhavan",
+                "Bhushan Narendra Attarde", "Bhushan Vasantrao Thate", "Chaitali Bhagwat Barhate", "Chetankumar Badusing Banjara", "Chinmay Vijay Bonde", "Darshan Suryabhan Gadakh",
+                "Darshana Sopandas Malewar", "Deepa Sushil Jadhav", "Deepra Banerjee", "Devendra Kakaji Deore", "Dhananjay Tansen Shitole", "Dhanashree Deepak Pawar",
+                "Dhaval Manik Patil", "Dhiraj Divakar Patil", "Digvijay Maruti Thanekar", "Dipak Chandrakant Firake", "Dipali Amit Vasave", "Dipti Sampat Akhade",
+                "Dnyaneshvar Bibhishan Suryavanshi", "Fameshwari", "Gaurav Anil Patil", "Gaurav Anil Sontakke", "Gaurav Aniruddha Apte", "Gaurav Baikunth Nath Mishra",
+                "Gaurav Suresh Salunkhe", "Gauri Pratul Kolte", "Goutam Soni", "Gunjan Pravin Chaudhari", "Hanuman Bhagwat Jadhav", "Harshal Vilas Tarmale",
+                "Heramb Dilip Shinde", "Himanshu Dhananjay Patil", "Himanshu Jagdish Samrit", "Hitesh Ravindra Singh Chaudhari", "Hrishikesh Deepak Tappe", "Isha Anant Puranik",
+                "Isha Pralhad Gulhane", "Ishan Raizada", "Jaydeep Patidar", "Kalyanee Ravindra Pachghare", "Kamlini Govardhan Bhasme", "Kapil Umakant Katte",
+                "Kaushal Rajendra Patil", "Khetesh Ummedram Choudhary", "Kiran Vishwas Mahajan", "Komal Kadnor", "Komal Ramrao Jadhav", "Krishna Aditya Chikkala",
+                "Krushna Vikas Chavan", "Madhuri Kedarnath Chavan", "Manali Sharad Bharati Bhujbal", "Manish Laxmikant Chaudhari", "Mickey Manohar", "Minal Ashok Kamde",
+                "Mohammad Rehan Ansari", "Mohammad Salik Zameer Ahmed Mulla", "Mohd Allahuddin", "Mohini Nikhil Kasar", "Mohit Rahul Sarode", "Mujahid Jamshed Bagwan",
+                "Nandini Nitin Rasal", "Nandini Wasant Wahane", "Naushin Yusuf Sayyad", "Neha Devidas Patil", "Neha Nandu Wagh", "Neha Pravin Kothavade",
+                "Neha Vijay Ahire", "Nidhi Kumari", "Niket Devendra Malviya", "Nikhil Anil Shingare", "Nikhil Dubey", "Nikhil Samadhan Nikam", "Nishant Sharad Desle",
+                "Nutesh Vinod Tajne", "Om Bhagirath Londhe", "Om Santosh Pawar", "Omkar Pramod Nalawade", "Parikshit Mahendra Urkande", "Parikshit Vijay Patil",
+                "Pooja Kundlik Athare", "Poonam Balaji More", "Pradip Prakash Patil", "Prajakta Manik Kamble", "Prajwal Rathod", "Pranali Ramesh Mahadik",
+                "Pranali Vilas Magar", "Pranavkumar Sanjay Munot", "Pranjali Pramod Rane", "Prasad Sagar Talekar", "Prashant Aba Patil", "Prateek Gupta",
+                "Prathamesh Sunil Maharnur", "Prathmesh Mane", "Pratik Ashok Avhad", "Pratik Kailas Barse", "Prem Satyanarayan Myana", "Priyanka Bhausaheb Thange",
+                "Purva Pradeep Thavai", "Purvesh Ravindra Khandare", "Rachana Namdeo Khadse", "Ragini Yadav", "Rahul Dhondu Pawar", "Raj Jaydev Tangadi",
+                "Rajat Lonkar", "Ravina Punjarao Gadekar", "Ritik Gupta", "Rohini Bhagwatkar", "Rohit Bhalse", "Rohit Deshpande", "Ronak Ravindra Kolhe",
+                "Roshan Sanjay Kosare", "Rugvedi Dilipkumar Wankhede", "Rushikesh Sandeep Temkar", "Rushikesh Vijay Dhavan", "Ruttik Prakash Hiwase", "Rutuja Pravin Gholap",
+                "Sachin Rajesh Dabewar", "Sachin Sanjay Waghchaure", "Sagar Band", "Sagar Shyam Udgiri", "Sakshi Purushottam Baitule", "Sakshi Sandip Ostwal",
+                "Sakshi Umesh Chaudhari", "Saloni", "Samarth Ramchandra Burkule", "Samiksha Vilas Wagaj", "Samir Bharati", "Sanghapal Ishwar Gavhane",
+                "Sanjukta Sarkar", "Sanket Kulkarni", "Sanket Purushottam Mandavgane", "Sanket Sanjay Shalukar", "Sanskruti Shankar Dhole", "Sarthak Satish Sambare",
+                "Satyajit Tanaji Kadam", "Saurabh Anil Mahajan", "Saurabh Pramod Walanj", "Saurabh Raju Vaidya", "Shamal Manik Bhujbal", "Shantanu Laxman Chaudhari",
+                "Shashibhushan Avdhesh Mishra", "Shilpa Jayesh Gharat", "Shital Janardan Sabale", "Shivanjali Bhanudas Mote", "Shraddha Chandrashekhar Hade", "Shreya Ajay Pandharipande",
+                "Shreya Raj", "Shruti Dhanalal Wadile", "Shruti Dinkar Jadhav", "Shubham Chandrakant Ghaware", "Shubham Chandrikapure", "Shubham Dnyaneshwar Thakur",
+                "Shubham Santosh Rokade", "Shubham Shriram Chaudhari", "Siddhi Machhindra Adkitte", "Sneha Gorakhnath Bhong", "Snehal Kailas Kharde", "Snehal Shivaji Shinde",
+                "Sofiya Taiyaballi Sutar", "Soma Vasudev", "Someshvar Tiwari", "Soumya Prasad Sahu", "Suchit Prashant Sawant", "Sudhansu Dalchand Kapgate",
+                "Sumit Prabhakar Mote", "Supriya Mahesh Suryawanshi", "Suraj Rawat", "Suyog Avinash Joshi", "Swapna Sanjay Saste", "Tanmay Chandrakant Sawant",
+                "Tanmay Mukesh Raut", "Tanmay Vasant Salwe", "Tejal Sunil Mahajan", "Tejas Anil Jadhao", "Tushar Gajanan Gedam", "Tushar Hanmant Rupnavar",
+                "Tushar Vilas Lahamge", "Vaibhav Sanjay Sonawane", "Vaishakh Lalchand Malode", "Vaishnavi Dhanaji Salvi", "Vaishnavi Dhanraj Pokale", "Vaishnavi Pramod Pardeshi",
+                "Vaishnavi Sanjay Jagtap", "Varsha Shivaji Matsagar", "Vasundhara Vitthal Nanaware", "Vedant Ramrao Shiradhonkar", "Vedant Suryakant Mali", "Vedant Vishwanath Padave",
+                "Vibhav Vikas Chavan", "Virag Hote", "Vrushabh Vyankatesh Bhaskar", "Yash Gulabrao Mankumare", "Yash Pramod Bambal", "Yash Sunil Patil", "Yukta Ravindra Jadhav"
+            };
+
+            var users = new List<User>();
+            var random = new Random();
+            var skills = new[] { "C#", "Java", "Python", "React", "Angular", "SQL", "Docker", "Kubernetes", "Azure", "AWS", "Machine Learning", "Data Science", "Figma", "UI/UX", "Node.js", "HTML", "CSS", "JavaScript", "TypeScript", "Go", "Rust", "C++" };
+            var bios = new[] { 
+                "Passionate developer exploring new tech.", 
+                "Learning every day.", 
+                "Tech enthusiast and open source lover.", 
+                "Full stack wizard in making.", 
+                "Data nerd and AI enthusiast.", 
+                "Design lover with a knack for code.", 
+                "Coding is life, coffee is fuel.", 
+                "Building the future one line at a time.",
+                "Student eager to learn.",
+                "Professional developer helping others."
+            };
+
+            foreach (var fullName in names)
+            {
+                var parts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                var firstName = parts.Length > 0 ? parts[0] : "User";
+                var lastName = parts.Length > 1 ? parts[parts.Length - 1] : "Name";
                 
-                new Message { SenderId = bob.Id, ReceiverId = john.Id, Content = "Welcome to PeerGrid!", Timestamp = DateTime.UtcNow.AddDays(-5) },
+                // Clean up names for email
+                var cleanFirst = new string(firstName.Where(char.IsLetterOrDigit).ToArray()).ToLower();
+                var cleanLast = new string(lastName.Where(char.IsLetterOrDigit).ToArray()).ToLower();
                 
-                new Message { SenderId = charlie.Id, ReceiverId = diana.Id, Content = "Love your design work on the new project!", Timestamp = DateTime.UtcNow.AddHours(-1) }
-            };
-            context.Messages.AddRange(messages);
+                var email = $"{cleanFirst}.{cleanLast}@peergrid.com";
+                
+                // Ensure unique email
+                int count = 1;
+                while (users.Any(u => u.Email == email))
+                {
+                    email = $"{cleanFirst}.{cleanLast}{count}@peergrid.com";
+                    count++;
+                }
 
-            // 3. Sessions (Doubts, Upcoming, Past)
-            var sessions = new Session[]
+                var user = new User
+                {
+                    Name = fullName,
+                    Email = email,
+                    PasswordHash = Convert.ToBase64String(Encoding.UTF8.GetBytes("password123")),
+                    Role = "User",
+                    Bio = bios[random.Next(bios.Length)],
+                    GridPoints = random.Next(0, 5000),
+                    LockedPoints = 0,
+                    IsAvailable = true,
+                    SkillsOffered = new List<string>(),
+                    SkillsNeeded = new List<string>(),
+                    ProfilePictureUrl = $"https://ui-avatars.com/api/?name={Uri.EscapeDataString(fullName)}&background=random&color=fff"
+                };
+
+                // Add random skills offered
+                int offerCount = random.Next(1, 4);
+                for (int i = 0; i < offerCount; i++)
+                {
+                    var skill = skills[random.Next(skills.Length)];
+                    if (!user.SkillsOffered.Contains(skill)) user.SkillsOffered.Add(skill);
+                }
+
+                // Add random skills needed
+                int needCount = random.Next(1, 4);
+                for (int i = 0; i < needCount; i++)
+                {
+                    var skill = skills[random.Next(skills.Length)];
+                    if (!user.SkillsNeeded.Contains(skill) && !user.SkillsOffered.Contains(skill)) user.SkillsNeeded.Add(skill);
+                }
+
+                users.Add(user);
+            }
+
+            // Add Admin User
+            var adminUser = new User
             {
-                // --- Open Doubts (For Doubt Board) ---
-                new Session { LearnerId = john.Id, Topic = "React", Title = "Infinite Loop in useEffect", Description = "My component keeps re-rendering and making API calls infinitely. Need help understanding dependency arrays.", Status = "Open", Cost = 50, StartTime = DateTime.UtcNow, EndTime = DateTime.UtcNow.AddHours(1) },
-                new Session { LearnerId = charlie.Id, Topic = "Python", Title = "Pandas DataFrame Merge", Description = "How do I do a left join on two dataframes with different column names?", Status = "Open", Cost = 30, StartTime = DateTime.UtcNow, EndTime = DateTime.UtcNow.AddHours(1) },
-                new Session { LearnerId = diana.Id, Topic = "Backend", Title = "REST API Authentication", Description = "Best practices for storing JWT tokens securely on the frontend?", Status = "Open", Cost = 100, StartTime = DateTime.UtcNow, EndTime = DateTime.UtcNow.AddHours(1) },
-                new Session { LearnerId = john.Id, Topic = "Node.js", Title = "Express Middleware Error", Description = "Error handling middleware is not catching async errors.", Status = "Open", Cost = 40, StartTime = DateTime.UtcNow, EndTime = DateTime.UtcNow.AddHours(1) },
-
-                // --- Upcoming Sessions (For Dashboard) ---
-                new Session { TutorId = alice.Id, LearnerId = john.Id, Topic = "React", Title = "Advanced Hooks Patterns", Description = "Deep dive into useReducer and custom hooks.", Status = "Confirmed", Cost = 80, StartTime = DateTime.UtcNow.AddDays(1).AddHours(10), EndTime = DateTime.UtcNow.AddDays(1).AddHours(11) },
-                new Session { TutorId = bob.Id, LearnerId = charlie.Id, Topic = "C#", Title = "LINQ Queries", Description = "Optimizing database queries with LINQ.", Status = "Confirmed", Cost = 60, StartTime = DateTime.UtcNow.AddDays(2).AddHours(14), EndTime = DateTime.UtcNow.AddDays(2).AddHours(15) },
-
-                // --- Past/Completed Sessions (For History) ---
-                new Session { TutorId = bob.Id, LearnerId = john.Id, Topic = "C#", Title = "Intro to .NET Core", Description = "Setting up the environment and first API.", Status = "Completed", Cost = 50, StartTime = DateTime.UtcNow.AddDays(-3), EndTime = DateTime.UtcNow.AddDays(-3).AddHours(1) },
-                new Session { TutorId = diana.Id, LearnerId = alice.Id, Topic = "Design", Title = "Figma Auto-Layout", Description = "Mastering responsive design in Figma.", Status = "Completed", Cost = 70, StartTime = DateTime.UtcNow.AddDays(-10), EndTime = DateTime.UtcNow.AddDays(-10).AddHours(1) }
+                Name = "Admin User",
+                Email = "admin@peergrid.com",
+                PasswordHash = Convert.ToBase64String(Encoding.UTF8.GetBytes("password123")),
+                Role = "Admin",
+                Bio = "System Administrator",
+                GridPoints = 10000,
+                LockedPoints = 0,
+                IsAvailable = true,
+                SkillsOffered = new List<string> { "System Administration" },
+                SkillsNeeded = new List<string>(),
+                ProfilePictureUrl = "https://ui-avatars.com/api/?name=Admin+User&background=000&color=fff"
             };
-            context.Sessions.AddRange(sessions);
+            users.Add(adminUser);
 
-            // 4. Transactions (For Wallet/Points History)
-            var transactions = new Transaction[]
-            {
-                new Transaction { LearnerId = john.Id, TutorId = bob.Id, Skill = "C# Intro", Points = 50, Timestamp = DateTime.UtcNow.AddDays(-3), Rating = 5 },
-                new Transaction { LearnerId = alice.Id, TutorId = diana.Id, Skill = "Figma Help", Points = 70, Timestamp = DateTime.UtcNow.AddDays(-10), Rating = 4.8 },
-                new Transaction { LearnerId = charlie.Id, TutorId = bob.Id, Skill = "SQL Basics", Points = 30, Timestamp = DateTime.UtcNow.AddDays(-15), Rating = 4.5 }
-            };
-            context.Transactions.AddRange(transactions);
-
+            context.Users.AddRange(users);
             context.SaveChanges();
         }
     }

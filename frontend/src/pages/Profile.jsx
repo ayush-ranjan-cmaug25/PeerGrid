@@ -6,6 +6,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import UserProfile from '../components/Profile';
 import { API_BASE_URL } from '../config';
 import GlassCard from '../components/GlassCard';
+import VideoCall from '../components/VideoCall';
 
 
 const AVAILABLE_SKILLS = [
@@ -182,6 +183,16 @@ const RateSessionModal = ({ session, onClose, onRate }) => {
 const SessionsTab = ({ onComplete }) => {
     const [sessions, setSessions] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [activeCallSession, setActiveCallSession] = useState(null);
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    const handleJoinCall = (session) => {
+        if (!session.otherPartyId) {
+            toast.error("Cannot join call: Other party not found");
+            return;
+        }
+        setActiveCallSession(session);
+    };
 
     useEffect(() => {
         const fetchSessions = async () => {
@@ -246,7 +257,7 @@ const SessionsTab = ({ onComplete }) => {
                                             <td>
                                                 {session.status === 'Confirmed' && (
                                                     <div className="d-flex gap-2">
-                                                        <button className="btn btn-sm btn-primary rounded-pill px-3" onClick={() => toast.success('Joining room...')}>
+                                                        <button className="btn btn-sm btn-primary rounded-pill px-3" onClick={() => handleJoinCall(session)}>
                                                             Join
                                                         </button>
                                                         <button className="btn btn-sm btn-outline-success rounded-pill px-3" onClick={() => onComplete(session)}>
@@ -265,6 +276,13 @@ const SessionsTab = ({ onComplete }) => {
                         </div>
                     )}
                 </>
+            )}
+            {activeCallSession && (
+                <VideoCall 
+                    otherUserId={activeCallSession.otherPartyId}
+                    isInitiator={user.id === activeCallSession.tutorId}
+                    onClose={() => setActiveCallSession(null)}
+                />
             )}
         </div>
     );

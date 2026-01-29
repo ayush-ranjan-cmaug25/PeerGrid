@@ -19,7 +19,7 @@ const Register = ({ theme, toggleTheme, userRole }) => {
 
     React.useEffect(() => {
         if (userRole && userRole !== 'guest') {
-            navigate(userRole === 'admin' ? '/admin-dashboard' : '/dashboard');
+            navigate(userRole.toLowerCase() === 'admin' ? '/admin-dashboard' : '/dashboard');
         }
     }, [userRole, navigate]);
 

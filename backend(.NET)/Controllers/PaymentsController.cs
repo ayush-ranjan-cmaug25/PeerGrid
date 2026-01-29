@@ -98,6 +98,19 @@ namespace PeerGrid.Backend.Controllers
                     decimal pointsToAdd = request.Amount * 10; 
                     user.GridPoints += pointsToAdd; 
                     await _context.SaveChangesAsync();
+
+                    // Log the transaction
+                    var log = new Log
+                    {
+                        Type = "Finance",
+                        Action = "Payment Success",
+                        User = user.Email,
+                        Details = $"Payment ID: {request.PaymentId}, Amount: {request.Amount}, GP Added: {pointsToAdd}",
+                        Timestamp = DateTime.UtcNow
+                    };
+                    _context.Logs.Add(log);
+                    await _context.SaveChangesAsync();
+
                     return Ok(new { message = "Payment successful", newBalance = user.GridPoints, pointsAdded = pointsToAdd });
                 }
 

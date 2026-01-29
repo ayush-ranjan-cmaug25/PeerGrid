@@ -35,6 +35,8 @@ namespace PeerGrid.Backend.Controllers
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
 
+            await LogAction("Admin", "User Banned", User.Identity?.Name ?? "Admin", $"Banned user ID: {id}");
+
             return Ok(new { message = "User banned/deleted successfully" });
         }
 
@@ -51,6 +53,9 @@ namespace PeerGrid.Backend.Controllers
             // Update other fields as needed
 
             await _context.SaveChangesAsync();
+            
+            await LogAction("Admin", "User Updated", User.Identity?.Name ?? "Admin", $"Updated role for user ID: {id} to {user.Role}");
+
             return Ok(new { message = "User updated successfully" });
         }
 
@@ -59,6 +64,192 @@ namespace PeerGrid.Backend.Controllers
         public async Task<ActionResult<IEnumerable<Session>>> GetAllSessions()
         {
             return await _context.Sessions.Include(s => s.Tutor).Include(s => s.Learner).ToListAsync();
+        }
+        // GET: api/Admin/stats
+        [HttpGet("stats")]
+        public async Task<ActionResult<object>> GetStats()
+        {
+            var totalUsers = await _context.Users.CountAsync();
+            var activeSessions = await _context.Sessions.CountAsync(s => s.Status == "Active");
+            var activeBounties = await _context.Sessions.CountAsync(s => s.TutorId == null && s.Status == "Open");
+            var pendingReports = 0; // Placeholder
+
+            return new
+            {
+                totalUsers,
+                activeSessions,
+                activeBounties,
+                pendingReports
+            };
+        }
+
+        // GET: api/Admin/bounties
+        [HttpGet("bounties")]
+        public async Task<ActionResult<IEnumerable<Session>>> GetBounties()
+        {
+            return await _context.Sessions
+                .Where(s => s.TutorId == null)
+                .Include(s => s.Learner)
+                .ToListAsync();
+        }
+
+        // GET: api/Admin/skills
+        [HttpGet("skills")]
+        public async Task<ActionResult<IEnumerable<object>>> GetSkills()
+        {
+            var users = await _context.Users.ToListAsync();
+            var allSkills = users.SelectMany(u => u.SkillsOffered)
+                                 .GroupBy(s => s)
+                                 .Select(g => new { Label = g.Key, Value = g.Count() })
+                                 .OrderByDescending(x => x.Value)
+                                 .Take(5)
+                                 .ToList();
+            return allSkills;
+        }
+
+        // GET: api/Admin/transactions
+        [HttpGet("transactions")]
+        public async Task<ActionResult<IEnumerable<object>>> GetTransactions()
+        {
+            // Group by week or day is complex in EF Core SQL translation sometimes, 
+            // so we'll fetch recent transactions and process in memory for this demo or return raw.
+            // Returning raw recent transactions for the frontend to process or simple aggregation.
+            
+            // For the chart, we need volume over time.
+            var transactions = await _context.Transactions
+                .OrderByDescending(t => t.Timestamp)
+                .Take(100)
+                .ToListAsync();
+
+            return transactions;
+        }
+
+        // PUT: api/Admin/users/{id}/gp
+        [HttpPut("users/{id}/gp")]
+        public async Task<IActionResult> AdjustUserGP(int id, [FromBody] decimal amount)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null) return NotFound();
+
+            user.GridPoints += amount;
+            await _context.SaveChangesAsync();
+
+            string action = amount >= 0 ? "GP Added" : "GP Removed";
+            await LogAction("Admin", action, User.Identity?.Name ?? "Admin", $"Adjusted GP for user ID: {id} by {amount}");
+
+            return Ok(new { message = "User GP updated successfully", newBalance = user.GridPoints });
+        }
+        // GET: api/Admin/feedbacks
+        [HttpGet("feedbacks")]
+        public async Task<ActionResult<IEnumerable<Feedback>>> GetFeedbacks()
+        {
+            return await _context.Feedbacks
+                .Include(f => f.Session)
+                .ThenInclude(s => s.Tutor)
+                .Include(f => f.Session)
+                .ThenInclude(s => s.Learner)
+                .ToListAsync();
+        }
+
+        // GET: api/Admin/logs
+        [HttpGet("logs")]
+        public async Task<ActionResult<IEnumerable<Log>>> GetLogs()
+        {
+            if (!await _context.Logs.AnyAsync())
+            {
+                // Seed dummy data
+                var dummyLogs = new List<Log>();
+                // Fetch actual users from DB
+                var dbUsers = await _context.Users.Select(u => u.Email).ToListAsync();
+                if (!dbUsers.Any()) dbUsers.Add("System");
+
+                var random = new Random();
+
+                for (int i = 0; i < 50; i++)
+                {
+                    string type;
+                    string action;
+                    string details;
+                    
+                    int typeChoice = i % 6;
+                    switch (typeChoice)
+                    {
+                        case 0:
+                            type = "Security";
+                            action = new[] { "Login Attempt", "Password Changed", "New Registration" }[random.Next(3)];
+                            if (action == "Login Attempt") details = $"Failed login attempt from IP: 192.168.1.{random.Next(1, 255)}";
+                            else if (action == "Password Changed") details = "User changed password successfully.";
+                            else details = "New user registered with email verification pending.";
+                            break;
+                        case 1:
+                            type = "User Action";
+                            action = new[] { "Session Created", "Profile Updated" }[random.Next(2)];
+                            if (action == "Session Created") details = $"Created session 'Introduction to React' with tutor ID: {random.Next(100, 999)}";
+                            else details = "Updated bio and skills.";
+                            break;
+                        case 2:
+                            type = "System";
+                            action = new[] { "Backup Completed", "System Maintenance" }[random.Next(2)];
+                            if (action == "Backup Completed") details = $"Daily database backup completed successfully. Size: {random.Next(50, 500)}MB";
+                            else details = $"Scheduled maintenance executed. Duration: {random.Next(100, 5000)}ms";
+                            break;
+                        case 3:
+                            type = "Admin";
+                            action = new[] { "User Banned", "GP Added", "GP Removed" }[random.Next(3)];
+                            if (action == "User Banned") details = "Banned user for violation of terms.";
+                            else if (action == "GP Added") details = $"Admin added {random.Next(10, 500)} GP to user account.";
+                            else details = $"Admin removed {random.Next(10, 500)} GP from user account.";
+                            break;
+                        case 4:
+                            type = "Error";
+                            action = new[] { "Payment Timeout", "Database Connection Failed" }[random.Next(2)];
+                            if (action == "Payment Timeout") details = $"Gateway timeout during transaction ID: TXN-{random.Next(10000, 99999)}";
+                            else details = "Connection pool exhausted. Retrying...";
+                            break;
+                        case 5:
+                            type = "Finance";
+                            action = "Payment Success";
+                            details = $"Payment of {random.Next(100, 5000)} INR successful. Order ID: ORD-{random.Next(10000, 99999)}";
+                            break;
+                        default:
+                            type = "System";
+                            action = "Unknown";
+                            details = "Unknown system event.";
+                            break;
+                    }
+
+                    dummyLogs.Add(new Log
+                    {
+                        Type = type,
+                        Action = action,
+                        User = dbUsers[random.Next(dbUsers.Count)],
+                        Details = details,
+                        Timestamp = DateTime.UtcNow.AddHours(-i * 2)
+                    });
+                }
+                
+                _context.Logs.AddRange(dummyLogs);
+                await _context.SaveChangesAsync();
+            }
+
+            return await _context.Logs
+                .OrderByDescending(l => l.Timestamp)
+                .Take(100)
+                .ToListAsync();
+        }
+
+        private async Task LogAction(string type, string action, string user, string details)
+        {
+            var log = new Log
+            {
+                Type = type,
+                Action = action,
+                User = user,
+                Details = details,
+                Timestamp = DateTime.UtcNow
+            };
+            _context.Logs.Add(log);
+            await _context.SaveChangesAsync();
         }
     }
 }

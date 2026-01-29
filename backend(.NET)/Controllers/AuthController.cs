@@ -33,10 +33,53 @@ namespace PeerGrid.Backend.Controllers
 
             user.PasswordHash = Convert.ToBase64String(Encoding.UTF8.GetBytes(user.PasswordHash)); 
             
+            // Set default Grid Points
+            user.GridPoints = 100;
+
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
+            // Send welcome email
+            SendRegistrationEmail(user.Email, user.Name);
+
             return Ok(new { message = "Registration successful" });
+        }
+
+        private void SendRegistrationEmail(string toEmail, string name)
+        {
+            try
+            {
+                var smtpHost = _configuration["Email:Host"] ?? "smtp.gmail.com";
+                var smtpPort = int.Parse(_configuration["Email:Port"] ?? "587");
+                var smtpUser = _configuration["Email:Username"] ?? "your-email@gmail.com";
+                var smtpPass = _configuration["Email:Password"] ?? "your-app-password";
+
+                using (var client = new System.Net.Mail.SmtpClient(smtpHost, smtpPort))
+                {
+                    client.EnableSsl = true;
+                    client.Credentials = new System.Net.NetworkCredential(smtpUser, smtpPass);
+
+                    var mailMessage = new System.Net.Mail.MailMessage
+                    {
+                        From = new System.Net.Mail.MailAddress(smtpUser, "PeerGrid"),
+                        Subject = "Welcome to PeerGrid!",
+                        Body = $"Hello {name},\n\n" +
+                               "Welcome to PeerGrid! Your registration was successful.\n" +
+                               "We have credited 100 Grid Points to your account as a welcome bonus.\n\n" +
+                               "Happy Learning!\n" +
+                               "The PeerGrid Team",
+                        IsBodyHtml = false
+                    };
+                    mailMessage.To.Add(toEmail);
+
+                    client.Send(mailMessage);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't fail registration
+                Console.WriteLine($"Failed to send email: {ex.Message}");
+            }
         }
 
         [HttpPost("login")]
@@ -80,6 +123,9 @@ namespace PeerGrid.Backend.Controllers
                     };
                     _context.Users.Add(user);
                     await _context.SaveChangesAsync();
+
+                    // Send welcome email
+                    SendRegistrationEmail(user.Email, user.Name);
                 }
 
                 var token = GenerateJwtToken(user);
@@ -114,7 +160,7 @@ namespace PeerGrid.Backend.Controllers
                 issuer: _configuration["Jwt:Issuer"] ?? "PeerGrid",
                 audience: _configuration["Jwt:Audience"] ?? "PeerGridUsers",
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(30),
+                expires: DateTime.Now.AddHours(1),
                 signingCredentials: creds
             );
 

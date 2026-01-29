@@ -6,28 +6,30 @@
 
 [data-theme="dark"] {
   --bg-primary: #0a0a0a;
-  --bg-card: #141414;
-  --bg-card-hover: #1f1f1f;
+  --bg-card: rgba(20, 20, 20, 0.6);
+  --bg-card-hover: rgba(30, 30, 30, 0.6);
   --text-main: #ffffff;
   --text-muted: #a1a1aa;
-  --border-color: #27272a;
+  --border-color: rgba(255, 255, 255, 0.1);
   --accent-primary: #6366f1;
   --accent-secondary: #4f46e5;
-  --glass-border: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.08);
   --nav-bg: rgba(10, 10, 10, 0.8);
+  --sidebar-bg: rgba(10, 10, 10, 0.7);
 }
 
 [data-theme="light"] {
   --bg-primary: #ffffff;
-  --bg-card: #ffffff;
-  --bg-card-hover: #f9fafb;
+  --bg-card: rgba(255, 255, 255, 0.7);
+  --bg-card-hover: rgba(249, 250, 251, 0.8);
   --text-main: #18181b;
   --text-muted: #71717a;
-  --border-color: #e4e4e7;
+  --border-color: rgba(0, 0, 0, 0.1);
   --accent-primary: #4f46e5;
   --accent-secondary: #4338ca;
   --glass-border: rgba(0, 0, 0, 0.05);
   --nav-bg: rgba(255, 255, 255, 0.9);
+  --sidebar-bg: rgba(255, 255, 255, 0.8);
 }
 
 body {
@@ -63,11 +65,20 @@ button:hover {
 
 .glass-card {
   background: var(--bg-card);
-  border: 1px solid var(--border-color);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
   border-radius: 16px;
   padding: 32px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.glass-sidebar {
+  background: var(--sidebar-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-right: 1px solid var(--glass-border) !important;
 }
 
 .glass-card:hover {
@@ -159,4 +170,22 @@ html {
     border-right: none;
     border-bottom: 1px solid var(--border-color);
   }
+}
+
+/* Custom Admin Dashboard Styles */
+.custom-table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--text-main);
+  --bs-table-hover-bg: rgba(255, 255, 255, 0.05);
+  --bs-table-hover-color: var(--text-main);
+}
+
+.custom-dropdown-item:hover, .custom-dropdown-item:focus {
+  background-color: rgba(127, 127, 127, 0.1) !important;
+  transition: background-color 0.2s;
+}
+
+.form-control::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 0.7;
 }

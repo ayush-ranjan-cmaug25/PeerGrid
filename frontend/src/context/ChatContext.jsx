@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import * as signalR from '@microsoft/signalr';
-import { API_BASE_URL, HUB_URL } from '../config';
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
+import { API_BASE_URL, HUB_URL, WS_URL, BACKEND_TYPE } from '../config';
 
 const ChatContext = createContext();
 
@@ -18,41 +20,76 @@ export const ChatProvider = ({ children }) => {
         activeChatIdRef.current = activeChat?.id;
     }, [activeChat]);
 
-    // SignalR Connection
+    // Connection Logic
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        const newConnection = new signalR.HubConnectionBuilder()
-            .withUrl(HUB_URL, {
-                accessTokenFactory: () => token
-            })
-            .withAutomaticReconnect()
-            .build();
+        let newConnection;
+        let stompClient;
 
-        setConnection(newConnection);
+        if (BACKEND_TYPE === 'DOTNET') {
+            // SignalR Connection
+            newConnection = new signalR.HubConnectionBuilder()
+                .withUrl(HUB_URL, {
+                    accessTokenFactory: () => token
+                })
+                .withAutomaticReconnect()
+                .build();
 
-        return () => {
-            if (newConnection) {
-                newConnection.stop();
-            }
-        };
-    }, []);
-
-    useEffect(() => {
-        if (connection) {
-            connection.start()
+            newConnection.start()
                 .then(() => console.log('Connected to SignalR'))
                 .catch(e => console.error('Connection failed: ', e));
 
-            connection.on('ReceiveMessage', (newMsg) => {
+            newConnection.on('ReceiveMessage', (newMsg) => {
                 fetchConversations();
                 if (activeChatIdRef.current === newMsg.senderId) {
                     setMessages(prev => [...prev, newMsg]);
                 }
             });
+
+            setConnection(newConnection);
+        } else {
+            // STOMP Connection
+            stompClient = new Client({
+                webSocketFactory: () => new SockJS(WS_URL),
+                connectHeaders: {
+                    Authorization: `Bearer ${token}`
+                },
+                reconnectDelay: 5000,
+                heartbeatIncoming: 4000,
+                heartbeatOutgoing: 4000,
+                onConnect: () => {
+                    console.log('Connected to STOMP');
+                    setConnection(stompClient);
+
+                    // Subscribe to chat messages
+                    stompClient.subscribe('/user/queue/messages', (message) => {
+                        const newMsg = JSON.parse(message.body);
+                        fetchConversations();
+                        if (activeChatIdRef.current === newMsg.senderId) {
+                            setMessages(prev => [...prev, newMsg]);
+                        }
+                    });
+                },
+                onStompError: (frame) => {
+                    console.error('Broker reported error: ' + frame.headers['message']);
+                    console.error('Additional details: ' + frame.body);
+                }
+            });
+
+            stompClient.activate();
         }
-    }, [connection]);
+
+        return () => {
+            if (newConnection) {
+                newConnection.stop();
+            }
+            if (stompClient) {
+                stompClient.deactivate();
+            }
+        };
+    }, []);
 
     const fetchConversations = async () => {
         const token = localStorage.getItem('token');
@@ -138,7 +175,8 @@ export const ChatProvider = ({ children }) => {
             isOpen, setIsOpen,
             activeChat, setActiveChat,
             chats, messages,
-            sendMessage, openChat
+            sendMessage, openChat,
+            connection
         }}>
             {children}
         </ChatContext.Provider>

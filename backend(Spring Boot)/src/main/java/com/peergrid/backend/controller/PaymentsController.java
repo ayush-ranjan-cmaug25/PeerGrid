@@ -32,6 +32,9 @@ public class PaymentsController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private com.peergrid.backend.repository.LogRepository logRepository;
+
     @Value("${razorpay.key.id}")
     private String razorpayKeyId;
 
@@ -98,6 +101,15 @@ public class PaymentsController {
                 BigDecimal pointsToAdd = request.getAmount().multiply(new BigDecimal(10));
                 user.setGridPoints(user.getGridPoints().add(pointsToAdd));
                 userRepository.save(user);
+                
+                // Log the transaction
+                com.peergrid.backend.entity.Log log = new com.peergrid.backend.entity.Log(
+                    "Finance",
+                    "Payment Success",
+                    user.getEmail(),
+                    "Payment ID: " + request.getPaymentId() + ", Amount: " + request.getAmount() + ", GP Added: " + pointsToAdd
+                );
+                logRepository.save(log);
 
                 Map<String, Object> response = new HashMap<>();
                 response.put("message", "Payment successful");

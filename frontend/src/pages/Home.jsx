@@ -1,8 +1,6 @@
-import React, { useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
-import logoLight from '../assets/logo-light.jpg';
-import logoDark from '../assets/logo-dark.jpg';
+import { Link, useLocation } from 'react-router-dom';
+import React, { useRef, useEffect } from 'react';
+import { motion as Motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import ScrollReveal from '../components/ScrollReveal';
 import HeroBackground from '../components/HeroBackground';
 import FeatureCard from '../components/FeatureCard';
@@ -11,7 +9,19 @@ import PageSection from '../components/PageSection';
 import Navbar from '../components/Navbar';
 
 const Home = ({ theme, toggleTheme, userRole, onLogout }) => {
+    const location = useLocation();
     const { scrollYProgress } = useScroll();
+
+    useEffect(() => {
+        if (location.state?.scrollTo) {
+            const element = document.getElementById(location.state.scrollTo);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+            // Optional: Clear state to prevent scroll on refresh, though browser handles refresh scroll position usually.
+            // window.history.replaceState({}, document.title); 
+        }
+    }, [location]);
     const scaleX = useSpring(scrollYProgress, {
         stiffness: 100,
         damping: 30,
@@ -20,7 +30,7 @@ const Home = ({ theme, toggleTheme, userRole, onLogout }) => {
 
     return (
         <div className="min-vh-100 d-flex flex-column position-relative" style={{ color: 'var(--text-main)', overflowX: 'hidden', position: 'relative' }}>
-            <motion.div
+            <Motion.div
                 style={{
                     scaleX,
                     position: 'fixed',
@@ -79,14 +89,14 @@ const HeroSection = ({ userRole }) => {
     const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
     const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
-    const ctaLink = userRole === 'guest' ? '/register' : (userRole === 'admin' ? '/admin-dashboard' : '/dashboard');
+    const ctaLink = userRole === 'guest' ? '/register' : (userRole.toLowerCase() === 'admin' ? '/admin-dashboard' : '/dashboard');
     const ctaText = userRole === 'guest' ? 'Start Banking Time' : 'Go to Dashboard';
 
     return (
-        <section ref={ref} className="min-vh-100 d-flex align-items-center justify-content-center text-center px-4 position-relative overflow-hidden" style={{ paddingTop: '120px' }}>
+        <section id="home-top" ref={ref} className="min-vh-100 d-flex align-items-center justify-content-center text-center px-4 position-relative overflow-hidden" style={{ paddingTop: '120px' }}>
             <HeroBackground />
-            <motion.div style={{ y, opacity, maxWidth: '1200px' }} className="position-relative z-1 container-fluid">
-                <motion.h1 
+            <Motion.div style={{ y, opacity, maxWidth: '1200px' }} className="position-relative z-1 container-fluid">
+                <Motion.h1 
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
@@ -94,9 +104,9 @@ const HeroSection = ({ userRole }) => {
                     style={{ letterSpacing: '-0.04em', color: 'var(--text-main)', fontSize: 'clamp(3rem, 8vw, 6rem)' }}
                 >
                     The Time-Banking Platform <br className="d-none d-lg-block" /> for Peer Learning.
-                </motion.h1>
+                </Motion.h1>
                 
-                <motion.p 
+                <Motion.p 
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
@@ -104,9 +114,9 @@ const HeroSection = ({ userRole }) => {
                     style={{ color: 'var(--text-muted)', maxWidth: '700px', fontWeight: 300, lineHeight: 1.6 }}
                 >
                     Exchange knowledge, not money. Earn <span style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>Grid Points</span> by teaching, spend them to learn. A closed-loop economy for learners.
-                </motion.p>
+                </Motion.p>
                 
-                <motion.div
+                <Motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5, delay: 0.4 }}
@@ -122,8 +132,8 @@ const HeroSection = ({ userRole }) => {
                     >
                         {ctaText}
                     </Link>
-                </motion.div>
-            </motion.div>
+                </Motion.div>
+            </Motion.div>
         </section>
     );
 };
@@ -163,7 +173,7 @@ const HowItWorksSection = () => {
     ];
 
     return (
-        <section className="py-5 position-relative z-1">
+        <section id="how-it-works" className="py-5 position-relative z-1">
             <div className="container py-5">
                 <ScrollReveal>
                     <h2 className="display-4 fw-bold text-center mb-5" style={{ letterSpacing: '-0.03em' }}>How It Works</h2>
@@ -286,6 +296,7 @@ const TestimonialsSection = () => {
 const ContactSection = () => {
     return (
         <PageSection>
+            <div id="contact" style={{ position: 'absolute', top: '-100px', visibility: 'hidden' }}></div>
 
             <div style={{
                 position: 'absolute',

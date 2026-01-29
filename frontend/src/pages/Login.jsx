@@ -17,7 +17,7 @@ const Login = ({ onLogin, theme, toggleTheme, userRole }) => {
 
     React.useEffect(() => {
         if (userRole && userRole !== 'guest') {
-            navigate(userRole === 'admin' ? '/admin-dashboard' : '/dashboard');
+            navigate(userRole.toLowerCase() === 'admin' ? '/admin-dashboard' : '/dashboard');
         }
     }, [userRole, navigate]);
 
@@ -47,11 +47,13 @@ const Login = ({ onLogin, theme, toggleTheme, userRole }) => {
             const data = await response.json();
 
             if (response.ok) {
+                const role = data.role.toLowerCase();
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
-                onLogin(data.role);
+                localStorage.removeItem('adminActiveTab');
+                onLogin(role);
                 toast.success('Login successful!');
-                navigate(data.role === 'admin' ? '/admin-dashboard' : '/dashboard');
+                navigate(role === 'admin' ? '/admin-dashboard' : '/dashboard');
             } else {
                 toast.error(data.message || 'Login failed');
             }
@@ -59,6 +61,7 @@ const Login = ({ onLogin, theme, toggleTheme, userRole }) => {
             console.error('Login error:', error);
 
             if (email === 'admin@peergrid.com' && password === 'admin123') {
+                localStorage.removeItem('adminActiveTab');
                 onLogin('admin');
                 toast.success('Login successful (Admin Fallback)');
                 navigate('/admin-dashboard');
@@ -92,11 +95,13 @@ const Login = ({ onLogin, theme, toggleTheme, userRole }) => {
             }
 
             if (response.ok) {
+                const role = data.role.toLowerCase();
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
-                onLogin(data.role);
+                localStorage.removeItem('adminActiveTab');
+                onLogin(role);
                 toast.success('Google Login successful!');
-                navigate(data.role === 'admin' ? '/admin-dashboard' : '/dashboard');
+                navigate(role === 'admin' ? '/admin-dashboard' : '/dashboard');
             } else {
                 toast.error(data.message || 'Google Login failed');
             }
