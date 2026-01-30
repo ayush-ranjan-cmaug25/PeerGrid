@@ -66,6 +66,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                                     System.out.println("Token validation failed");
                                 }
                             }
+                        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+                            System.out.println("Token expired: " + e.getMessage());
                         } catch (Exception e) {
                             System.out.println("Token processing error: " + e.getMessage());
                             e.printStackTrace();

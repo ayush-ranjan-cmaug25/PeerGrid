@@ -8,7 +8,7 @@ const ChatContext = createContext();
 
 export const useChat = () => useContext(ChatContext);
 
-export const ChatProvider = ({ children }) => {
+export const ChatProvider = ({ children, onLogout }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [activeChat, setActiveChat] = useState(null);
     const [chats, setChats] = useState([]);
@@ -20,10 +20,30 @@ export const ChatProvider = ({ children }) => {
         activeChatIdRef.current = activeChat?.id;
     }, [activeChat]);
 
-    // Connection Logic
-    useEffect(() => {
+    const connect = () => {
         const token = localStorage.getItem('token');
         if (!token) return;
+
+        // Parse token to check if expired
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            const decoded = JSON.parse(jsonPayload);
+            if (decoded.exp * 1000 < Date.now()) {
+                console.warn("Token expired, skipping chat connection");
+                if (onLogout) onLogout(); // Ensure app logs out
+                return;
+            }
+        } catch (e) {
+            console.error("Invalid token during chat connect", e);
+            return;
+        }
+
+        // If already connected, don't reconnect
+        if (connection) return;
 
         let newConnection;
         let stompClient;
@@ -46,6 +66,10 @@ export const ChatProvider = ({ children }) => {
                 if (activeChatIdRef.current === newMsg.senderId) {
                     setMessages(prev => [...prev, newMsg]);
                 }
+            });
+
+            newConnection.on('ForceLogout', () => {
+                if (onLogout) onLogout();
             });
 
             setConnection(newConnection);
@@ -71,6 +95,14 @@ export const ChatProvider = ({ children }) => {
                             setMessages(prev => [...prev, newMsg]);
                         }
                     });
+
+                    // Subscribe to public status updates (e.g. shutdown)
+                    stompClient.subscribe('/topic/status', (message) => {
+                        const msg = JSON.parse(message.body);
+                        if (msg.type === 'SHUTDOWN' && onLogout) {
+                            onLogout();
+                        }
+                    });
                 },
                 onStompError: (frame) => {
                     console.error('Broker reported error: ' + frame.headers['message']);
@@ -80,15 +112,23 @@ export const ChatProvider = ({ children }) => {
 
             stompClient.activate();
         }
+    };
 
-        return () => {
-            if (newConnection) {
-                newConnection.stop();
+    const disconnect = () => {
+        if (connection) {
+            if (BACKEND_TYPE === 'DOTNET') {
+                connection.stop();
+            } else {
+                connection.deactivate();
             }
-            if (stompClient) {
-                stompClient.deactivate();
-            }
-        };
+            setConnection(null);
+        }
+    };
+
+    // Initial Connection on Mount
+    useEffect(() => {
+        connect();
+        return () => disconnect();
     }, []);
 
     const fetchConversations = async () => {
@@ -176,7 +216,9 @@ export const ChatProvider = ({ children }) => {
             activeChat, setActiveChat,
             chats, messages,
             sendMessage, openChat,
-            connection
+            connection,
+            connect,
+            disconnect
         }}>
             {children}
         </ChatContext.Provider>

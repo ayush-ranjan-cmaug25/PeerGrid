@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { GoogleLogin } from '@react-oauth/google';
 import { Link, useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
+import { useChat } from '../context/ChatContext';
 import Navbar from '../components/Navbar';
 import GlassCard from '../components/GlassCard';
 import logoLight from '../assets/logo-light.jpg';
@@ -14,6 +15,7 @@ const Login = ({ onLogin, theme, toggleTheme, userRole }) => {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
+    const { connect } = useChat();
 
     React.useEffect(() => {
         if (userRole && userRole !== 'guest') {
@@ -52,6 +54,7 @@ const Login = ({ onLogin, theme, toggleTheme, userRole }) => {
                 localStorage.setItem('user', JSON.stringify(data.user));
                 localStorage.removeItem('adminActiveTab');
                 onLogin(role);
+                connect(); // Connect to WebSocket
                 toast.success('Login successful!');
                 navigate(role === 'admin' ? '/admin-dashboard' : '/dashboard');
             } else {
@@ -100,6 +103,7 @@ const Login = ({ onLogin, theme, toggleTheme, userRole }) => {
                 localStorage.setItem('user', JSON.stringify(data.user));
                 localStorage.removeItem('adminActiveTab');
                 onLogin(role);
+                connect(); // Connect to WebSocket
                 toast.success('Google Login successful!');
                 navigate(role === 'admin' ? '/admin-dashboard' : '/dashboard');
             } else {

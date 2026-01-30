@@ -30,4 +30,23 @@ public class EmailService {
             // Don't block registration if email fails
         }
     }
+    public void sendWebinarRegistrationEmail(String toEmail, String userName, String webinarTitle, String time, String link) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("noreply@peergrid.com");
+            message.setTo(toEmail);
+            message.setSubject("Webinar Registration Confirmed: " + webinarTitle);
+            message.setText("Hello " + userName + ",\n\n" +
+                    "You have successfully registered for the webinar: " + webinarTitle + ".\n" +
+                    "Scheduled Time: " + time + "\n" +
+                    "Meeting Link: " + link + "\n\n" +
+                    "See you there!\n" +
+                    "The PeerGrid Team");
+
+            mailSender.send(message);
+            System.out.println("Webinar email sent to " + toEmail);
+        } catch (Exception e) {
+            System.err.println("Failed to send webinar email: " + e.getMessage());
+        }
+    }
 }

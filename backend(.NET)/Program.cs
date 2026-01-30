@@ -38,6 +38,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddScoped<SessionService>();
 builder.Services.AddScoped<MatchingService>();
 builder.Services.AddSignalR();
+builder.Services.AddHostedService<ShutdownService>();
 builder.Services.AddControllers();
 
 builder.Services.AddCors(options =>

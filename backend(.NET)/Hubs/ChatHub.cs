@@ -34,7 +34,19 @@ namespace PeerGrid.Backend.Hubs
         public async Task SendSignal(string targetUserId, string signalData)
         {
             // Send to the specific user's group
+            // signalData is a JSON string containing type and payload
             await Clients.Group($"User_{targetUserId}").SendAsync("ReceiveSignal", Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value, signalData);
+        }
+
+        public async Task JoinWebinar(string webinarId)
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, $"Webinar_{webinarId}");
+        }
+
+        public async Task SendWebinarSignal(string webinarId, string signalData)
+        {
+            // Broadcast to the webinar group, excluding the sender
+            await Clients.OthersInGroup($"Webinar_{webinarId}").SendAsync("ReceiveWebinarSignal", signalData);
         }
     }
 }

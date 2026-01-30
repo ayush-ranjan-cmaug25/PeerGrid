@@ -17,6 +17,7 @@ namespace PeerGrid.Backend.Data
         public DbSet<Feedback> Feedbacks { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<Log> Logs { get; set; }
+        public DbSet<Webinar> Webinars { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

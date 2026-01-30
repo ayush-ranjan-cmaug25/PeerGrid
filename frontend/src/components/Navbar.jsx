@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useChat } from '../context/ChatContext';
 import logoLight from '../assets/logo-light.jpg';
 import logoDark from '../assets/logo-dark.jpg';
 
 const Navbar = ({ theme, toggleTheme, userRole, onLogout }) => {
     const location = useLocation();
     const navigate = useNavigate();
+    const { disconnect } = useChat();
     const activeTab = location.pathname.split('/')[1] || 'dashboard';
     const [isNavCollapsed, setIsNavCollapsed] = useState(true);
 
     const handleLogoutClick = () => {
         if (onLogout) {
+            disconnect(); // Disconnect WebSocket
             onLogout();
             navigate('/login');
         }
@@ -104,6 +107,9 @@ const Navbar = ({ theme, toggleTheme, userRole, onLogout }) => {
                                 </Link>
                                 <Link to="/feedback" onClick={closeNav} className="text-decoration-none fw-medium py-2" style={{ color: activeTab === 'feedback' ? 'var(--accent-primary)' : 'var(--text-main)', fontSize: '1rem', opacity: activeTab === 'feedback' ? 1 : 0.8 }}>
                                     Feedback
+                                </Link>
+                                <Link to="/webinars" onClick={closeNav} className="text-decoration-none fw-medium py-2" style={{ color: activeTab === 'webinars' ? 'var(--accent-primary)' : 'var(--text-main)', fontSize: '1rem', opacity: activeTab === 'webinars' ? 1 : 0.8 }}>
+                                    Webinars
                                 </Link>
                                 <Link to="/profile" onClick={closeNav} className="text-decoration-none fw-medium py-2" style={{ color: activeTab === 'profile' ? 'var(--accent-primary)' : 'var(--text-main)', fontSize: '1rem', opacity: activeTab === 'profile' ? 1 : 0.8 }}>
                                     Profile

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace PeerGrid.Backend.Models
 {
@@ -10,6 +11,8 @@ namespace PeerGrid.Backend.Models
 
         public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
+        
+        [JsonIgnore]
         public string PasswordHash { get; set; } = string.Empty;
         public string Role { get; set; } = "User"; // Admin, User
         public string Bio { get; set; } = string.Empty;

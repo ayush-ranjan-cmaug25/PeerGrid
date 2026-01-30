@@ -16,6 +16,8 @@ import Profile from './pages/Profile';
 import FindPeer from './pages/FindPeer';
 import AnimatedBackground from './components/AnimatedBackground';
 import Feedback from './pages/Feedback';
+import Webinars from './pages/Webinars';
+import WebinarRoom from './pages/WebinarRoom';
 import PageTitleUpdater from './components/PageTitleUpdater';
 import { ChatProvider } from './context/ChatContext';
 import './App.css';
@@ -118,7 +120,7 @@ function App() {
   }, [userRole]);
 
   return (
-    <ChatProvider>
+    <ChatProvider onLogout={handleLogout}>
       <BrowserRouter>
         <PageTitleUpdater />
         <Toaster 
@@ -165,7 +167,10 @@ function App() {
 
               <Route path="profile/:id?" element={<Profile />} />
               <Route path="feedback" element={<Feedback />} />
+              <Route path="webinars" element={<Webinars theme={theme} toggleTheme={toggleTheme} />} />
             </Route>
+            
+            <Route path="/webinar/:id" element={<WebinarRoom />} />
           </Routes>
         </div>
       </BrowserRouter>

@@ -60,4 +60,10 @@ public class VideoController {
             // Handle invalid ID
         }
     }
+
+    @MessageMapping("/webinar/signal")
+    public void handleWebinarSignal(@Payload com.peergrid.backend.dto.JoinWebinarRequest request) {
+        // Broadcast the signal to the specific webinar topic
+        messagingTemplate.convertAndSend("/topic/webinar/" + request.getWebinarId(), request);
+    }
 }
