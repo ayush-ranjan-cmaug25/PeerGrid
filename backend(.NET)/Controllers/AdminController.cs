@@ -25,6 +25,34 @@ namespace PeerGrid.Backend.Controllers
             return await _context.Users.ToListAsync();
         }
 
+        // POST: api/Admin/users
+        [HttpPost("users")]
+        public async Task<ActionResult<User>> CreateUser(User user)
+        {
+            if (await _context.Users.AnyAsync(u => u.Email == user.Email))
+            {
+                return BadRequest("Email already exists");
+            }
+
+            if (!string.IsNullOrEmpty(user.PasswordHash))
+            {
+                user.PasswordHash = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(user.PasswordHash));
+            }
+            else
+            {
+                 // Default password if not provided? Or require it.
+                 user.PasswordHash = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("DefaultPass123!"));
+            }
+
+            user.GridPoints = 100; // Default
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            await LogAction("Admin", "User Created", User.Identity?.Name ?? "Admin", $"Created user: {user.Email}");
+
+            return CreatedAtAction(nameof(GetAllUsers), new { id = user.Id }, user);
+        }
+
         // DELETE: api/Admin/users/5
         [HttpDelete("users/{id}")]
         public async Task<IActionResult> DeleteUser(int id)
@@ -60,6 +88,66 @@ namespace PeerGrid.Backend.Controllers
             await LogAction("Admin", "User Deleted", User.Identity?.Name ?? "Admin", $"Deleted user ID: {id}");
 
             return Ok(new { message = "User deleted successfully" });
+        }
+
+        // POST: api/Admin/seed-sessions
+        [HttpPost("seed-sessions")]
+        public async Task<IActionResult> SeedSessions()
+        {
+            var users = await _context.Users.ToListAsync();
+            if (users.Count < 2) return BadRequest("Not enough users to seed sessions.");
+
+            var random = new Random();
+            var sessions = new List<Session>();
+            var statuses = new[] { "Completed", "Active", "Confirmed", "Pending", "Cancelled" };
+            var topics = new[] { "React Hook Form", "ASP.NET Core Auth", "Docker Networking", "Kubernetes Pods", "SQL Indexing", "CSS Grid", "TypeScript Generics" };
+
+            // Create 30 random sessions
+            for (int i = 0; i < 30; i++)
+            {
+                var learner = users[random.Next(users.Count)];
+                User tutor = null;
+                int? tutorId = null;
+
+                // 20% chance of being an Open doubt
+                bool isOpen = random.NextDouble() < 0.2;
+                string status;
+
+                if (isOpen)
+                {
+                    status = "Open";
+                }
+                else
+                {
+                   status = statuses[random.Next(statuses.Length)];
+                   tutor = users[random.Next(users.Count)];
+                   while (tutor.Id == learner.Id)
+                   {
+                       tutor = users[random.Next(users.Count)];
+                   }
+                   tutorId = tutor.Id;
+                }
+
+                var startTime = DateTime.UtcNow.AddDays(random.Next(-10, 10));
+
+                sessions.Add(new Session
+                {
+                    LearnerId = learner.Id,
+                    TutorId = tutorId,
+                    Topic = topics[random.Next(topics.Length)],
+                    Title = isOpen ? $"Help needed with {topics[random.Next(topics.Length)]}" : $"Session {i + 1}",
+                    Description = "Seeded session for testing overview.",
+                    Status = status,
+                    StartTime = startTime,
+                    EndTime = startTime.AddHours(1),
+                    Cost = random.Next(10, 100)
+                });
+            }
+            
+            _context.Sessions.AddRange(sessions);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = $"Seeded {sessions.Count} sessions." });
         }
 
         // PUT: api/Admin/users/{id}/status
@@ -121,12 +209,29 @@ namespace PeerGrid.Backend.Controllers
             var activeBounties = await _context.Sessions.CountAsync(s => s.TutorId == null && s.Status == "Open");
             var pendingReports = 0; // Placeholder
 
+            // Calculate Sessions History (Last 7 Days)
+            var sessionHistory = new List<object>();
+            var today = DateTime.UtcNow.Date;
+            
+            for (int i = 6; i >= 0; i--)
+            {
+                var date = today.AddDays(-i);
+                var label = date.DayOfWeek.ToString().Substring(0, 3); // Mon, Tue...
+                
+                // Count sessions that started on this date
+                var count = await _context.Sessions
+                    .CountAsync(s => s.StartTime.Date == date);
+                
+                sessionHistory.Add(new { label, value = count });
+            }
+
             return new
             {
                 totalUsers,
                 activeSessions,
                 activeBounties,
-                pendingReports
+                pendingReports,
+                sessionsHistory = sessionHistory
             };
         }
 

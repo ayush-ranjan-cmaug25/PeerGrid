@@ -234,7 +234,7 @@ const UserManagement = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredUsers.map(user => (
+                                {filteredUsers.map((user, index) => (
                                     <tr key={user.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                                         <td className="ps-4 py-3">
                                             <div className="d-flex align-items-center gap-3">
@@ -276,7 +276,7 @@ const UserManagement = () => {
                                         <td className="fw-bold" style={{ color: 'var(--accent-primary)' }}>{user.gp} GP</td>
                                         <td className="text-muted small">{user.joinDate}</td>
                                         <td className="pe-4 text-end">
-                                            <div className="dropdown">
+                                            <div className={index >= filteredUsers.length - 2 ? "dropup" : "dropdown"}>
                                                 <button className="btn btn-icon btn-sm btn-light bg-transparent border-0 text-muted" type="button" data-bs-toggle="dropdown">
                                                     <i className="bi bi-three-dots-vertical fs-5"></i>
                                                 </button>

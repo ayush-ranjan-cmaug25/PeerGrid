@@ -1,28 +1,106 @@
-PeerGrid Project Tech Stack
+================================================================================
+                                PEERGRID TECH STACK
+================================================================================
 
-Frontend
---------
-- Framework: React 19 (using Vite 7 as build tool)
+PROJECT OVERVIEW
+----------------
+PeerGrid is a peer-to-peer knowledge exchange platform utilizing a "Time-Banking"
+economy. The system features a modern React 19 frontend and employs a dual-backend 
+architecture, allowing deployment with either .NET 8 (C#) or Spring Boot (Java).
+
+1. FRONTEND (Client-Side)
+-------------------------
+Core Framework & Build Tool:
+- React: v19.2.0 (Latest concurrency features)
+- Vite: v7.2.4 (Next-gen frontend tooling)
 - Language: JavaScript (ESModules)
-- Styling: 
-  - Bootstrap 5.3
-  - Bootstrap Icons
-- Routing: React Router DOM 7
-- Animations: Framer Motion, Lenis (smooth scrolling)
-- HTTP Client: Axios
-- Real-time Communication: @microsoft/signalr
-- API Documentation: Swagger UI React
 
-Backend
--------
-- Framework: ASP.NET Core Web API (.NET 8.0)
-- Language: C#
-- Database ORM: Entity Framework Core 8
-- Database Provider: SQL Server (Microsoft.EntityFrameworkCore.SqlServer)
-- Authentication: ASP.NET Core Identity with JWT Bearer Tokens
-- API Documentation: Swashbuckle (Swagger)
+User Interface & User Experience (UI/UX):
+- UI Framework: Bootstrap v5.3.8 (Responsive Grid & Components)
+- Icons: Bootstrap Icons v1.13.1
+- Animations: Framer Motion v12.23.26 (Complex gesture animations)
+- Smooth Scrolling: Lenis v1.3.16
 
-Key Features Implementation
----------------------------
-- State Management: React Hooks (useState, useEffect).
-- Real-time: SignalR integration.
+State Management & Routing:
+- Routing: React Router DOM v7.11.0
+- Connectors: React Hooks (Custom hooks for Auth, Chat, Theme)
+- Notifications: React Hot Toast v2.6.0
+
+Integrations & Networking:
+- HTTP Client: Axios v1.13.2
+- Real-Time (.NET): @microsoft/signalr v10.0.0
+- Real-Time (Java): @stomp/stompjs v7.2.1, sockjs-client v1.6.1
+- Auth: @react-oauth/google v0.13.4 (Google Sign-In)
+- Documentation: Swagger UI React v5.31.0
+
+--------------------------------------------------------------------------------
+
+2. BACKEND OPTIONS (Server-Side)
+The project is designed to be backend-agnostic. Use either Option A or Option B.
+
+OPTION A: .NET ECOSYSTEM (Primary)
+----------------------------------
+Framework:
+- Platform: .NET 8.0 (Long Term Support)
+- Type: ASP.NET Core Web API
+
+Database & ORM:
+- Database: Microsoft SQL Server
+- ORM: Entity Framework Core v8.0.22
+- Design: Code-First Migrations
+
+Security & Auth:
+- Identity: ASP.NET Core Identity
+- Token: JWT Bearer Authentication (Microsoft.AspNetCore.Authentication.JwtBearer)
+- OAuth: Google Authentication
+
+Real-Time Communication:
+- Protocol: SignalR (Native WebSocket support)
+
+Payments:
+- Gateway: Razorpay .NET SDK v3.3.2
+
+Documentation:
+- Tool: Swashbuckle.AspNetCore v6.9.0 (Swagger Gen)
+
+
+OPTION B: SPRING BOOT ECOSYSTEM (Alternative)
+---------------------------------------------
+Framework:
+- Framework: Spring Boot v3.5.10
+- Language: Java 21 (LTS)
+
+Database & ORM:
+- Database: MySQL 8.0
+- ORM: Spring Data JPA (Hibernate implementation)
+- Driver: MySQL Connector/J
+
+Security & Auth:
+- Security: Spring Security
+- Token: JJWT (Java JWT) v0.11.5
+- OAuth: Google API Client v2.2.0
+
+Real-Time Communication:
+- Protocol: WebSocket via STOMP (Spring Boot Starter WebSocket)
+
+Payments:
+- Gateway: Razorpay Java Client v1.4.3
+
+Utilities:
+- Boilerplate Reduction: Lombok
+- Mapping: ModelMapper v3.1.1
+- Documentation: Springdoc OpenAPI v2.3.0
+
+--------------------------------------------------------------------------------
+
+3. DEVELOPMENT TOOLS & ENVIRONMENT
+----------------------------------
+- IDE: Visual Studio 2022 / VS Code
+- Version Control: Git
+- API Testing: Postman / Swagger UI
+- Package Managers:
+  - NPM (Frontend)
+  - NuGet (.NET Backend)
+  - Maven (Spring Boot Backend)
+
+================================================================================

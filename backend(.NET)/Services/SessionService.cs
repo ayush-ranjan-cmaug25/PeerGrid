@@ -39,7 +39,7 @@ namespace PeerGrid.Backend.Services
                     Topic = topic ?? "General",
                     Title = $"Session on {topic ?? "General"}",
                     Description = "Booked via Profile",
-                    Status = "Confirmed",
+                    Status = "Pending", // Was "Confirmed"
                     StartTime = startTime,
                     EndTime = startTime.AddHours(1) // Default 1 hour
                 };
@@ -55,6 +55,45 @@ namespace PeerGrid.Backend.Services
             }
         }
 
+        public async Task AcceptSessionRequestAsync(int sessionId, int userId)
+        {
+            var session = await _context.Sessions.FindAsync(sessionId);
+            if (session == null) throw new Exception("Session not found");
+            // Only Tutor can accept
+            if (session.TutorId != userId) throw new Exception("Unauthorized");
+            if (session.Status != "Pending") throw new Exception("Session is not pending");
+
+            session.Status = "Confirmed";
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task RejectSessionRequestAsync(int sessionId, int userId)
+        {
+             using var transaction = await _context.Database.BeginTransactionAsync();
+             try
+             {
+                var session = await _context.Sessions.FindAsync(sessionId);
+                if (session == null) throw new Exception("Session not found");
+                if (session.TutorId != userId) throw new Exception("Unauthorized");
+                if (session.Status != "Pending") throw new Exception("Session is not pending");
+
+                session.Status = "Cancelled";
+                
+                // Refund Learner
+                var learner = await _context.Users.FindAsync(session.LearnerId);
+                learner.LockedPoints -= session.Cost;
+                learner.GridPoints += session.Cost;
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+             }
+             catch(Exception)
+             {
+                 await transaction.RollbackAsync();
+                 throw;
+             }
+        }
+
         public async Task<Transaction> CompleteSessionAsync(int learnerId, int tutorId, decimal cost)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -66,6 +105,8 @@ namespace PeerGrid.Backend.Services
 
                 if (learner == null || tutor == null) throw new Exception("User not found");
 
+                 // Verify session validity? For now trusting the request but ideally we check Session ID.
+                
                 // Move from Learner's LockedPoints to Tutor's GridPoints
                 learner.LockedPoints -= cost;
                 tutor.GridPoints += cost;
@@ -81,6 +122,14 @@ namespace PeerGrid.Backend.Services
                     Timestamp = DateTime.UtcNow
                 };
                 _context.Transactions.Add(tx);
+
+                // Update session?
+                var session = await _context.Sessions
+                                    .FirstOrDefaultAsync(s => s.LearnerId == learnerId && s.TutorId == tutorId && s.Cost == cost && (s.Status == "Confirmed" || s.Status == "Active"));
+                if (session != null) 
+                {
+                    session.Status = "Completed";
+                }
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();

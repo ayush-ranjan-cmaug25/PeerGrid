@@ -143,7 +143,7 @@ namespace PeerGrid.Backend.Controllers
 
         private string GenerateJwtToken(User user)
         {
-            var jwtKey = _configuration["Jwt:Key"] ?? "REDACTED_JWT_SECRET";
+            var jwtKey = _configuration["Jwt:Key"] ?? "THIS_IS_A_FALLBACK_KEY_MUST_BE_LONG_ENOUGH_FOR_HS256_ALGORITHM";
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

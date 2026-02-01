@@ -17,8 +17,6 @@
 *.suo
 *.ntvs*
 *.njsproj
-*.sln
-*.sw?
 
 # Database
 *.db
@@ -57,9 +55,6 @@ help.md
 *.zip
 *.tar.gz
 *.rar
-mvnw
-mvnw.cmd
-.mvn/
 
 
 # -------------------------------------------------------------------------

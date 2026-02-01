@@ -23,14 +23,31 @@ namespace PeerGrid.Backend.Controllers
 
         // GET: api/webinars
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Webinar>>> GetWebinars()
+        // GET: api/webinars
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<object>>> GetWebinars()
         {
-            return await _context.Webinars
+            var webinars = await _context.Webinars
                 .Include(w => w.Host)
                 .Include(w => w.RegisteredUsers) 
                 .Where(w => w.ScheduledTime > DateTime.Now)
                 .OrderBy(w => w.ScheduledTime)
                 .ToListAsync();
+
+            var result = webinars.Select(w => new {
+                w.Id,
+                w.Title,
+                w.Description,
+                w.HostId,
+                w.Host, // Includes Host details
+                w.ScheduledTime,
+                w.DurationMinutes,
+                w.Cost,
+                w.MeetingLink,
+                RegisteredUserIds = w.RegisteredUsers.Select(u => u.Id).ToList()
+            });
+
+            return Ok(result);
         }
 
         // POST: api/webinars

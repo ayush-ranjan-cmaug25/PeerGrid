@@ -18,7 +18,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 // JWT Authentication
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "REDACTED_JWT_SECRET";
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "THIS_IS_A_FALLBACK_KEY_MUST_BE_LONG_ENOUGH_FOR_HS256_ALGORITHM";
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

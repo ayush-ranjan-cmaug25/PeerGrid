@@ -102,6 +102,36 @@ namespace PeerGrid.Backend.Controllers
             }
         }
 
+        [HttpPost("accept-request/{id}")]
+        public async Task<IActionResult> AcceptSessionRequest(int id)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                await _sessionService.AcceptSessionRequestAsync(id, userId);
+                return Ok(new { message = "Session accepted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("reject-request/{id}")]
+        public async Task<IActionResult> RejectSessionRequest(int id)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                await _sessionService.RejectSessionRequestAsync(id, userId);
+                return Ok(new { message = "Session rejected successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpPost("book")]
         public async Task<IActionResult> BookSession([FromBody] BookSessionRequest request)
         {

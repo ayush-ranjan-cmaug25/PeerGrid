@@ -62,6 +62,9 @@ const Login = ({ onLogin, theme, toggleTheme, userRole }) => {
             }
         } catch (error) {
             console.error('Login error:', error);
+            
+            // Temporary debugging
+            console.log(`Attempted to fetch: ${API_BASE_URL}/auth/login`);
 
             if (email === 'admin@peergrid.com' && password === 'admin123') {
                 localStorage.removeItem('adminActiveTab');
@@ -72,7 +75,7 @@ const Login = ({ onLogin, theme, toggleTheme, userRole }) => {
                 toast.success('Login successful (User Fallback)');
                 navigate('/dashboard');
             } else {
-                toast.error('Login failed (Backend unreachable)');
+                toast.error(`Login failed: ${error.message}. Is backend running at ${API_BASE_URL}?`);
             }
         }
     };

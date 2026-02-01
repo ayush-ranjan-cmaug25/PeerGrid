@@ -9,10 +9,6 @@ import PageSection from '../components/PageSection';
 import Navbar from '../components/Navbar';
 
 const Home = ({ theme, toggleTheme, userRole, onLogout }) => {
-    if (userRole === 'admin') {
-        return <Navigate to="/admin-dashboard" replace />;
-    }
-
     const location = useLocation();
     const { scrollYProgress } = useScroll();
 
@@ -31,6 +27,10 @@ const Home = ({ theme, toggleTheme, userRole, onLogout }) => {
         damping: 30,
         restDelta: 0.001
     });
+
+    if (userRole === 'admin') {
+        return <Navigate to="/admin-dashboard" replace />;
+    }
 
     return (
         <div className="min-vh-100 d-flex flex-column position-relative" style={{ color: 'var(--text-main)', overflowX: 'hidden', position: 'relative' }}>

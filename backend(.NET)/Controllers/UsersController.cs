@@ -186,7 +186,7 @@ namespace PeerGrid.Backend.Controllers
 
         // PUT: api/Users/me
         [HttpPut("me")]
-        public async Task<IActionResult> UpdateProfile(User updatedUser)
+        public async Task<IActionResult> UpdateProfile(UpdateProfileRequest updatedProfile)
         {
             var idClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (idClaim == null) return Unauthorized();
@@ -196,12 +196,18 @@ namespace PeerGrid.Backend.Controllers
 
             if (user == null) return NotFound();
 
-            user.SkillsOffered = updatedUser.SkillsOffered;
-            user.SkillsNeeded = updatedUser.SkillsNeeded;
-            user.Bio = updatedUser.Bio;
-            user.Name = updatedUser.Name;
-            user.ProfilePictureUrl = updatedUser.ProfilePictureUrl;
+            if (!string.IsNullOrEmpty(updatedProfile.Name)) user.Name = updatedProfile.Name;
+            if (!string.IsNullOrEmpty(updatedProfile.Bio)) user.Bio = updatedProfile.Bio;
+            if (!string.IsNullOrEmpty(updatedProfile.ProfilePictureUrl)) user.ProfilePictureUrl = updatedProfile.ProfilePictureUrl;
+            
+            if (updatedProfile.SkillsOffered != null) user.SkillsOffered = updatedProfile.SkillsOffered;
+            if (updatedProfile.SkillsNeeded != null) user.SkillsNeeded = updatedProfile.SkillsNeeded;
 
+            // Handle Password Update
+            if (!string.IsNullOrEmpty(updatedProfile.Password))
+            {
+                user.PasswordHash = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(updatedProfile.Password));
+            }
 
             await _context.SaveChangesAsync();
             return Ok(user);

@@ -38,20 +38,22 @@ Sometimes a direct swap isn't possible (A helps B, but B can't help A).
 
 ## 🛠️ Technological Foundation
 
-### 🔙 Backend: Robust & Secure
-Built on the enterprise-grade **.NET 8 Ecosystem**.
-*   **Framework:** ASP.NET Core Web API (C#) ensures high performance and type safety.
-*   **Database:** SQL Server with Entity Framework Core 8 manages the complex relational data of transactions and user profiles.
-*   **Authentication:** ASP.NET Core Identity with JWT Bearer Tokens protects user data and point balances.
-*   **Documentation:** Swashbuckle (Swagger).
+### 🔙 Backend: Flexible Dual-Architecture
+The system is built to be backend-agnostic. You can run it with either:
 
-### 🎨 Frontend: Modern & Interactive
-A cutting-edge interface powered by **React 19**.
-*   **Build Tool:** Vite 7 (for instant load times).
-*   **Styling:** Bootstrap 5.3 & Bootstrap Icons.
-*   **Animations:** Framer Motion & Lenis (smooth scrolling).
-*   **Real-Time:** Integrated with `@microsoft/signalr` to push live updates (chats, bounty alerts) without page refreshes.
-*   **State Management:** React Hooks (useState, useEffect).
+| Feature | .NET Ecosystem (Option A) | Spring Boot Ecosystem (Option B) |
+| :--- | :--- | :--- |
+| **Framework** | **.NET 8** (ASP.NET Core Web API) | **Spring Boot 3.5** (Java 21) |
+| **Database** | **SQL Server** (EF Core 8) | **MySQL** (Spring Data JPA) |
+| **Real-Time** | **SignalR** (Native Hubs) | **WebSocket** (STOMP) |
+| **Security** | ASP.NET Identity + JWT | Spring Security + JJWT |
+| **Docs** | Swashbuckle (Swagger) | Springdoc OpenAPI |
+
+### 🎨 Frontend: Modern & Responsive
+*   **Core:** React 19 + Vite 7
+*   **Styling:** Bootstrap 5.3 + Bootstrap Icons (Glassmorphism design system)
+*   **Motion:** Framer Motion 12 + Lenis (Smooth Scroll)
+*   **Networking:** Axios + Dynamic WebSocket Client (SignalR/STOMP)
 
 ---
 
@@ -59,22 +61,28 @@ A cutting-edge interface powered by **React 19**.
 
 ```bash
 PeerGrid/
-├── frontend/               # React 19 Client Application
+├── frontend/                   # React 19 Client Application
 │   ├── src/
-│   │   ├── components/     # Reusable UI Components
-│   │   ├── assets/         # Static assets (Logos, Icons)
-│   │   ├── App.css         # Global Styles & Variables
-│   │   └── main.jsx        # Entry Point
-│   └── vite.config.js      # Vite Configuration
+│   │   ├── components/         # Reusable UI Components
+│   │   ├── services/           # Service Layer (API calls)
+│   │   ├── App.css             # Global Styles & Variables
+│   │   └── main.jsx            # Entry Point
+│   └── vite.config.js          # Vite Configuration
 │
-├── backend/                # ASP.NET Core Web API (.NET 8)
-│   ├── Controllers/        # API Endpoints
-│   ├── Models/             # Database Entities
-│   ├── Data/               # EF Core DbContext
-│   ├── Services/           # Business Logic
-│   └── Program.cs          # App Configuration & Middleware
+├── backend(.NET)/              # ASP.NET Core Web API (.NET 8)
+│   ├── Controllers/            # API Endpoints
+│   ├── Models/                 # Database Entities
+│   ├── Hubs/                   # SignalR Hubs
+│   └── Program.cs              # App Configuration
 │
-└── README.md               # Project Documentation
+├── backend(Spring Boot)/       # Spring Boot 3.5 (Java 21)
+│   ├── src/main/java/          # Java Source Code
+│   │   ├── controller/         # REST Controllers
+│   │   ├── entity/             # JPA Entities
+│   │   └── config/             # WebSocket & Security Config
+│   └── pom.xml                 # Maven Dependencies
+│
+└── README.md                   # Project Documentation
 ```
 
 ---
@@ -101,14 +109,26 @@ cd backend
 dotnet ef database update
 ```
 
-### 2️⃣ Backend Setup
-Navigate to the backend directory and start the API server.
-```bash
-cd backend
-dotnet restore
-dotnet run
-```
-The API will be available at `https://localhost:7245` (or similar, check console output).
+### 2️⃣ Backend Setup (Choose One)
+
+**Option A: Run with .NET (SQL Server)**
+1.  Configure connection string in `backend(.NET)/appsettings.json`.
+2.  Run migrations and start server:
+    ```bash
+    cd "backend(.NET)"
+    dotnet ef database update
+    dotnet run
+    ```
+    *Server runs on: `https://localhost:7245`*
+
+**Option B: Run with Spring Boot (MySQL)**
+1.  Configure database in `backend(Spring Boot)/src/main/resources/application.properties` (or `application-secrets.properties`).
+2.  Run the application:
+    ```bash
+    cd "backend(Spring Boot)"
+    mvnw spring-boot:run
+    ```
+    *Server runs on: `http://localhost:5000`*
 
 ### 3️⃣ Frontend Setup
 Open a new terminal, navigate to the frontend directory, and start the React app.

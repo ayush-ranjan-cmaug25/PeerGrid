@@ -37,24 +37,35 @@ Sometimes a direct swap isn't possible (A helps B, but B can't help A).
 
 ## 3. TECHNOLOGICAL FOUNDATION
 
-### Backend: Robust & Secure
-Built on the enterprise-grade **.NET 8 Ecosystem**.
-* **Framework:** ASP.NET Core Web API (C#) ensures high performance and type safety.
-* **Database:** SQL Server with Entity Framework Core 8 manages the complex relational data of transactions and user profiles.
-* **Authentication:** ASP.NET Core Identity with JWT Bearer Tokens protects user data and point balances.
-* **Documentation:** Swashbuckle (Swagger).
+### Architectural Design
+PeerGrid follows a **Decoupled Client-Server Architecture**. The frontend is a standalone Single Page Application (SPA) that consumes RESTful APIs from the backend. This separation allows specialized focus on UI responsiveness while ensuring backend scalability.
 
-### Frontend: Modern & Interactive
-A cutting-edge interface powered by **React 19**.
-* **Build Tool:** Vite 7 (for instant load times).
-* **Styling:** Bootstrap 5.3 & Bootstrap Icons.
-* **Animations:** Framer Motion & Lenis (smooth scrolling).
-* **Real-Time:** Integrated with `@microsoft/signalr` to push live updates (chats, bounty alerts) without page refreshes.
-* **State Management:** React Hooks (useState, useEffect).
+### Backend: The Dual-Stack Engine
+A unique feature of PeerGrid is its ability to run on two industry-standard backend stacks. This demonstrates versatility and architectural clean code practices.
+
+#### **Option A: The .NET Powerhouse**
+*   **Core:** Built on **.NET 8**, leveraging the high-performance Kestrel web server.
+*   **Data Layer:** Uses **Entity Framework Core 8** with **SQL Server**. It employs Code-First migrations for seamless schema evolution.
+*   **Real-Time:** **SignalR** Hubs manage instant messaging and live video signaling.
+*   **Security:** Implements **Identity Core** with JWT Bearer tokens for stateless authentication.
+
+#### **Option B: The Spring Boot Fortress**
+*   **Core:** Built on **Spring Boot 3.5** (Java 21).
+*   **Data Layer:** **Spring Data JPA** (Hibernate) connected to **MySQL**, ensuring ACID compliance for transaction credits.
+*   **Connectivity:** **WebSocket** endpoints with STOMP messaging for broad compatibility.
+*   **Security:** **Spring Security** filter chain with JJWT for rigorous access control.
+
+### Frontend: Next-Gen Interactivity
+The user interface is not just a form-submitter; it is a dynamic, stateful application.
+*   **React 19:** Utilizes the latest concurrent rendering features.
+*   **Vite 7:** Ensures lightning-fast Hot Module Replacement (HMR) during development.
+*   **Framer Motion:** Provides physics-based animations for a "premium" app feel.
+*   **Dual-Protocol Networking:** The frontend intelligently switches between `SignalRConnection` and `StompClient` based on the active backend.
 
 ---
 
 ## 4. WHY THIS PROJECT STANDS OUT
-* **Conceptually Unique:** It gamifies education and solves a genuine resource allocation problem among students.
-* **Modern Stack:** It demonstrates proficiency in the latest industry standards (React 19, .NET 8, SignalR).
-* **Complex Logic:** It moves beyond simple CRUD to handle real-time economy balancing, concurrency, and graph-based matching.
+*   **Architectural Flexibility:** Few student projects demonstrate the ability to maintain feature parity across two completely different backend stacks (.NET & Java).
+*   **Economic Modeling:** It implements a "Closed-Loop Economy" (Time Banking), requiring complex transaction logic beyond standard CRUD.
+*   **Graph Algorithms:** The "Deadlock Breaker" (Triangular Matching) feature solves circular dependencies, showcasing algorithmic thinking.
+*   **Real-World Integrations:** Includes **Google OAuth** for seamless onboarding and **Razorpay** for real-world payment simulation (buying points).
