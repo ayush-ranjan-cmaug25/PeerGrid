@@ -37,6 +37,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // Register Services
 builder.Services.AddScoped<SessionService>();
 builder.Services.AddScoped<MatchingService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddSignalR();
 builder.Services.AddHostedService<ShutdownService>();
 builder.Services.AddControllers();

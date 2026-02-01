@@ -36,64 +36,102 @@ const getSmoothPath = (points, height, width) => {
 
 export const BarChart = ({ data, height = 200, color = '#4f46e5' }) => {
     const maxVal = Math.max(...data.map(d => d.value)) || 1;
+    // Round up maxVal to nice number for grid lines
+    const gridMax = Math.ceil(maxVal / 5) * 5;
     const [hoveredIndex, setHoveredIndex] = useState(null);
 
     return (
-        <div style={{ height: `${height}px`, width: '100%', display: 'flex', alignItems: 'flex-end', gap: '8px', paddingBottom: '20px' }}>
-            {data.map((d, i) => (
-                <div key={i} 
-                    style={{ 
-                        flex: 1, 
-                        display: 'flex', 
-                        flexDirection: 'column', 
-                        alignItems: 'center',
-                        height: '100%',
-                        position: 'relative',
-                        cursor: 'pointer'
-                    }}
-                    onMouseEnter={() => setHoveredIndex(i)}
-                    onMouseLeave={() => setHoveredIndex(null)}
-                >
-                    {/* Tooltip */}
-                    {hoveredIndex === i && (
+        <div style={{ height: `${height}px`, width: '100%', position: 'relative', paddingBottom: '20px' }}>
+            {/* Background Grid Lines */}
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', zIndex: 0, pointerEvents: 'none' }}>
+                {[...Array(5)].map((_, i) => (
+                    <div key={i} style={{ width: '100%', height: '1px', background: 'var(--border-color)', opacity: 0.3 }}></div>
+                ))}
+                <div style={{ width: '100%', height: '1px', background: 'var(--border-color)', opacity: 0.5 }}></div>
+            </div>
+
+            {/* Bars Container */}
+            <div style={{ height: '100%', width: '100%', display: 'flex', alignItems: 'flex-end', gap: '6%', zIndex: 1, position: 'relative' }}>
+                {data.map((d, i) => (
+                    <div key={i} 
+                        style={{ 
+                            flex: 1, 
+                            display: 'flex', 
+                            flexDirection: 'column', 
+                            alignItems: 'center',
+                            height: '100%',
+                            position: 'relative',
+                            cursor: 'pointer',
+                            group: 'bar-group'
+                        }}
+                        onMouseEnter={() => setHoveredIndex(i)}
+                        onMouseLeave={() => setHoveredIndex(null)}
+                    >
+                        {/* Tooltip */}
                         <div style={{
                             position: 'absolute',
-                            top: '-35px',
-                            background: 'var(--bg-card)',
-                            border: '1px solid var(--border-color)',
-                            padding: '4px 8px',
-                            borderRadius: '6px',
-                            fontSize: '0.75rem',
+                            top: '-45px',
+                            background: 'rgba(15, 23, 42, 0.9)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            padding: '6px 12px',
+                            borderRadius: '8px',
+                            fontSize: '0.8rem',
                             whiteSpace: 'nowrap',
-                            zIndex: 10,
-                            boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                            zIndex: 20,
+                            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)',
+                            backdropFilter: 'blur(8px)',
+                            opacity: hoveredIndex === i ? 1 : 0,
+                            transform: hoveredIndex === i ? 'translateY(0) scale(1)' : 'translateY(10px) scale(0.95)',
+                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                            pointerEvents: 'none',
+                            color: '#fff',
+                            fontWeight: '500'
                         }}>
-                            <strong>{d.label}</strong>: {d.value}
+                            <span style={{ color: '#fff', opacity: 0.7, marginRight: '6px' }}>{d.label}</span>
+                            <span style={{ fontWeight: 'bold' }}>{d.value}</span>
                         </div>
-                    )}
 
-                    <div style={{ flex: 1, width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+                        <div style={{ flex: 1, width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+                            <div style={{ 
+                                width: '100%', 
+                                height: `${(d.value / gridMax) * 100}%`, // Use gridMax for improved scaling
+                                minHeight: d.value > 0 ? '4px' : '0',
+                                background: hoveredIndex === i 
+                                    ? `linear-gradient(180deg, ${color} 0%, ${color} 100%)` 
+                                    : `linear-gradient(180deg, ${color}cc 0%, ${color}44 100%)`, // Gradient fade
+                                borderRadius: '8px',
+                                transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                                transformOrigin: 'bottom',
+                                transform: hoveredIndex === i ? 'scaleY(1.02)' : 'scaleY(1)',
+                                boxShadow: hoveredIndex === i ? `0 0 20px ${color}bd` : 'none',
+                                position: 'relative',
+                                overflow: 'hidden'
+                            }}>
+                                {/* Gloss effect */}
+                                <div style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    right: 0,
+                                    height: '20%',
+                                    background: 'linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%)',
+                                    opacity: 0.5
+                                }}></div>
+                            </div>
+                        </div>
                         <div style={{ 
-                            width: '70%', 
-                            height: `${(d.value / maxVal) * 100}%`, 
-                            background: hoveredIndex === i ? `linear-gradient(180deg, ${color} 0%, ${color}88 100%)` : color,
-                            borderRadius: '6px 6px 0 0',
-                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                            opacity: hoveredIndex !== null && hoveredIndex !== i ? 0.6 : 1,
-                            boxShadow: hoveredIndex === i ? `0 0 15px ${color}66` : 'none'
-                        }}></div>
+                            fontSize: '0.75rem', 
+                            color: hoveredIndex === i ? 'var(--text-main)' : 'var(--text-muted)', 
+                            marginTop: '12px', 
+                            fontWeight: hoveredIndex === i ? '600' : '500',
+                            transition: 'color 0.2s',
+                            letterSpacing: '0.01em'
+                        }}>
+                            {d.label}
+                        </div>
                     </div>
-                    <div style={{ 
-                        fontSize: '0.7rem', 
-                        color: hoveredIndex === i ? 'var(--text-main)' : 'var(--text-muted)', 
-                        marginTop: '8px', 
-                        fontWeight: hoveredIndex === i ? '600' : '400',
-                        transition: 'color 0.2s'
-                    }}>
-                        {d.label}
-                    </div>
-                </div>
-            ))}
+                ))}
+            </div>
         </div>
     );
 };
@@ -137,27 +175,42 @@ export const LineChart = ({ data, height = 200, color = '#10b981' }) => {
                 <path d={pathD} fill="none" stroke={color} strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinecap="round" style={{ transition: 'd 0.5s ease' }} />
                 
                 {/* Interactive Points */}
-                {points.map((p, i) => (
-                    <g key={i} 
-                       onMouseEnter={() => setHoveredPoint(i)}
-                       onMouseLeave={() => setHoveredPoint(null)}
-                       style={{ cursor: 'pointer' }}
-                    >
-                        <circle 
-                            cx={p.x} 
-                            cy={p.y} 
-                            r={hoveredPoint === i ? 6 : 0} 
-                            fill={color} 
-                            stroke="var(--bg-card)" 
-                            strokeWidth="2" 
-                            vectorEffect="non-scaling-stroke"
-                            style={{ transition: 'r 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}
-                        />
-                        {/* Invisible hit area */}
-                        <circle cx={p.x} cy={p.y} r="10" fill="transparent" vectorEffect="non-scaling-stroke" />
-                    </g>
-                ))}
             </svg>
+
+            {/* Interactive Points Overlay (HTML to avoid SVG distortion) */}
+            <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+                {points.map((p, i) => (
+                    <div key={i}
+                        onMouseEnter={() => setHoveredPoint(i)}
+                        onMouseLeave={() => setHoveredPoint(null)}
+                        style={{
+                            position: 'absolute',
+                            left: `${p.x}%`,
+                            top: `${p.y}%`,
+                            width: '24px', // Hit area
+                            height: '24px',
+                            transform: 'translate(-50%, -50%)',
+                            cursor: 'pointer',
+                            pointerEvents: 'auto',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            zIndex: 10
+                        }}
+                    >
+                        <div style={{
+                            width: hoveredPoint === i ? '12px' : '0', // Visible dot
+                            height: hoveredPoint === i ? '12px' : '0',
+                            borderRadius: '50%',
+                            backgroundColor: color,
+                            border: '2px solid var(--bg-card)',
+                            boxShadow: `0 0 0 2px ${color}40`,
+                            transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                            opacity: hoveredPoint === i ? 1 : 0
+                        }}></div>
+                    </div>
+                ))}
+            </div>
             
             {/* Tooltip */}
             {hoveredPoint !== null && (
@@ -241,9 +294,10 @@ export const PieChart = ({ data, size = 220 }) => {
                                     stroke="var(--bg-card)" 
                                     strokeWidth="0.02"
                                     style={{
-                                        transition: 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                                        transform: hoveredIndex === i ? 'scale(1.05)' : 'scale(1)',
-                                        transformOrigin: 'center'
+                                        transition: 'all 0.3s ease',
+                                        transformOrigin: 'center',
+                                        filter: hoveredIndex === i ? `drop-shadow(0 0 6px ${slice.color}) blur(0px)` : 'none',
+                                        opacity: hoveredIndex !== null && hoveredIndex !== i ? 0.5 : 1
                                     }}
                                 />
                             </g>

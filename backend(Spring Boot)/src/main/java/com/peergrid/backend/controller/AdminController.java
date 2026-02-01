@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,9 +52,31 @@ public class AdminController {
         if (!userRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
+
+        // 1. Get Sessions
+        List<Session> tutorSessions = sessionRepository.findByTutorId(id);
+        List<Session> learnerSessions = sessionRepository.findByLearnerId(id);
+        List<Session> allSessions = new java.util.ArrayList<>();
+        allSessions.addAll(tutorSessions);
+        allSessions.addAll(learnerSessions);
+
+        // 2. Delete Feedbacks for these sessions
+        for (Session s : allSessions) {
+             List<Feedback> feedbacks = feedbackRepository.findBySessionId(s.getId());
+             feedbackRepository.deleteAll(feedbacks);
+        }
+
+        // 3. Delete Sessions
+        sessionRepository.deleteAll(allSessions);
+
+        // 4. Delete Transactions
+        List<Transaction> transactions = transactionRepository.findByLearnerIdOrTutorId(id, id);
+        transactionRepository.deleteAll(transactions);
+
+        // 5. Delete User
         userRepository.deleteById(id);
-        logAction("Admin", "User Banned", "Admin", "Banned user ID: " + id);
-        return ResponseEntity.ok().body(Map.of("message", "User banned/deleted successfully"));
+        logAction("Admin", "User Deleted", "Admin", "Deleted user ID: " + id);
+        return ResponseEntity.ok().body(Map.of("message", "User deleted successfully"));
     }
 
     @PutMapping("/users/{id}/gp")
@@ -67,6 +90,21 @@ public class AdminController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
+    @PutMapping("/users/{id}/status")
+    public ResponseEntity<?> updateUserStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
+        String status = body.get("status");
+        return userRepository.findById(id).map(user -> {
+            if ("Banned".equalsIgnoreCase(status)) {
+                user.setBanned(true);
+            } else if ("Active".equalsIgnoreCase(status)) {
+                user.setBanned(false);
+            }
+            userRepository.save(user);
+            logAction("Admin", "User Status Updated", "Admin", "Updated status of user ID: " + id + " to " + status);
+            return ResponseEntity.ok().body(Map.of("message", "User status updated successfully", "banned", user.isBanned()));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/sessions")
     public List<Session> getAllSessions() {
         return sessionRepository.findAll();
@@ -75,15 +113,35 @@ public class AdminController {
     @GetMapping("/stats")
     public Map<String, Object> getStats() {
         long totalUsers = userRepository.count();
-        long activeSessions = sessionRepository.findAll().stream().filter(s -> "Active".equals(s.getStatus())).count();
-        long activeBounties = sessionRepository.findAll().stream().filter(s -> s.getTutor() == null && "Open".equals(s.getStatus())).count();
+        List<Session> allSessions = sessionRepository.findAll();
+        long activeSessions = allSessions.stream().filter(s -> "Active".equals(s.getStatus())).count();
+        long activeBounties = allSessions.stream().filter(s -> s.getTutor() == null && "Open".equals(s.getStatus())).count();
         long pendingReports = 0;
+
+        // Calculate session history for the last 7 days
+        java.time.LocalDate today = java.time.LocalDate.now();
+        java.time.format.DateTimeFormatter dayFormatter = java.time.format.DateTimeFormatter.ofPattern("EEE"); // Mon, Tue...
+        
+        List<Map<String, Object>> sessionsHistory = java.util.stream.IntStream.range(0, 7)
+            .map(i -> 6 - i) // 6, 5, 4, 3, 2, 1, 0 (days ago)
+            .mapToObj(daysAgo -> {
+                java.time.LocalDate date = today.minusDays(daysAgo);
+                long count = allSessions.stream()
+                    .filter(s -> s.getStartTime() != null && s.getStartTime().toLocalDate().equals(date))
+                    .count();
+                Map<String, Object> datapoint = new HashMap<>();
+                datapoint.put("label", date.format(dayFormatter));
+                datapoint.put("value", count);
+                return datapoint;
+            })
+            .collect(Collectors.toList());
 
         Map<String, Object> stats = new HashMap<>();
         stats.put("totalUsers", totalUsers);
         stats.put("activeSessions", activeSessions);
         stats.put("activeBounties", activeBounties);
         stats.put("pendingReports", pendingReports);
+        stats.put("sessionsHistory", sessionsHistory);
         return stats;
     }
 
@@ -201,5 +259,105 @@ public class AdminController {
     private void logAction(String type, String action, String user, String details) {
         Log log = new Log(type, action, user, details);
         logRepository.save(log);
+    }
+
+    @PostMapping("/seed")
+    public ResponseEntity<?> seedData() {
+        List<User> users = userRepository.findAll();
+        if (users.size() < 2) {
+            return ResponseEntity.badRequest().body("Need at least 2 users (including current one) to seed meaningful interactions.");
+        }
+
+        java.util.Random random = new java.util.Random();
+
+        // 1. Seed Sessions (Past 7 Days + Future)
+        for (int i = 0; i < 35; i++) {
+            Session s = new Session();
+            User tutor = users.get(random.nextInt(users.size()));
+            User learner = users.get(random.nextInt(users.size()));
+
+            // Ensure different users
+            int retries = 0;
+            while (learner.getId().equals(tutor.getId()) && retries < 5) {
+                learner = users.get(random.nextInt(users.size()));
+                retries++;
+            }
+            if (learner.getId().equals(tutor.getId())) continue;
+
+            s.setTutor(tutor);
+            s.setLearner(learner);
+
+            String[] topics = {"React Hooks Deep Dive", "Spring Boot Security", "Python Data Analysis", "AWS Lambda Deployment", "Docker Compose Masterclass", "Figma Prototyping", "Rust Concurrency", "Go Microservices"};
+            String topic = topics[random.nextInt(topics.length)];
+            s.setTitle(topic);
+            s.setTopic(topic);
+            s.setDescription("In-depth session covering " + topic + " with practical examples.");
+
+            // Random time in last 7 days or next 2 days
+            // 80% past, 20% future
+            boolean isPast = random.nextDouble() < 0.8;
+            LocalDateTime time;
+            if (isPast) {
+                time = LocalDateTime.now().minusDays(random.nextInt(7)).minusHours(random.nextInt(12));
+            } else {
+                time = LocalDateTime.now().plusDays(random.nextInt(2)).plusHours(random.nextInt(12));
+            }
+            s.setStartTime(time);
+            s.setEndTime(time.plusHours(1));
+
+            // Status logic
+            if (!isPast) {
+                s.setStatus("Pending"); // Future usually Pending or Confirmed
+            } else {
+                String[] pastStatuses = {"Completed", "Completed", "Completed", "Active", "Cancelled"}; // Mostly completed
+                s.setStatus(pastStatuses[random.nextInt(pastStatuses.length)]);
+            }
+
+            s.setCost(new BigDecimal(random.nextInt(90) + 10)); // 10-100 GP
+            sessionRepository.save(s);
+        }
+
+        // 2. Seed Bounties (Open Sessions)
+        for (int i = 0; i < 12; i++) {
+            Session s = new Session();
+            User learner = users.get(random.nextInt(users.size()));
+            s.setLearner(learner);
+            
+            String[] commonIssues = {"Fix CSS Grid Layout", "Debug NullPointerException", "Help with Redux Toolkit", "Deploy to Vercel", "Optimize SQL Query"};
+            String topic = commonIssues[random.nextInt(commonIssues.length)];
+            
+            s.setTitle(topic);
+            s.setTopic(topic);
+            s.setDescription("I am stuck with " + topic + ". Need expert help!");
+            s.setStatus("Open");
+            s.setCost(new BigDecimal(random.nextInt(40) + 10));
+            sessionRepository.save(s);
+        }
+
+        // 3. Seed Transactions
+        for (int i = 0; i < 25; i++) {
+            Transaction t = new Transaction();
+            User tutor = users.get(random.nextInt(users.size()));
+            User learner = users.get(random.nextInt(users.size()));
+            
+             // Ensure different users
+            if (learner.getId().equals(tutor.getId())) continue;
+            
+            t.setTutor(tutor);
+            t.setLearner(learner);
+            
+            String[] skills = {"React", "Java", "Python", "AWS", "Design"};
+            t.setSkill(skills[random.nextInt(skills.length)]);
+            
+            t.setPoints(new BigDecimal(random.nextInt(450) + 50));
+            t.setType("Transfer");
+            t.setTimestamp(LocalDateTime.now().minusDays(random.nextInt(7)).minusHours(random.nextInt(24)));
+            
+            transactionRepository.save(t);
+        }
+
+        logAction("System", "Data Seeded", "Admin", "Populated database with dummy sessions and transactions.");
+        
+        return ResponseEntity.ok(Map.of("message", "Database successfully populated with using existing users."));
     }
 }

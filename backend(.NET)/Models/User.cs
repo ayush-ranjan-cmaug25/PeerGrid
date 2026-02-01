@@ -25,5 +25,6 @@ namespace PeerGrid.Backend.Models
         public decimal LockedPoints { get; set; } // Escrow
         
         public bool IsAvailable { get; set; } = true;
+        public bool Banned { get; set; } = false;
     }
 }

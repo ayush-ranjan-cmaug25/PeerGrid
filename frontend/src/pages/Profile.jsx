@@ -120,7 +120,7 @@ const BookSessionModal = ({ user, onClose, onBook }) => {
     };
 
     return (
-        <Modal title={`Book Session with ${user.name}`} onClose={onClose} onSubmit={handleSubmit} actionLabel="Book Now">
+        <Modal title={`Request Session with ${user.name}`} onClose={onClose} onSubmit={handleSubmit} actionLabel="Request Session">
             <div className="mb-3">
                 <label className="form-label small fw-bold text-muted">Topic</label>
                 <select className="form-select" value={formData.topic} onChange={e => setFormData({...formData, topic: e.target.value})}>
@@ -194,6 +194,31 @@ const SessionsTab = ({ onComplete }) => {
         setActiveCallSession(session);
     };
 
+    const handleAction = async (sessionId, action) => {
+        const token = localStorage.getItem('token');
+        try {
+            const response = await fetch(`${API_BASE_URL}/sessions/${action}-request/${sessionId}`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                toast.success(`Session ${action}ed successfully`);
+                setSessions(sessions.map(s => {
+                    if (s.id === sessionId) {
+                         return { ...s, status: action === 'accept' ? 'Confirmed' : 'Cancelled' };
+                    }
+                    return s;
+                }));
+            } else {
+                toast.error(`Failed to ${action} session`);
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("Network error");
+        }
+    };
+
     useEffect(() => {
         const fetchSessions = async () => {
             const token = localStorage.getItem('token');
@@ -226,37 +251,64 @@ const SessionsTab = ({ onComplete }) => {
                         <p className="text-center text-muted">No sessions found.</p>
                     ) : (
                         <div className="table-responsive">
-                            <table className="table table-borderless" style={{ color: 'var(--text-main)' }}>
+                            <table className="table custom-table align-middle">
                                 <thead>
-                                    <tr className="border-bottom border-secondary-subtle">
+                                    <tr className="text-muted small text-uppercase">
                                         <th>Topic</th>
                                         <th>With</th>
-                                        <th>Time</th>
+                                        <th>Date & Time</th>
                                         <th>Status</th>
-                                        <th>Action</th>
+                                        <th>Cost</th>
+                                        <th className="text-end">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {sessions.map(session => (
-                                        <tr key={session.id} className="align-middle">
-                                            <td className="py-3">
+                                        <tr key={session.id}>
+                                            <td>
                                                 <div className="fw-bold">{session.title || session.topic}</div>
                                                 <div className="small text-muted">{session.description}</div>
                                             </td>
-                                            <td>{session.otherParty}</td>
-                                            <td>{new Date(session.time).toLocaleString()}</td>
                                             <td>
-                                                <span className={`badge rounded-pill ${
-                                                    session.status === 'Confirmed' ? 'bg-success' : 
-                                                    session.status === 'Completed' ? 'bg-secondary' : 
-                                                    session.status === 'Open' ? 'bg-info' : 'bg-warning'
+                                                <div className="d-flex align-items-center gap-2">
+                                                    <i className="bi bi-person-circle text-secondary"></i>
+                                                    <span>{session.otherParty}</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className="small">
+                                                    <div>{new Date(session.time).toLocaleDateString()}</div>
+                                                    <div className="text-muted">{new Date(session.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span className={`badge ${
+                                                    session.status === 'Confirmed' ? 'bg-info-subtle text-info' : 
+                                                    session.status === 'Active' ? 'bg-success-subtle text-success' :
+                                                    session.status === 'Completed' ? 'bg-secondary-subtle text-secondary' : 
+                                                    session.status === 'Open' ? 'bg-warning-subtle text-warning' :
+                                                    'bg-danger-subtle text-danger'
                                                 }`}>
                                                     {session.status}
                                                 </span>
                                             </td>
-                                            <td>
+                                            <td className="fw-bold">{session.cost} GP</td>
+                                            <td className="text-end">
+                                                {session.status === 'Pending' && session.tutorId === user.id && (
+                                                    <div className="d-flex justify-content-end gap-2">
+                                                        <button className="btn btn-sm btn-success rounded-pill px-3" onClick={() => handleAction(session.id, 'accept')}>
+                                                            Accept
+                                                        </button>
+                                                        <button className="btn btn-sm btn-danger rounded-pill px-3" onClick={() => handleAction(session.id, 'reject')}>
+                                                            Reject
+                                                        </button>
+                                                    </div>
+                                                )}
+                                                {session.status === 'Pending' && session.learnerId === user.id && (
+                                                     <span className="text-muted small">Waiting for approval</span>
+                                                )}
                                                 {session.status === 'Confirmed' && (
-                                                    <div className="d-flex gap-2">
+                                                    <div className="d-flex justify-content-end gap-2">
                                                         <button className="btn btn-sm btn-primary rounded-pill px-3" onClick={() => handleJoinCall(session)}>
                                                             Join
                                                         </button>
@@ -355,28 +407,28 @@ const WalletTab = ({ user }) => {
                         {transactions.length === 0 ? (
                             <p className="text-center text-muted">No transactions found.</p>
                         ) : (
-                            <table className="table mb-0" style={{ color: 'var(--text-main)' }}>
-                                <thead style={{ background: 'var(--bg-card-hover)' }}>
-                                    <tr>
-                                        <th className="p-3" style={{ borderColor: 'var(--border-color)' }}>Date</th>
-                                        <th className="p-3" style={{ borderColor: 'var(--border-color)' }}>Description</th>
-                                        <th className="p-3" style={{ borderColor: 'var(--border-color)' }}>Type</th>
-                                        <th className="p-3 text-end" style={{ borderColor: 'var(--border-color)' }}>Amount</th>
+                            <table className="table custom-table align-middle mb-0">
+                                <thead>
+                                    <tr className="text-muted small text-uppercase">
+                                        <th>Date</th>
+                                        <th>Description</th>
+                                        <th>Type</th>
+                                        <th className="text-end">Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {transactions.map(tx => (
                                         <tr key={tx.id}>
-                                            <td className="p-3" style={{ borderColor: 'var(--border-color)' }}>{new Date(tx.timestamp).toLocaleDateString()}</td>
-                                            <td className="p-3" style={{ borderColor: 'var(--border-color)' }}>
+                                            <td>{new Date(tx.timestamp).toLocaleDateString()}</td>
+                                            <td>
                                                 {tx.type === 'Earned' ? `Taught ${tx.otherPartyName || 'Peer'}` : `Paid ${tx.otherPartyName || 'Peer'}`} - {tx.skill}
                                             </td>
-                                            <td className="p-3" style={{ borderColor: 'var(--border-color)' }}>
-                                                <span className={`badge ${tx.type === 'Earned' ? 'bg-success' : 'bg-danger'}`}>
+                                            <td>
+                                                <span className={`badge ${tx.type === 'Earned' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}`}>
                                                     {tx.type}
                                                 </span>
                                             </td>
-                                            <td className={`p-3 text-end fw-bold ${tx.type === 'Earned' ? 'text-success' : 'text-danger'}`} style={{ borderColor: 'var(--border-color)' }}>
+                                            <td className={`text-end fw-bold ${tx.type === 'Earned' ? 'text-success' : 'text-danger'}`}>
                                                 {tx.type === 'Earned' ? '+' : '-'}{tx.points} GP
                                             </td>
                                         </tr>
@@ -527,7 +579,7 @@ const Profile = () => {
 
             if (response.ok) {
                 setShowBookModal(false);
-                toast.success("Session booked successfully!");
+                toast.success("Session requested successfully! Check status in Sessions tab.");
             } else {
                 const data = await response.json();
                 toast.error(data.message || "Failed to book session");
@@ -615,7 +667,7 @@ const Profile = () => {
                         onEditPhoto={handlePhotoUpload}
                         onEditSkillsOffered={() => setShowOfferedModal(true)}
                         onEditSkillsNeeded={() => setShowNeededModal(true)}
-                        onBook={() => setShowBookModal(true)} 
+                        onBook={user.role !== 'admin' ? () => setShowBookModal(true) : undefined} 
                         onMessage={() => openChat(user)}
                     />
                 </div>
@@ -651,7 +703,7 @@ const Profile = () => {
 
                     {/* Tab Content */}
                     {activeTab === 'overview' && (
-                        <div className="glass-card p-4 h-100">
+                        <div className="glass-card p-4">
                             <h2 className="section-title">Activity</h2>
                             <div className="row g-4 mb-4">
                                 <div className="col-md-4">

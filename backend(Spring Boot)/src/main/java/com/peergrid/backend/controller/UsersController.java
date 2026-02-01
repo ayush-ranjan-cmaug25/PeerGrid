@@ -74,6 +74,9 @@ public class UsersController {
                     dto.setId(s.getId());
                     dto.setTopic(s.getTopic());
                     dto.setOtherParty(s.getTutor() != null && s.getTutor().getId().equals(userId) ? s.getLearner().getName() : (s.getTutor() != null ? s.getTutor().getName() : "Unknown"));
+                    dto.setOtherPartyId(s.getTutor() != null && s.getTutor().getId().equals(userId) ? s.getLearner().getId() : (s.getTutor() != null ? s.getTutor().getId() : null));
+                    dto.setTutorId(s.getTutor() != null ? s.getTutor().getId() : null);
+                    dto.setLearnerId(s.getLearner() != null ? s.getLearner().getId() : null);
                     dto.setTime(s.getStartTime());
                     dto.setStatus(s.getStatus());
                     return dto;
@@ -116,6 +119,24 @@ public class UsersController {
         return ResponseEntity.ok(dto);
     }
 
+    @GetMapping("/top-solvers")
+    public ResponseEntity<List<UserDto>> getTopSolvers() {
+        List<User> users = userRepository.findAll();
+        List<UserDto> topSolvers = users.stream()
+                .sorted((u1, u2) -> u2.getGridPoints().compareTo(u1.getGridPoints()))
+                .limit(5)
+                .map(u -> {
+                    UserDto dto = new UserDto();
+                    dto.setId(u.getId());
+                    dto.setName(u.getName());
+                    dto.setGridPoints(u.getGridPoints());
+                    dto.setProfilePictureUrl(u.getProfilePictureUrl());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(topSolvers);
+    }
+
     @GetMapping("/dashboard")
     public ResponseEntity<Map<String, Object>> getDashboardStats() {
         User user = getAuthenticatedUser();
@@ -124,15 +145,18 @@ public class UsersController {
 
         List<SessionDto> upcomingSessions = allSessions.stream()
                 .filter(s -> (s.getLearner().getId().equals(userId) || (s.getTutor() != null && s.getTutor().getId().equals(userId))) 
-                        && "Confirmed".equals(s.getStatus()) 
+                        && ("Confirmed".equals(s.getStatus()) || "Active".equals(s.getStatus())) 
                         && s.getStartTime().isAfter(LocalDateTime.now()))
                 .sorted((s1, s2) -> s1.getStartTime().compareTo(s2.getStartTime()))
-                .limit(5)
+
                 .map(s -> {
                     SessionDto dto = new SessionDto();
                     dto.setId(s.getId());
                     dto.setTopic(s.getTopic());
                     dto.setOtherParty(s.getTutor() != null && s.getTutor().getId().equals(userId) ? s.getLearner().getName() : (s.getTutor() != null ? s.getTutor().getName() : "Unknown"));
+                    dto.setOtherPartyId(s.getTutor() != null && s.getTutor().getId().equals(userId) ? s.getLearner().getId() : (s.getTutor() != null ? s.getTutor().getId() : null));
+                    dto.setTutorId(s.getTutor() != null ? s.getTutor().getId() : null);
+                    dto.setLearnerId(s.getLearner() != null ? s.getLearner().getId() : null);
                     dto.setTime(s.getStartTime());
                     dto.setStatus(s.getStatus());
                     return dto;

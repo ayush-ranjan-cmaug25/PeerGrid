@@ -150,21 +150,25 @@ public class DataInitializer implements CommandLineRunner {
             List<com.peergrid.backend.entity.Transaction> transactions = new ArrayList<>();
             List<com.peergrid.backend.entity.Feedback> feedbacks = new ArrayList<>();
             List<com.peergrid.backend.entity.Message> messages = new ArrayList<>();
-            String[] statuses = { "Completed", "Pending", "Cancelled", "Active" };
+            String[] statuses = { "Completed", "Pending", "Cancelled", "Active", "Open" };
 
             for (int i = 0; i < 50; i++) {
                 User learner = dbUsers.get(random.nextInt(dbUsers.size()));
-                User tutor = dbUsers.get(random.nextInt(dbUsers.size()));
-                while (tutor.getId().equals(learner.getId())) tutor = dbUsers.get(random.nextInt(dbUsers.size()));
                 
                 String status = statuses[random.nextInt(statuses.length)];
+                User tutor = null;
+                if (!"Open".equals(status)) {
+                    tutor = dbUsers.get(random.nextInt(dbUsers.size()));
+                    while (tutor.getId().equals(learner.getId())) tutor = dbUsers.get(random.nextInt(dbUsers.size()));
+                }
+                
                 java.time.LocalDateTime startTime = java.time.LocalDateTime.now().plusDays(random.nextInt(60) - 30);
                 
                 com.peergrid.backend.entity.Session session = new com.peergrid.backend.entity.Session();
                 session.setLearner(learner); session.setTutor(tutor);
                 session.setTitle(sessionTopics[random.nextInt(sessionTopics.length)]);
                 session.setDescription("Help needed.");
-                session.setTopic(tutor.getSkillsOffered().isEmpty() ? "General" : tutor.getSkillsOffered().get(0));
+                session.setTopic(learner.getSkillsNeeded().isEmpty() ? "General" : learner.getSkillsNeeded().get(0)); // Use learner's needed skill for doubt
                 session.setStartTime(startTime); session.setEndTime(startTime.plusHours(1));
                 session.setStatus(status); session.setCost(new BigDecimal(random.nextInt(10) * 10 + 10));
                 sessions.add(session);
@@ -204,6 +208,80 @@ public class DataInitializer implements CommandLineRunner {
             System.out.println("Seeded sessions, transactions, feedbacks, and messages.");
         } else {
             System.out.println("Sessions already exist. Skipping session seeding.");
+        }
+
+        // 3.1 Ensure there are active "Open" doubts
+        long openDoubtsCount = sessionRepository.findAll().stream()
+                .filter(s -> "Open".equals(s.getStatus()))
+                .count();
+
+        if (openDoubtsCount < 10) {
+            System.out.println("Low number of Open doubts (" + openDoubtsCount + "), seeding more...");
+            List<User> usersForDoubts = userRepository.findAll();
+            if(!usersForDoubts.isEmpty()) {
+                String[] sessionTopics = { "React Help", "Java Debugging", "Architecture Review", "Code Review", "Exam Prep", "Mock Interview", "Spring Boot Error", "CSS Alignment" };
+                List<com.peergrid.backend.entity.Session> newDoubts = new ArrayList<>();
+                for (int i = 0; i < 15; i++) {
+                    User learner = usersForDoubts.get(random.nextInt(usersForDoubts.size()));
+                    com.peergrid.backend.entity.Session session = new com.peergrid.backend.entity.Session();
+                    session.setLearner(learner);
+                    session.setTutor(null); // Open doubt
+                    session.setTitle(sessionTopics[random.nextInt(sessionTopics.length)]);
+                    session.setDescription("I need help with this specific issue. Can anyone assist?");
+                    session.setTopic(learner.getSkillsNeeded().isEmpty() ? "General" : learner.getSkillsNeeded().get(0));
+                    session.setStartTime(java.time.LocalDateTime.now().plusHours(random.nextInt(24)));
+                    session.setEndTime(session.getStartTime().plusHours(1));
+                    session.setStatus("Open");
+                    session.setCost(new BigDecimal(random.nextInt(10) * 10 + 10));
+                    newDoubts.add(session);
+                }
+                sessionRepository.saveAll(newDoubts);
+                System.out.println("Seeded " + newDoubts.size() + " new Open doubts.");
+            }
+        }
+
+        
+        // 4. Ensure ALL users have at least one upcoming confirmed session
+        List<User> allUsers = userRepository.findAll();
+        for (User user : allUsers) {
+            long upcomingCount = sessionRepository.findAll().stream()
+                    .filter(s -> (s.getLearner().getId().equals(user.getId()) || (s.getTutor() != null && s.getTutor().getId().equals(user.getId())))
+                            && "Confirmed".equals(s.getStatus()) && s.getStartTime().isAfter(java.time.LocalDateTime.now()))
+                    .count();
+
+            if (upcomingCount == 0) {
+                // Find a random partner different from current user
+                 allUsers.stream()
+                        .filter(u -> !u.getId().equals(user.getId()))
+                        .findAny() // Use findAny for non-deterministic selection if stream allows, or just pick one
+                        .ifPresent(other -> {
+                            com.peergrid.backend.entity.Session session = new com.peergrid.backend.entity.Session();
+                            
+                            // 50% chance to be learner, 50% chance to be tutor
+                            boolean isLearner = random.nextBoolean();
+                            if (isLearner) {
+                                session.setLearner(user);
+                                session.setTutor(other);
+                            } else {
+                                session.setLearner(other);
+                                session.setTutor(user);
+                            }
+                            
+                            String topic = user.getSkillsOffered().isEmpty() ? "General" : user.getSkillsOffered().get(random.nextInt(user.getSkillsOffered().size()));
+                            
+                            session.setTitle(topic + " Mentorship");
+                            session.setDescription("Deep dive into " + topic);
+                            session.setTopic(topic);
+                            session.setCost(new BigDecimal(random.nextInt(5) * 100 + 100)); // 100-500 points
+                            session.setStatus("Confirmed");
+                            // Schedule 1 to 5 days in the future
+                            session.setStartTime(java.time.LocalDateTime.now().plusDays(random.nextInt(5) + 1).plusHours(random.nextInt(12)));
+                            session.setEndTime(session.getStartTime().plusHours(1));
+                            
+                            sessionRepository.save(session);
+                            System.out.println("Seeded confirmed session for " + user.getName());
+                        });
+            }
         }
     }
 }

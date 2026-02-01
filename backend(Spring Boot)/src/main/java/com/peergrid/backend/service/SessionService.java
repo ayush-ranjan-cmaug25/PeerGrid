@@ -85,9 +85,37 @@ public class SessionService {
         session.setTutor(tutor);
         session.setTopic(topic);
         session.setCost(cost);
-        session.setStatus("Confirmed");
+        session.setStatus("Pending");
         session.setStartTime(startTime);
         session.setEndTime(startTime.plusHours(1)); // Default 1 hour
+        sessionRepository.save(session);
+    }
+
+    @Transactional
+    public void acceptSessionRequest(@NonNull Integer sessionId) {
+        Session session = sessionRepository.findById(sessionId).orElseThrow(() -> new RuntimeException("Session not found"));
+        if (!"Pending".equals(session.getStatus())) {
+            throw new RuntimeException("Session is not pending");
+        }
+        session.setStatus("Confirmed");
+        sessionRepository.save(session);
+    }
+
+    @Transactional
+    public void rejectSessionRequest(@NonNull Integer sessionId) {
+        Session session = sessionRepository.findById(sessionId).orElseThrow(() -> new RuntimeException("Session not found"));
+        if (!"Pending".equals(session.getStatus())) {
+            throw new RuntimeException("Session is not pending");
+        }
+        
+        // Refund learner
+        User learner = session.getLearner();
+        BigDecimal cost = session.getCost();
+        learner.setLockedPoints(learner.getLockedPoints().subtract(cost));
+        learner.setGridPoints(learner.getGridPoints().add(cost));
+        userRepository.save(learner);
+
+        session.setStatus("Cancelled");
         sessionRepository.save(session);
     }
 

@@ -132,6 +132,28 @@ public class SessionsController {
         }
     }
 
+    @PostMapping("/accept-request/{id}")
+    public ResponseEntity<?> acceptSessionRequest(@PathVariable Integer id) {
+        try {
+            if (id == null) throw new RuntimeException("Session ID is required");
+            sessionService.acceptSessionRequest(id);
+            return ResponseEntity.ok(Map.of("message", "Session request accepted"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/reject-request/{id}")
+    public ResponseEntity<?> rejectSessionRequest(@PathVariable Integer id) {
+        try {
+            if (id == null) throw new RuntimeException("Session ID is required");
+            sessionService.rejectSessionRequest(id);
+            return ResponseEntity.ok(Map.of("message", "Session request rejected"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
     @PostMapping("/complete")
     public ResponseEntity<?> completeSession(@RequestBody CompleteSessionRequest request) {
         try {

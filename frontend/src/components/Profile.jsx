@@ -112,9 +112,11 @@ const Profile = ({ user, isOwnProfile, onEditPhoto, onEditSkillsOffered, onEditS
                         <button className="btn btn-outline-primary rounded-pill px-4" onClick={() => onMessage(user)} style={{ borderColor: 'var(--accent-primary)', color: 'var(--accent-primary)' }}>
                             <i className="bi bi-chat-dots me-2"></i>Message
                         </button>
-                        <button className="btn btn-primary rounded-pill px-4" onClick={onBook} style={{ background: 'var(--accent-primary)', border: 'none' }}>
-                            <i className="bi bi-calendar-check me-2"></i>Book Session
-                        </button>
+                        {onBook && (
+                            <button className="btn btn-primary rounded-pill px-4" onClick={onBook} style={{ background: 'var(--accent-primary)', border: 'none' }}>
+                                <i className="bi bi-calendar-check me-2"></i>Book Session
+                            </button>
+                        )}
                     </div>
                 )}
             </div>

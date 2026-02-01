@@ -86,10 +86,10 @@ const AdminDashboard = ({ theme, toggleTheme, onLogout }) => {
                             <i className="bi bi-list" style={{ fontSize: '1.75rem' }}></i>
                         </button>
                         
-                        <Link to="/" className="d-flex align-items-center text-decoration-none fw-bold fs-4" style={{ color: 'var(--text-main)', letterSpacing: '-0.03em' }}>
+                        <span className="d-flex align-items-center text-decoration-none fw-bold fs-4" style={{ color: 'var(--text-main)', letterSpacing: '-0.03em', cursor: 'default' }}>
                             <img src={theme === 'dark' ? logoDark : logoLight} alt="PeerGrid Logo" className="me-2" style={{ height: '32px', borderRadius: '6px' }} />
                             PeerGrid <span className="ms-2 badge bg-primary bg-opacity-10 text-primary fs-6 align-middle" style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8' }}>Admin</span>
-                        </Link>
+                        </span>
                     </div>
 
                     {/* Center: Active Page Title */}
@@ -138,51 +138,106 @@ const AdminDashboard = ({ theme, toggleTheme, onLogout }) => {
 
             {/* Sidebar Overlay */}
             <div 
-                className={`position-fixed top-0 start-0 w-100 h-100 bg-black bg-opacity-50 ${isSidebarOpen ? 'd-block' : 'd-none'}`}
-                style={{ zIndex: 1045, backdropFilter: 'blur(2px)', transition: 'opacity 0.3s' }}
+                className={`position-fixed top-0 start-0 w-100 h-100 bg-black ${isSidebarOpen ? 'd-block' : 'd-none'}`}
+                style={{ 
+                    zIndex: 1045, 
+                    opacity: isSidebarOpen ? 0.6 : 0,
+                    transition: 'opacity 0.3s',
+                    backdropFilter: 'blur(4px)'
+                }}
                 onClick={() => setIsSidebarOpen(false)}
             ></div>
 
-            {/* Slide-out Sidebar */}
+            {/* Premium Floating Sidebar */}
             <div 
-                className="position-fixed top-0 start-0 h-100 glass-sidebar p-4 d-flex flex-column"
+                className="position-fixed d-flex flex-column glass-sidebar"
                 style={{ 
-                    width: '280px', 
+                    top: '24px',
+                    left: '24px',
+                    bottom: '24px',
+                    width: '300px', 
                     zIndex: 1050, 
-                    transform: isSidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
-                    transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    boxShadow: '4px 0 24px rgba(0,0,0,0.2)'
+                    transform: isSidebarOpen ? 'translateX(0)' : 'translateX(calc(-100% - 40px))',
+                    transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                    background: 'var(--sidebar-bg)', // Adaptive glass background
+                    backdropFilter: 'blur(20px)',
+                    WebkitBackdropFilter: 'blur(20px)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '24px',
+                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15)',
+                    padding: '32px 24px'
                 }}
             >
-                <div className="d-flex align-items-center justify-content-between mb-5">
-                    <span className="fs-4 fw-bold" style={{ color: 'var(--text-main)' }}>Menu</span>
-                    <button onClick={() => setIsSidebarOpen(false)} className="btn btn-link text-muted p-0"><i className="bi bi-x-lg fs-5"></i></button>
+                <div className="d-flex align-items-center justify-content-between mb-5 px-2">
+                    <div className="d-flex align-items-center gap-3">
+                        <div className="d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle" style={{ width: '40px', height: '40px' }}>
+                             <i className="bi bi-grid-fill fs-5"></i>
+                        </div>
+                        <span className="fs-5 fw-bold" style={{ color: 'var(--text-main)', letterSpacing: '-0.02em' }}>Admin Dashboard</span>
+                    </div>
                 </div>
                 
-                <ul className="nav nav-pills flex-column gap-2">
-                    {menuItems.map(item => (
-                        <li key={item.id} className="nav-item">
+                <div className="d-flex flex-column gap-2 flex-grow-1 overflow-auto no-scrollbar">
+                    {menuItems.map(item => {
+                        const isActive = activeTab === item.id;
+                        return (
                             <button 
+                                key={item.id}
                                 onClick={() => { setActiveTab(item.id); setIsSidebarOpen(false); }}
-                                className={`nav-link w-100 text-start d-flex align-items-center gap-3 px-3 py-3 ${activeTab === item.id ? 'active' : ''}`}
+                                className="btn border-0 text-start position-relative d-flex align-items-center gap-3 px-3 py-3"
                                 style={{ 
-                                    color: activeTab === item.id ? '#fff' : 'var(--text-muted)',
-                                    background: activeTab === item.id ? 'var(--accent-primary)' : 'transparent',
-                                    borderRadius: '12px',
-                                    transition: 'all 0.2s ease'
+                                    color: isActive ? 'var(--text-main)' : 'var(--text-muted)',
+                                    background: isActive ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
+                                    borderRadius: '16px',
+                                    transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
+                                    fontWeight: isActive ? '600' : '500',
+                                    overflow: 'hidden',
+                                    boxShadow: 'none', // Override global button shadow
+                                    transform: 'none'  // Override global button transform
+                                }}
+                                onMouseEnter={(e) => {
+                                    if (!isActive) {
+                                        e.currentTarget.style.color = 'var(--text-main)';
+                                        e.currentTarget.style.background = 'rgba(127, 127, 127, 0.05)';
+                                    }
+                                }}
+                                onMouseLeave={(e) => {
+                                    if (!isActive) {
+                                        e.currentTarget.style.color = 'var(--text-muted)';
+                                        e.currentTarget.style.background = 'transparent';
+                                    }
                                 }}
                             >
-                                <i className={`bi ${item.icon} fs-5`}></i>
-                                <span className="fw-medium">{item.label}</span>
+                                {/* Active Indicator Line */}
+                                {isActive && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        left: '0',
+                                        top: '0',
+                                        bottom: '0',
+                                        width: '4px',
+                                        background: 'var(--accent-primary)',
+                                        borderRadius: '0 4px 4px 0',
+                                        boxShadow: '2px 0 12px var(--accent-primary)'
+                                    }}></div>
+                                )}
+                                
+                                <i className={`bi ${item.icon} fs-5`} style={{ marginLeft: isActive ? '8px' : '0', transition: 'margin 0.3s', color: isActive ? 'var(--accent-primary)' : 'inherit' }}></i>
+                                <span>{item.label}</span>
                             </button>
-                        </li>
-                    ))}
-                </ul>
+                        );
+                    })}
+                </div>
                 
                 <div className="mt-auto pt-4 border-top" style={{ borderColor: 'var(--border-color)' }}>
-                    <div className="small text-muted text-center">
-                        &copy; 2024 PeerGrid Admin
-                    </div>
+                    <button 
+                        onClick={() => setIsSidebarOpen(false)}
+                        className="btn w-100 d-flex align-items-center justify-content-center gap-2 py-3 mt-2 rounded-4"
+                        style={{ background: 'var(--bg-card)', color: 'var(--text-muted)', border: '1px solid var(--border-color)' }}
+                    >
+                         <i className="bi bi-arrow-left-short fs-4"></i>
+                         <span className="small fw-medium text-uppercase ls-1">Close Menu</span>
+                    </button>
                 </div>
             </div>
 

@@ -146,7 +146,7 @@ namespace PeerGrid.Backend.Data
                     webinars.Add(new Webinar {
                         Title = title, Description = $"Join us for {title}.", HostId = host.Id,
                         ScheduledTime = DateTime.Now.AddDays(random.Next(30)).AddHours(random.Next(12)),
-                        DurationMinutes = 60, Cost = random.Next(5) * 50, MeetingLink = "https://meet.google.com/abc-defg-hij", RegisteredUserIds=new List<int>()
+                        DurationMinutes = 60, Cost = random.Next(5) * 50, MeetingLink = "https://meet.google.com/abc-defg-hij"
                     });
                 }
                 context.Webinars.AddRange(webinars);
@@ -166,24 +166,36 @@ namespace PeerGrid.Backend.Data
                 var transactions = new List<Transaction>();
                 var feedbacks = new List<Feedback>();
                 var messages = new List<Message>();
-                var statusOptions = new[] { "Completed", "Pending", "Cancelled", "Active" };
+                var statusOptions = new[] { "Completed", "Pending", "Cancelled", "Active", "Open" };
 
                 for (int i = 0; i < 50; i++)
                 {
                     var learner = dbUsers[random.Next(dbUsers.Count)];
-                    var tutor = dbUsers[random.Next(dbUsers.Count)];
-                    while (tutor.Id == learner.Id) tutor = dbUsers[random.Next(dbUsers.Count)];
                     var status = statusOptions[random.Next(statusOptions.Length)];
+                    
+                    User tutor = null;
+                    int? tutorId = null;
+
+                    if (status != "Open")
+                    {
+                        tutor = dbUsers[random.Next(dbUsers.Count)];
+                        while (tutor.Id == learner.Id) tutor = dbUsers[random.Next(dbUsers.Count)];
+                        tutorId = tutor.Id;
+                    }
+
                     var startTime = DateTime.Now.AddDays(random.Next(-30, 30));
+                    var topic = (status == "Open") 
+                        ? (learner.SkillsNeeded.Any() ? learner.SkillsNeeded.First() : "General")
+                        : (tutor.SkillsOffered.FirstOrDefault() ?? "General");
 
                     var session = new Session {
-                        LearnerId = learner.Id, TutorId = tutor.Id, Title = sessionTopics[random.Next(sessionTopics.Length)],
-                        Description = "Help required.", Topic = tutor.SkillsOffered.FirstOrDefault() ?? "General",
+                        LearnerId = learner.Id, TutorId = tutorId, Title = sessionTopics[random.Next(sessionTopics.Length)],
+                        Description = "Help required.", Topic = topic,
                         StartTime = startTime, EndTime = startTime.AddHours(1), Status = status, Cost = random.Next(1, 10) * 10
                     };
                     sessions.Add(session);
 
-                    if (status == "Completed") {
+                    if (status == "Completed" && tutor != null) {
                         transactions.Add(new Transaction {
                             LearnerId = learner.Id, TutorId = tutor.Id, Skill = session.Topic, Points = session.Cost,
                             Type = "Transfer", Timestamp = session.EndTime, Rating = random.Next(3, 6)
@@ -193,12 +205,14 @@ namespace PeerGrid.Backend.Data
                         });
                     }
 
-                    int msgCount = random.Next(2, 6);
-                    for(int m=0; m<msgCount; m++) {
-                        messages.Add(new Message {
-                            SenderId = (m % 2 == 0) ? learner.Id : tutor.Id, ReceiverId = (m % 2 == 0) ? tutor.Id : learner.Id,
-                            Content = (m % 2 == 0) ? "Hi, can you help?" : "Sure, I'm available.", Timestamp = startTime.AddMinutes(m * 5), IsRead = true
-                        });
+                    if (status != "Open" && tutor != null) {
+                        int msgCount = random.Next(2, 6);
+                        for(int m=0; m<msgCount; m++) {
+                            messages.Add(new Message {
+                                SenderId = (m % 2 == 0) ? learner.Id : tutor.Id, ReceiverId = (m % 2 == 0) ? tutor.Id : learner.Id,
+                                Content = (m % 2 == 0) ? "Hi, can you help?" : "Sure, I'm available.", Timestamp = startTime.AddMinutes(m * 5), IsRead = true
+                            });
+                        }
                     }
                 }
                 context.Sessions.AddRange(sessions);
@@ -211,6 +225,39 @@ namespace PeerGrid.Backend.Data
             else
             {
                 Console.WriteLine("Sessions already exist. Skipping session seeding.");
+            }
+
+            // 3.1 Ensure there are active "Open" doubts
+            var openDoubtsCount = context.Sessions.Count(s => s.Status == "Open");
+            if (openDoubtsCount < 10)
+            {
+                Console.WriteLine($"Low number of Open doubts ({openDoubtsCount}), seeding more...");
+                var dbUsersForDoubts = context.Users.ToList();
+                if (dbUsersForDoubts.Any())
+                {
+                    var sessionTopics = new[] { "React Help", "Java Debugging", "Architecture Review", "Code Review", "Exam Prep", "Mock Interview", "Spring Boot Error", "CSS Alignment" };
+                    var newDoubts = new List<Session>();
+                    for (int i = 0; i < 15; i++)
+                    {
+                        var learner = dbUsersForDoubts[random.Next(dbUsersForDoubts.Count)];
+                        var s = new Session
+                        {
+                            LearnerId = learner.Id,
+                            TutorId = null, // Open doubt
+                            Title = sessionTopics[random.Next(sessionTopics.Length)],
+                            Description = "I need help with this specific issue. Can anyone assist?",
+                            Topic = learner.SkillsNeeded.Any() ? learner.SkillsNeeded.First() : "General",
+                            StartTime = DateTime.Now.AddHours(random.Next(24)),
+                            EndTime = DateTime.Now.AddHours(random.Next(24) + 1),
+                            Status = "Open",
+                            Cost = random.Next(1, 11) * 10 
+                        };
+                        newDoubts.Add(s);
+                    }
+                    context.Sessions.AddRange(newDoubts);
+                    context.SaveChanges();
+                    Console.WriteLine($"Seeded {newDoubts.Count} new Open doubts.");
+                }
             }
         }
     }

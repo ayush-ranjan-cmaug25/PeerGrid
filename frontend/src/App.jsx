@@ -15,7 +15,7 @@ import DoubtBoard from './pages/DoubtBoard';
 import Profile from './pages/Profile';
 import FindPeer from './pages/FindPeer';
 import AnimatedBackground from './components/AnimatedBackground';
-import Feedback from './pages/Feedback';
+
 import Webinars from './pages/Webinars';
 import WebinarRoom from './pages/WebinarRoom';
 import PageTitleUpdater from './components/PageTitleUpdater';
@@ -166,7 +166,7 @@ function App() {
               <Route path="doubt-board" element={<DoubtBoard />} />
 
               <Route path="profile/:id?" element={<Profile />} />
-              <Route path="feedback" element={<Feedback />} />
+
               <Route path="webinars" element={<Webinars theme={theme} toggleTheme={toggleTheme} />} />
             </Route>
             

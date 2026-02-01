@@ -59,11 +59,13 @@ const CreateDoubtModal = ({ onClose, onSuccess }) => {
 
     return (
         <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" 
-            style={{ zIndex: 1050, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(5px)' }}>
+            style={{ zIndex: 9999, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(5px)' }}>
             <GlassCard className="p-4" style={{ width: '90%', maxWidth: '500px' }}>
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <h3 className="h4 fw-bold mb-0">Post a Doubt</h3>
-                    <button onClick={onClose} className="btn-close btn-close-white"></button>
+                    <button onClick={onClose} className="btn btn-link text-white p-0" style={{ fontSize: '1.5rem', textDecoration: 'none' }}>
+                        <i className="bi bi-x"></i>
+                    </button>
                 </div>
                 
                 <form onSubmit={handleSubmit}>

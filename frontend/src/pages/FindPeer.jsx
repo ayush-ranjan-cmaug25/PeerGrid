@@ -34,7 +34,7 @@ const FindPeer = () => {
     const filteredPeers = peers
         .filter(peer => {
             const currentUser = JSON.parse(localStorage.getItem('user'));
-            return peer.id !== currentUser?.id;
+            return peer.id !== currentUser?.id && peer.role !== 'admin';
         })
         .filter(peer => 
             peer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

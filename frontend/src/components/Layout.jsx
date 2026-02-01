@@ -11,6 +11,10 @@ const Layout = ({ theme, toggleTheme, userRole, onLogout }) => {
         return <Navigate to="/login" replace />;
     }
 
+    if (userRole === 'admin') {
+        return <Navigate to="/admin-dashboard" replace />;
+    }
+
     const location = useLocation();
     const navigate = useNavigate();
     const activeTab = location.pathname.split('/')[1] || 'dashboard';

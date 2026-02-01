@@ -30,4 +30,5 @@ public class User {
     private BigDecimal lockedPoints = BigDecimal.ZERO;
     
     private boolean isAvailable = true;
+    private boolean banned = false;
 }

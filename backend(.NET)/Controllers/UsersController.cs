@@ -206,5 +206,25 @@ namespace PeerGrid.Backend.Controllers
             await _context.SaveChangesAsync();
             return Ok(user);
         }
+
+        // GET: api/Users/top-solvers
+        [HttpGet("top-solvers")]
+        [AllowAnonymous] 
+        public async Task<ActionResult<IEnumerable<UserDto>>> GetTopSolvers()
+        {
+            var topSolvers = await _context.Users
+                .OrderByDescending(u => u.GridPoints)
+                .Take(5)
+                .Select(u => new UserDto
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    ProfilePictureUrl = u.ProfilePictureUrl,
+                    GridPoints = u.GridPoints
+                })
+                .ToListAsync();
+
+            return Ok(topSolvers);
+        }
     }
 }

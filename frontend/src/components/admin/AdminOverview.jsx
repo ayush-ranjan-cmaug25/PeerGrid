@@ -8,7 +8,6 @@ const AdminOverview = () => {
         { label: 'Total Users', value: '0', change: '0%', icon: 'bi-people', color: 'text-primary' },
         { label: 'Active Sessions', value: '0', change: '0', icon: 'bi-camera-video', color: 'text-success' },
         { label: 'Active Bounties', value: '0', change: '0', icon: 'bi-crosshair', color: 'text-warning' },
-        { label: 'Pending Reports', value: '0', change: '0', icon: 'bi-flag', color: 'text-danger' },
     ]);
     const [skillsData, setSkillsData] = useState([]);
     const [transactionsData, setTransactionsData] = useState([]);
@@ -27,8 +26,11 @@ const AdminOverview = () => {
                     { label: 'Total Users', value: statsData.totalUsers.toString(), change: '+0%', icon: 'bi-people', color: 'text-primary' },
                     { label: 'Active Sessions', value: statsData.activeSessions.toString(), change: '+0', icon: 'bi-camera-video', color: 'text-success' },
                     { label: 'Active Bounties', value: statsData.activeBounties.toString(), change: '0', icon: 'bi-crosshair', color: 'text-warning' },
-                    { label: 'Pending Reports', value: statsData.pendingReports.toString(), change: '0', icon: 'bi-flag', color: 'text-danger' },
                 ]);
+
+                if (statsData.sessionsHistory) {
+                    setSessionsData(statsData.sessionsHistory);
+                }
 
                 // Process Skills
                 const processedSkills = skills.map((s, index) => ({
@@ -56,16 +58,16 @@ const AdminOverview = () => {
         fetchData();
     }, []);
 
-    // Mock sessions data for now as we didn't implement history endpoint
-    const sessionsData = [
-        { label: 'Mon', value: 45 },
-        { label: 'Tue', value: 52 },
-        { label: 'Wed', value: 38 },
-        { label: 'Thu', value: 65 },
-        { label: 'Fri', value: 48 },
-        { label: 'Sat', value: 29 },
-        { label: 'Sun', value: 35 },
-    ];
+    // Initial state for sessions data before fetch
+    const [sessionsData, setSessionsData] = useState([
+        { label: 'Mon', value: 0 },
+        { label: 'Tue', value: 0 },
+        { label: 'Wed', value: 0 },
+        { label: 'Thu', value: 0 },
+        { label: 'Fri', value: 0 },
+        { label: 'Sat', value: 0 },
+        { label: 'Sun', value: 0 },
+    ]);
 
     if (loading) return <div className="p-5 text-center">Loading dashboard...</div>;
 
@@ -76,7 +78,7 @@ const AdminOverview = () => {
             {/* Stats Cards */}
             <div className="row g-3 mb-3">
                 {stats.map((stat, index) => (
-                    <div className="col-md-3" key={index}>
+                    <div className="col-md-4" key={index}>
                         <ScrollReveal delay={index * 0.1}>
                             <div className="glass-card p-4 d-flex align-items-center justify-content-between">
                                 <div>
@@ -99,13 +101,10 @@ const AdminOverview = () => {
             <div className="row g-3 mb-3">
                 <div className="col-lg-8">
                     <ScrollReveal delay={0.2} className="h-100">
-                        <div className="glass-card p-4 h-100">
+                        <div className="glass-card p-4 h-100 d-flex flex-column justify-content-between">
                             <div className="d-flex align-items-center justify-content-between mb-4">
                                 <h3 className="h5 fw-bold mb-0">Sessions Overview</h3>
-                                <select className="form-select form-select-sm w-auto bg-transparent text-muted border-0">
-                                    <option>Last 7 Days</option>
-                                    <option>Last 30 Days</option>
-                                </select>
+                                <span className="text-muted small">Last 7 Days</span>
                             </div>
                             <BarChart data={sessionsData} />
                         </div>

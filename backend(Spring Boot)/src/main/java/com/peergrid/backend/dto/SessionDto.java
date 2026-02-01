@@ -11,6 +11,9 @@ public class SessionDto {
     private String otherParty;
     private LocalDateTime time;
     private String status;
+    private Integer otherPartyId;
+    private Integer tutorId;
+    private Integer learnerId;
     
     // For Dashboard
     private String title;

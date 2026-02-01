@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import toast from 'react-hot-toast';
 import GlassCard from './GlassCard';
 import { API_BASE_URL } from '../config';
@@ -10,11 +11,7 @@ const DoubtBoardWidget = ({ doubts, onRefresh }) => {
     const bountyList = doubts || [];
 
     const handleAccept = async () => {
-        if (!selectedBounty) return;
-        
-        if (!window.confirm(`Are you sure you want to accept "${selectedBounty.title}" for ${selectedBounty.points} GP?`)) {
-            return;
-        }
+        // Modal serves as confirmation
 
         setLoading(true);
         const token = localStorage.getItem('token');
@@ -60,22 +57,49 @@ const DoubtBoardWidget = ({ doubts, onRefresh }) => {
                 {bountyList.length === 0 && <p className="text-muted text-center w-100">No active doubts.</p>}
             </div>
 
-            {selectedBounty && (
+            {selectedBounty && createPortal(
                 <div className="modal-overlay" onClick={() => setSelectedBounty(null)}>
                     <div className="modal-content" onClick={e => e.stopPropagation()}>
-                        <h3 className="modal-title">{selectedBounty.title}</h3>
-                        <p className="modal-desc">{selectedBounty.description}</p>
-                        <div className="modal-footer">
-                            <span className="modal-points">{selectedBounty.points} Grid Points Reward</span>
+                        <div className="modal-header-hero">
+                            <span className="modal-points-hero">{selectedBounty.points}</span>
+                            <span className="modal-points-label">Grid Points Reward</span>
                         </div>
+                        
+                        <div className="modal-body">
+                            <h3 className="modal-title">{selectedBounty.title}</h3>
+                            <div className="modal-tags">
+                                {selectedBounty.tags && selectedBounty.tags.map(tag => (
+                                    <span key={tag} className="bounty-tag">{tag}</span>
+                                ))}
+                            </div>
+                            <p className="modal-desc">{selectedBounty.description}</p>
+                            
+                            <div className="learner-info">
+                                <span className="text-muted small">Posted by </span>
+                                <span className="learner-name">{selectedBounty.learner || 'Anonymous'}</span>
+                            </div>
+                        </div>
+
                         <div className="modal-actions">
-                            <button onClick={handleAccept} className="btn-accept" disabled={loading}>
-                                {loading ? 'Accepting...' : 'Accept Challenge'}
+                            <button 
+                                onClick={handleAccept} 
+                                className={`btn-accept ${loading ? 'loading' : ''}`} 
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <span className="d-flex align-items-center justify-content-center gap-2">
+                                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        Accepting...
+                                    </span>
+                                ) : 'Accept Challenge'}
                             </button>
-                            <button onClick={() => setSelectedBounty(null)} className="btn-close">Close</button>
+                            <button onClick={() => setSelectedBounty(null)} className="btn-close" disabled={loading}>
+                                Cancel
+                            </button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </GlassCard>
     );

@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, Navigate } from 'react-router-dom';
 import React, { useRef, useEffect } from 'react';
 import { motion as Motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import ScrollReveal from '../components/ScrollReveal';
@@ -9,6 +9,10 @@ import PageSection from '../components/PageSection';
 import Navbar from '../components/Navbar';
 
 const Home = ({ theme, toggleTheme, userRole, onLogout }) => {
+    if (userRole === 'admin') {
+        return <Navigate to="/admin-dashboard" replace />;
+    }
+
     const location = useLocation();
     const { scrollYProgress } = useScroll();
 

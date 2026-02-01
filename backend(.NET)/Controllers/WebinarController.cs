@@ -8,32 +8,32 @@ using System.Security.Claims;
 
 namespace PeerGrid.Backend.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/webinars")]
     [ApiController]
-    public class WebinarsController : ControllerBase
+    public class WebinarController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
         private readonly IEmailService _emailService;
 
-        public WebinarsController(ApplicationDbContext context, IEmailService emailService)
+        public WebinarController(ApplicationDbContext context, IEmailService emailService)
         {
             _context = context;
             _emailService = emailService;
         }
 
-        // GET: api/Webinars
+        // GET: api/webinars
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Webinar>>> GetWebinars()
         {
             return await _context.Webinars
                 .Include(w => w.Host)
-                .Include(w => w.RegisteredUsers) // We need this to check registration status
+                .Include(w => w.RegisteredUsers) 
                 .Where(w => w.ScheduledTime > DateTime.Now)
                 .OrderBy(w => w.ScheduledTime)
                 .ToListAsync();
         }
 
-        // POST: api/Webinars
+        // POST: api/webinars
         [HttpPost]
         [Authorize]
         public async Task<ActionResult<Webinar>> CreateWebinar(Webinar webinar)
@@ -56,7 +56,7 @@ namespace PeerGrid.Backend.Controllers
             return CreatedAtAction("GetWebinars", new { id = webinar.Id }, webinar);
         }
 
-        // POST: api/Webinars/5/register
+        // POST: api/webinars/5/register
         [HttpPost("{id}/register")]
         [Authorize]
         public async Task<IActionResult> RegisterForWebinar(int id)

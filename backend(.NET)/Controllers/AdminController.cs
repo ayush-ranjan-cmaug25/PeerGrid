@@ -27,17 +27,64 @@ namespace PeerGrid.Backend.Controllers
 
         // DELETE: api/Admin/users/5
         [HttpDelete("users/{id}")]
-        public async Task<IActionResult> BanUser(int id)
+        public async Task<IActionResult> DeleteUser(int id)
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null) return NotFound();
 
+            // 1. Get Sessions
+            var tutorSessions = await _context.Sessions.Where(s => s.TutorId == id).ToListAsync();
+            var learnerSessions = await _context.Sessions.Where(s => s.LearnerId == id).ToListAsync();
+            var allSessions = tutorSessions.Concat(learnerSessions).Distinct().ToList();
+
+            // 2. Delete Feedbacks for these sessions
+            foreach (var session in allSessions)
+            {
+                var feedbacks = await _context.Feedbacks.Where(f => f.SessionId == session.Id).ToListAsync();
+                _context.Feedbacks.RemoveRange(feedbacks);
+            }
+
+            // 3. Delete Sessions
+            _context.Sessions.RemoveRange(allSessions);
+
+            // 4. Delete Transactions
+            var transactions = await _context.Transactions
+                                    .Where(t => t.LearnerId == id || t.TutorId == id)
+                                    .ToListAsync();
+            _context.Transactions.RemoveRange(transactions);
+
+            // 5. Delete User
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
 
-            await LogAction("Admin", "User Banned", User.Identity?.Name ?? "Admin", $"Banned user ID: {id}");
+            await LogAction("Admin", "User Deleted", User.Identity?.Name ?? "Admin", $"Deleted user ID: {id}");
 
-            return Ok(new { message = "User banned/deleted successfully" });
+            return Ok(new { message = "User deleted successfully" });
+        }
+
+        // PUT: api/Admin/users/{id}/status
+        [HttpPut("users/{id}/status")]
+        public async Task<IActionResult> UpdateUserStatus(int id, [FromBody] Dictionary<string, string> body)
+        {
+            if (!body.ContainsKey("status")) return BadRequest("Status is required");
+            string status = body["status"];
+
+            var user = await _context.Users.FindAsync(id);
+            if (user == null) return NotFound();
+
+            if (status.Equals("Banned", StringComparison.OrdinalIgnoreCase))
+            {
+                user.Banned = true;
+            }
+            else if (status.Equals("Active", StringComparison.OrdinalIgnoreCase))
+            {
+                user.Banned = false;
+            }
+
+            await _context.SaveChangesAsync();
+            await LogAction("Admin", "User Status Updated", User.Identity?.Name ?? "Admin", $"Updated status of user ID: {id} to {status}");
+
+            return Ok(new { message = "User status updated successfully", banned = user.Banned });
         }
 
         // PUT: api/Admin/users/5

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { adminService } from '../../services/adminService';
 import ScrollReveal from '../ScrollReveal';
 
+import toast from 'react-hot-toast';
+
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -13,7 +15,9 @@ const UserManagement = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showGPModal, setShowGPModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [gpAdjustment, setGpAdjustment] = useState({ userId: null, amount: 0, reason: '' });
+    const [userToDelete, setUserToDelete] = useState(null);
 
     // Form State for Add User
     const [newUser, setNewUser] = useState({
@@ -45,7 +49,7 @@ const UserManagement = () => {
                 name: u.name,
                 email: u.email,
                 role: u.role || 'User',
-                status: u.available ? 'Active' : (u.banned ? 'Banned' : 'Busy'), 
+                status: u.banned ? 'Banned' : (u.available ? 'Active' : 'Busy'), 
                 gp: u.gridPoints || 0,
                 joinDate: u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '2023-01-01',
                 lastActive: 'Recently'
@@ -53,6 +57,7 @@ const UserManagement = () => {
             setUsers(formattedUsers);
         } catch (error) {
             console.error('Error fetching users:', error);
+            toast.error('Failed to load users');
         } finally {
             setLoading(false);
         }
@@ -89,22 +94,29 @@ const UserManagement = () => {
             setUsers([formattedUser, ...users]);
             setShowAddModal(false);
             setNewUser({ name: '', email: '', password: '', role: 'User', gp: 0 });
-            alert('User created successfully!');
+            toast.success('User created successfully!');
         } catch (error) {
             console.error('Error creating user:', error);
-            alert('Failed to create user: ' + (error.message || 'Unknown error'));
+            toast.error('Failed to create user: ' + (error.message || 'Unknown error'));
         }
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-            try {
-                await adminService.banUser(id); // Assuming ban/delete is same endpoint for now
-                setUsers(users.filter(u => u.id !== id));
-            } catch (error) {
-                console.error('Error deleting user:', error);
-                alert('Failed to delete user');
-            }
+    const handleDelete = (id) => {
+        setUserToDelete(id);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!userToDelete) return;
+        try {
+            await adminService.deleteUser(userToDelete);
+            setUsers(users.filter(u => u.id !== userToDelete));
+            setShowDeleteModal(false);
+            setUserToDelete(null);
+            toast.success('User deleted successfully');
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            toast.error('Failed to delete user');
         }
     };
 
@@ -112,9 +124,10 @@ const UserManagement = () => {
         try {
             await adminService.updateUserStatus(id, newStatus);
             setUsers(users.map(u => u.id === id ? { ...u, status: newStatus } : u));
+            toast.success(`User status updated to ${newStatus}`);
         } catch (error) {
             console.error('Error updating status:', error);
-            alert('Failed to update status');
+            toast.error('Failed to update status');
         }
     };
 
@@ -129,9 +142,10 @@ const UserManagement = () => {
             await adminService.updateUserGP(gpAdjustment.userId, parseInt(gpAdjustment.amount));
             setUsers(users.map(u => u.id === gpAdjustment.userId ? { ...u, gp: u.gp + parseInt(gpAdjustment.amount) } : u));
             setShowGPModal(false);
+            toast.success('Grid Points adjusted successfully');
         } catch (error) {
             console.error('Error adjusting GP:', error);
-            alert('Failed to adjust GP');
+            toast.error('Failed to adjust GP');
         }
     };
 
@@ -173,18 +187,16 @@ const UserManagement = () => {
 
 
             <ScrollReveal>
-                <div className="glass-card p-0 overflow-hidden mb-4">
+                <div className="glass-card p-0 mb-4">
                     {/* Toolbar */}
                     <div className="p-4 border-bottom" style={{ borderColor: 'var(--border-color)' }}>
                         <div className="row g-3 align-items-center">
                             <div className="col-md-4">
-                                <div className="input-group" style={{ height: '45px' }}>
-                                    <span className="input-group-text bg-transparent border-end-0 text-muted ps-3" style={{ borderColor: 'var(--border-color)' }}>
-                                        <i className="bi bi-search"></i>
-                                    </span>
+                                <div className="position-relative" style={{ height: '45px' }}>
+                                    <i className="bi bi-search position-absolute top-50 translate-middle-y text-muted" style={{ left: '15px', zIndex: 10 }}></i>
                                     <input 
                                         type="text" 
-                                        className="form-control border-start-0 ps-0 bg-transparent h-100" 
+                                        className="form-control ps-5 bg-transparent h-100" 
                                         placeholder="Search users..." 
                                         value={searchTerm}
                                         onChange={handleSearch}
@@ -467,6 +479,24 @@ const UserManagement = () => {
                             <div className="d-grid mt-4">
                                 <button className="btn btn-secondary" onClick={() => setSelectedUser(null)}>Close Details</button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* Delete Confirmation Modal */}
+            {showDeleteModal && (
+                <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ background: 'rgba(0,0,0,0.6)', zIndex: 1070, backdropFilter: 'blur(4px)' }}>
+                    <div className="glass-card p-4 text-center" style={{ width: '400px', maxWidth: '90%', animation: 'zoomIn 0.2s ease' }}>
+                        <div className="mb-4">
+                            <div className="bg-danger bg-opacity-10 text-danger rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style={{ width: '64px', height: '64px' }}>
+                                <i className="bi bi-exclamation-triangle-fill fs-3"></i>
+                            </div>
+                            <h4 className="fw-bold mb-2" style={{ color: 'var(--text-main)' }}>Delete User?</h4>
+                            <p className="text-muted mb-0">Are you sure you want to delete this user? This action cannot be undone.</p>
+                        </div>
+                        <div className="d-flex justify-content-center gap-3">
+                            <button className="btn btn-light px-4" onClick={() => setShowDeleteModal(false)}>Cancel</button>
+                            <button className="btn btn-danger px-4" onClick={confirmDelete}>Delete User</button>
                         </div>
                     </div>
                 </div>

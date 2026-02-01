@@ -6,7 +6,8 @@ const Footer = () => {
         <footer className="position-relative pt-5 pb-4 overflow-hidden" style={{ 
             background: 'var(--bg-card)', 
             borderTop: '1px solid var(--border-color)',
-            marginTop: 'auto'
+            marginTop: 'auto',
+            zIndex: 0
         }}>
             {/* Background Glow */}
             <div style={{
@@ -18,10 +19,10 @@ const Footer = () => {
                 background: 'radial-gradient(ellipse at top, var(--accent-primary) 0%, transparent 70%)',
                 opacity: 0.05,
                 pointerEvents: 'none',
-                zIndex: 0
+                zIndex: -1
             }}></div>
 
-            <div className="container position-relative z-1">
+            <div className="container position-relative">
                 <div className="row g-4 mb-5 justify-content-between">
                     {/* Brand Section */}
                     <div className="col-md-4">

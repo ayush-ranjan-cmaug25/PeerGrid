@@ -97,7 +97,7 @@ export const adminService = {
         return handleResponse(response);
     },
 
-    banUser: async (userId) => {
+    deleteUser: async (userId) => {
         const response = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
             method: 'DELETE',
             headers: getAuthHeaders()
