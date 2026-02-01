@@ -24,17 +24,22 @@ namespace PeerGrid.Backend.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(User user)
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            if (await _context.Users.AnyAsync(u => u.Email == user.Email))
+            if (await _context.Users.AnyAsync(u => u.Email == request.Email))
             {
                 return BadRequest(new { message = "Email already exists" });
             }
 
-            user.PasswordHash = Convert.ToBase64String(Encoding.UTF8.GetBytes(user.PasswordHash)); 
-            
-            // Set default Grid Points
-            user.GridPoints = 100;
+            var user = new User
+            {
+                Name = request.Name,
+                Email = request.Email,
+                Role = request.Role ?? "User",
+                GridPoints = 100,
+                IsAvailable = true,
+                PasswordHash = Convert.ToBase64String(Encoding.UTF8.GetBytes(request.PasswordHash))
+            };
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
@@ -177,5 +182,13 @@ namespace PeerGrid.Backend.Controllers
     public class GoogleLoginRequest
     {
         public string IdToken { get; set; }
+    }
+
+    public class RegisterRequest
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string PasswordHash { get; set; }
+        public string Role { get; set; }
     }
 }
