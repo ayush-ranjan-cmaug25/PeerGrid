@@ -26,6 +26,8 @@ const VideoCall = ({ otherUserId, isInitiator, onClose }) => {
     const peerConnection = useRef(null);
     const iceCandidatesQueue = useRef([]);
 
+    const localStreamRef = useRef(null);
+
     const rtcConfig = {
         iceServers: [
             { urls: 'stun:stun.l.google.com:19302' },
@@ -43,8 +45,19 @@ const VideoCall = ({ otherUserId, isInitiator, onClose }) => {
                     throw new Error("Camera access requires a secure connection (HTTPS) or localhost.");
                 }
 
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                // Optimization: Request lower resolution and frame rate to reduce lag
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        frameRate: { ideal: 24 }
+                    }, 
+                    audio: true 
+                });
+                
+                localStreamRef.current = stream;
                 setLocalStream(stream);
+                
                 if (localVideoRef.current) {
                     localVideoRef.current.srcObject = stream;
                 }
@@ -100,8 +113,9 @@ const VideoCall = ({ otherUserId, isInitiator, onClose }) => {
         }
 
         return () => {
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
+            // Cleanup using the Ref to ensure we have the stream instance
+            if (localStreamRef.current) {
+                localStreamRef.current.getTracks().forEach(track => track.stop());
             }
             if (peerConnection.current) {
                 peerConnection.current.close();
