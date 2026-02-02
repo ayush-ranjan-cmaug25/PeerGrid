@@ -123,6 +123,7 @@ public class UsersController {
     public ResponseEntity<List<UserDto>> getTopSolvers() {
         List<User> users = userRepository.findAll();
         List<UserDto> topSolvers = users.stream()
+                .filter(u -> !"Admin".equalsIgnoreCase(u.getRole()))
                 .sorted((u1, u2) -> u2.getGridPoints().compareTo(u1.getGridPoints()))
                 .limit(5)
                 .map(u -> {
@@ -148,7 +149,7 @@ public class UsersController {
                         && ("Confirmed".equals(s.getStatus()) || "Active".equals(s.getStatus())) 
                         && s.getStartTime().isAfter(LocalDateTime.now()))
                 .sorted((s1, s2) -> s1.getStartTime().compareTo(s2.getStartTime()))
-
+                .limit(3)
                 .map(s -> {
                     SessionDto dto = new SessionDto();
                     dto.setId(s.getId());
@@ -166,7 +167,7 @@ public class UsersController {
         List<SessionDto> activeDoubts = allSessions.stream()
                 .filter(s -> "Open".equals(s.getStatus()))
                 .sorted((s1, s2) -> s2.getId().compareTo(s1.getId()))
-                .limit(5)
+                .limit(3)
                 .map(s -> {
                     SessionDto dto = new SessionDto();
                     dto.setId(s.getId());
@@ -188,7 +189,9 @@ public class UsersController {
 
     @GetMapping
     public List<User> getUsers() {
-        return userRepository.findAll();
+        return userRepository.findAll().stream()
+                .filter(u -> !"Admin".equalsIgnoreCase(u.getRole()))
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")

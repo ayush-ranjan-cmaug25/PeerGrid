@@ -26,5 +26,7 @@ namespace PeerGrid.Backend.Models
         
         public bool IsAvailable { get; set; } = true;
         public bool Banned { get; set; } = false;
+
+        public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
     }
 }

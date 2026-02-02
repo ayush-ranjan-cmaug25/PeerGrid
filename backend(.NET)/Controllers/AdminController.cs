@@ -22,7 +22,7 @@ namespace PeerGrid.Backend.Controllers
         [HttpGet("users")]
         public async Task<ActionResult<IEnumerable<User>>> GetAllUsers()
         {
-            return await _context.Users.ToListAsync();
+            return await _context.Users.Where(u => u.Role != "Admin").ToListAsync();
         }
 
         // POST: api/Admin/users
@@ -257,6 +257,59 @@ namespace PeerGrid.Backend.Controllers
                                  .Take(5)
                                  .ToList();
             return allSkills;
+        }
+
+        // DELETE: api/Admin/sessions/{id}
+        [HttpDelete("sessions/{id}")]
+        public async Task<IActionResult> DeleteSession(int id)
+        {
+            var session = await _context.Sessions.FindAsync(id);
+            if (session == null) return NotFound();
+
+            // Return funds if it was an open doubt/bounty
+            if (session.TutorId == null && session.Status == "Open")
+            {
+                 var learner = await _context.Users.FindAsync(session.LearnerId);
+                 if (learner != null)
+                 {
+                     learner.LockedPoints -= session.Cost;
+                     learner.GridPoints += session.Cost;
+                 }
+            }
+
+            _context.Sessions.Remove(session);
+            await _context.SaveChangesAsync();
+            await LogAction("Admin", "Session/Bounty Deleted", User.Identity?.Name ?? "Admin", $"Deleted session ID: {id}");
+            return Ok(new { message = "Session deleted successfully" });
+        }
+
+        // PUT: api/Admin/sessions/{id}/status
+        [HttpPut("sessions/{id}/status")]
+        public async Task<IActionResult> UpdateSessionStatus(int id, [FromBody] Dictionary<string, string> body)
+        {
+            if (!body.ContainsKey("status")) return BadRequest("Status is required");
+            string status = body["status"];
+
+            var session = await _context.Sessions.FindAsync(id);
+            if (session == null) return NotFound();
+
+            // Handle refund if closing an open bounty
+            if (session.Status == "Open" && status == "Closed" && session.TutorId == null)
+            {
+                 var learner = await _context.Users.FindAsync(session.LearnerId);
+                 if (learner != null)
+                 {
+                     learner.LockedPoints -= session.Cost;
+                     learner.GridPoints += session.Cost;
+                 }
+            }
+            // Handle re-opening (deduct funds again if they were refunded? Complex. For now, assume admin overrides funds manually if needed or just re-opens)
+            // Ideally re-opening should arguably check funds again. For simplicity in this admin override, we just change status.
+
+            session.Status = status;
+            await _context.SaveChangesAsync();
+            await LogAction("Admin", "Session Status Updated", User.Identity?.Name ?? "Admin", $"Updated status of session {id} to {status}");
+            return Ok(new { message = "Session status updated successfully" });
         }
 
         // GET: api/Admin/transactions

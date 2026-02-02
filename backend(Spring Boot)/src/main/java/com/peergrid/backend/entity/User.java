@@ -31,4 +31,6 @@ public class User {
     
     private boolean isAvailable = true;
     private boolean banned = false;
+
+    private java.time.LocalDateTime joinedAt = java.time.LocalDateTime.now();
 }

@@ -44,7 +44,9 @@ public class AdminController {
 
     @GetMapping("/users")
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        return userRepository.findAll().stream()
+                .filter(u -> !"Admin".equalsIgnoreCase(u.getRole()))
+                .collect(Collectors.toList());
     }
 
     @DeleteMapping("/users/{id}")
@@ -143,6 +145,48 @@ public class AdminController {
         stats.put("pendingReports", pendingReports);
         stats.put("sessionsHistory", sessionsHistory);
         return stats;
+    }
+
+    @DeleteMapping("/sessions/{id}")
+    public ResponseEntity<?> deleteSession(@PathVariable Integer id) {
+        return sessionRepository.findById(id).map(session -> {
+            // Return funds if it was an open doubt/bounty
+            if (session.getTutor() == null && "Open".equals(session.getStatus())) {
+                 User learner = session.getLearner();
+                 if (learner != null) {
+                     learner.setLockedPoints(learner.getLockedPoints().subtract(session.getCost()));
+                     learner.setGridPoints(learner.getGridPoints().add(session.getCost()));
+                     userRepository.save(learner);
+                 }
+            }
+            sessionRepository.delete(session);
+            logAction("Admin", "Session/Bounty Deleted", "Admin", "Deleted session ID: " + id);
+            return ResponseEntity.ok().body(Map.of("message", "Session deleted successfully"));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/sessions/{id}/status")
+    public ResponseEntity<?> updateSessionStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
+        String status = body.get("status");
+        return sessionRepository.findById(id).map(session -> {
+             // Handle refunds when closing an Open bounty
+             if ("Open".equals(session.getStatus()) && !"Open".equals(status)) {
+                 if (session.getTutor() == null) {
+                     // It was an open bounty being closed/cancelled
+                     User learner = session.getLearner();
+                     if (learner != null) {
+                         learner.setLockedPoints(learner.getLockedPoints().subtract(session.getCost()));
+                         learner.setGridPoints(learner.getGridPoints().add(session.getCost()));
+                         userRepository.save(learner);
+                     }
+                 }
+             }
+             
+            session.setStatus(status);
+            sessionRepository.save(session);
+            logAction("Admin", "Session Status Updated", "Admin", "Updated status of session " + id + " to " + status);
+            return ResponseEntity.ok().body(Map.of("message", "Session status updated successfully"));
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/bounties")

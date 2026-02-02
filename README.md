@@ -93,8 +93,9 @@ Follow these instructions to set up the project locally.
 
 ### Prerequisites
 -   **Node.js** (v18 or higher)
--   **.NET SDK** (v8.0 or higher)
--   **SQL Server** (LocalDB or Docker)
+-   **.NET SDK** (v8.0 or higher) - *If using .NET Backend*
+-   **Java JDK** (v21 or higher) - *If using Spring Boot Backend*
+-   **SQL Server** (LocalDB or Docker) or **MySQL**
 
 ### 1️⃣ Database Setup
 Ensure your SQL Server is running. Update the connection string in `backend/appsettings.json` if necessary.

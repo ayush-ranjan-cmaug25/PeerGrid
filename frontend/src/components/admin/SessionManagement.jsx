@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import ScrollReveal from '../ScrollReveal';
 import { adminService } from '../../services/adminService';
+import toast from 'react-hot-toast';
 
 const SessionManagement = () => {
     const [sessions, setSessions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filterStatus, setFilterStatus] = useState('All');
-    const [filterCategory, setFilterCategory] = useState('All');
+
 
     useEffect(() => {
         fetchSessions();
@@ -21,8 +22,8 @@ const SessionManagement = () => {
                 host: s.tutor ? s.tutor.name : 'Pending',
                 student: s.learner ? s.learner.name : 'Unknown',
                 status: s.status,
-                date: new Date(s.startTime).toLocaleDateString(),
-                time: new Date(s.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                date: new Date(s.startTime).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+                time: new Date(s.startTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
                 cost: s.cost,
                 category: s.topic, // Using topic as category for now since we don't have category field
                 rating: 0 // Placeholder
@@ -35,21 +36,47 @@ const SessionManagement = () => {
         }
     };
 
-    const handleCancelSession = (id) => {
+    const handleCancelSession = async (id) => {
         if (window.confirm('Are you sure you want to cancel this session? GP will be refunded.')) {
-            // In a real app, call API
-            setSessions(sessions.map(s => s.id === id ? { ...s, status: 'Cancelled' } : s));
+            try {
+                await adminService.updateSessionStatus(id, 'Cancelled');
+                setSessions(sessions.map(s => s.id === id ? { ...s, status: 'Cancelled' } : s));
+                toast.success('Session cancelled successfully');
+            } catch (error) {
+                console.error("Error cancelling session", error);
+                toast.error("Failed to cancel session");
+            }
         }
     };
 
-    const handleMarkCompleted = (id) => {
-         // In a real app, call API
-         setSessions(sessions.map(s => s.id === id ? { ...s, status: 'Completed' } : s));
+    const handleMarkCompleted = async (id) => {
+        if (window.confirm('Mark this session as completed? Funds will be released to the tutor.')) {
+            try {
+                await adminService.updateSessionStatus(id, 'Completed');
+                setSessions(sessions.map(s => s.id === id ? { ...s, status: 'Completed' } : s));
+                toast.success('Session marked completed');
+            } catch (error) {
+                console.error("Error updating session", error);
+                toast.error("Failed to update session");
+            }
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (window.confirm('Delete this session record permanent?')) {
+            try {
+                await adminService.deleteSession(id);
+                setSessions(sessions.filter(s => s.id !== id));
+                toast.success('Session record deleted');
+            } catch (error) {
+                console.error("Error deleting session", error);
+                toast.error("Failed to delete session");
+            }
+        }
     };
 
     const filteredSessions = sessions.filter(session => 
-        (filterStatus === 'All' || session.status === filterStatus) &&
-        (filterCategory === 'All' || session.category === filterCategory)
+        (filterStatus === 'All' || session.status === filterStatus)
     );
 
     if (loading) return <div className="p-5 text-center">Loading sessions...</div>;
@@ -64,20 +91,15 @@ const SessionManagement = () => {
                         <div className="col-md-3">
                             <select className="form-select" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
                                 <option value="All">All Statuses</option>
-                                <option value="Upcoming">Upcoming</option>
-                                <option value="Ongoing">Ongoing</option>
+                                <option value="Open">Open (Doubts)</option>
+                                <option value="Pending">Pending Request</option>
+                                <option value="Confirmed">Confirmed</option>
+                                <option value="Active">Active</option>
                                 <option value="Completed">Completed</option>
                                 <option value="Cancelled">Cancelled</option>
                             </select>
                         </div>
-                        <div className="col-md-3">
-                            <select className="form-select" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
-                                <option value="All">All Categories</option>
-                                {/* Categories are dynamic now, so we might want to list unique topics or remove this filter if too diverse */}
-                                <option value="Frontend">Frontend</option>
-                                <option value="Backend">Backend</option>
-                            </select>
-                        </div>
+
                     </div>
 
                     {filteredSessions.length === 0 ? (
@@ -116,8 +138,9 @@ const SessionManagement = () => {
                                             </td>
                                             <td>
                                                 <span className={`badge ${
-                                                    session.status === 'Upcoming' ? 'bg-info-subtle text-info' :
-                                                    session.status === 'Ongoing' ? 'bg-success-subtle text-success' :
+                                                    session.status === 'Active' ? 'bg-success-subtle text-success' :
+                                                    session.status === 'Confirmed' ? 'bg-info-subtle text-info' :
+                                                    session.status === 'Pending' ? 'bg-warning-subtle text-warning' :
                                                     session.status === 'Completed' ? 'bg-secondary-subtle text-secondary' :
                                                     'bg-danger-subtle text-danger'
                                                 }`}>
@@ -126,19 +149,19 @@ const SessionManagement = () => {
                                             </td>
                                             <td className="fw-bold">{session.cost} GP</td>
                                             <td className="text-end">
-                                                {session.status === 'Upcoming' && (
+                                                {(session.status === 'Pending' || session.status === 'Confirmed' || session.status === 'Active') && (
                                                     <button className="btn btn-sm btn-outline-danger me-2" onClick={() => handleCancelSession(session.id)} title="Cancel Session">
                                                         <i className="bi bi-x-lg"></i>
                                                     </button>
                                                 )}
-                                                {session.status === 'Ongoing' && (
+                                                {session.status === 'Active' && (
                                                     <button className="btn btn-sm btn-outline-success me-2" onClick={() => handleMarkCompleted(session.id)} title="Mark Completed">
                                                         <i className="bi bi-check-lg"></i>
                                                     </button>
                                                 )}
-                                                {session.status === 'Completed' && session.rating > 0 && (
-                                                    <span className="badge bg-warning text-dark"><i className="bi bi-star-fill me-1"></i>{session.rating}</span>
-                                                )}
+                                                <button className="btn btn-sm btn-link text-danger" onClick={() => handleDelete(session.id)} title="Delete Record">
+                                                    <i className="bi bi-trash"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                     ))}

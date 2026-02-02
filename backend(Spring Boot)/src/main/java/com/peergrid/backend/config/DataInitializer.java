@@ -89,6 +89,7 @@ public class DataInitializer implements CommandLineRunner {
                 user.setRole("User"); user.setBio(bios[random.nextInt(bios.length)]);
                 user.setGridPoints(new BigDecimal(random.nextInt(5000))); user.setLockedPoints(BigDecimal.ZERO); user.setAvailable(true);
                 user.setProfilePictureUrl("https://ui-avatars.com/api/?name=" + fullName.replace(" ", "+") + "&background=random&color=fff");
+                user.setJoinedAt(java.time.LocalDateTime.now().minusDays(random.nextInt(365)));
                 
                 int offerCount = random.nextInt(3) + 1;
                 for (int i = 0; i < offerCount; i++) {
@@ -168,7 +169,15 @@ public class DataInitializer implements CommandLineRunner {
                 session.setLearner(learner); session.setTutor(tutor);
                 session.setTitle(sessionTopics[random.nextInt(sessionTopics.length)]);
                 session.setDescription("Help needed.");
-                session.setTopic(learner.getSkillsNeeded().isEmpty() ? "General" : learner.getSkillsNeeded().get(0)); // Use learner's needed skill for doubt
+                
+                String topic = "General";
+                if ("Open".equals(status)) {
+                    topic = learner.getSkillsNeeded().isEmpty() ? "General" : learner.getSkillsNeeded().get(0);
+                } else if (tutor != null) {
+                    topic = tutor.getSkillsOffered().isEmpty() ? "General" : tutor.getSkillsOffered().get(0);
+                }
+                session.setTopic(topic);
+                
                 session.setStartTime(startTime); session.setEndTime(startTime.plusHours(1));
                 session.setStatus(status); session.setCost(new BigDecimal(random.nextInt(10) * 10 + 10));
                 sessions.add(session);
@@ -179,15 +188,27 @@ public class DataInitializer implements CommandLineRunner {
             for (com.peergrid.backend.entity.Session session : sessions) {
                  if ("Completed".equals(session.getStatus())) {
                     com.peergrid.backend.entity.Transaction transaction = new com.peergrid.backend.entity.Transaction();
-                    transaction.setLearner(session.getLearner()); transaction.setTutor(session.getTutor());
-                    transaction.setSkill(session.getTopic()); transaction.setPoints(session.getCost());
-                    transaction.setType("Transfer"); transaction.setTimestamp(session.getEndTime());
+                    transaction.setLearner(session.getLearner()); 
+                    transaction.setTutor(session.getTutor());
+                    transaction.setSkill(session.getTopic()); 
+                    transaction.setPoints(session.getCost());
+                    transaction.setType("Transfer"); 
+                    transaction.setTimestamp(session.getEndTime());
+                    // Match .NET: Random rating 3 to 5 (inclusive 3, exclusive 6 in .NET = 3,4,5)
                     transaction.setRating((double) (random.nextInt(3) + 3));
                     transactions.add(transaction);
 
                     com.peergrid.backend.entity.Feedback feedback = new com.peergrid.backend.entity.Feedback();
-                    feedback.setSession(session); feedback.setFromUserId(session.getLearner().getId());
-                    feedback.setRating(random.nextInt(3) + 3); feedback.setComment("Great session!");
+                    feedback.setSession(session); 
+                    feedback.setFromUserId(session.getLearner().getId());
+                    // Match .NET: Random rating 3 to 5
+                    feedback.setRating(random.nextInt(3) + 3); 
+                    String[] feedbackComments = { 
+                        "Great session!", "Very helpful, thanks!", "Learned a lot today.", 
+                        "Good tutor.", "Excellent explanation.", "Cleared my doubts perfectly.", 
+                        "Highly recommended.", "Patient and knowledgeable.", "Helped me debug the issue.", "Fantastic mentor!" 
+                    };
+                    feedback.setComment(feedbackComments[random.nextInt(feedbackComments.length)]);
                     feedbacks.add(feedback);
                 }
                 

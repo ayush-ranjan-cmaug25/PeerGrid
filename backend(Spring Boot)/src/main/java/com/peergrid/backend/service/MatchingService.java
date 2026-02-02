@@ -20,6 +20,7 @@ public class MatchingService {
         
         return allUsers.stream()
                 .filter(u -> !u.getId().equals(requesterId))
+                .filter(u -> !"Admin".equalsIgnoreCase(u.getRole()))
                 .filter(u -> u.getSkillsOffered().contains(skillNeeded))
                 .collect(Collectors.toList());
     }

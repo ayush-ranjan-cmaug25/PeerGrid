@@ -26,7 +26,7 @@ namespace PeerGrid.Backend.Services
             // without debugging complex SQL translations.
             
             var allUsers = await _context.Users
-                .Where(u => u.IsAvailable && u.Id != requesterId)
+                .Where(u => u.IsAvailable && u.Id != requesterId && u.Role != "Admin")
                 .ToListAsync();
 
             var potentialMatches = allUsers

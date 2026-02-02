@@ -132,7 +132,7 @@ namespace PeerGrid.Backend.Controllers
                 .Include(s => s.Learner)
                 .Where(s => (s.LearnerId == userId || s.TutorId == userId) && s.Status == "Confirmed" && s.StartTime > DateTime.UtcNow)
                 .OrderBy(s => s.StartTime)
-                .Take(5)
+                .Take(3)
                 .Select(s => new {
                     Id = s.Id,
                     Topic = s.Topic,
@@ -145,7 +145,7 @@ namespace PeerGrid.Backend.Controllers
             var activeDoubts = await _context.Sessions
                 .Where(s => s.Status == "Open")
                 .OrderByDescending(s => s.Id)
-                .Take(5)
+                .Take(3)
                 .Select(s => new {
                     Id = s.Id,
                     Title = s.Title,
@@ -167,7 +167,7 @@ namespace PeerGrid.Backend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            return await _context.Users.ToListAsync();
+            return await _context.Users.Where(u => u.Role != "Admin").ToListAsync();
         }
 
         // GET: api/Users/5
@@ -219,6 +219,7 @@ namespace PeerGrid.Backend.Controllers
         public async Task<ActionResult<IEnumerable<UserDto>>> GetTopSolvers()
         {
             var topSolvers = await _context.Users
+                .Where(u => u.Role != "Admin")
                 .OrderByDescending(u => u.GridPoints)
                 .Take(5)
                 .Select(u => new UserDto

@@ -92,7 +92,8 @@ namespace PeerGrid.Backend.Data
                         IsAvailable = true,
                         SkillsOffered = new List<string>(),
                         SkillsNeeded = new List<string>(),
-                        ProfilePictureUrl = $"https://ui-avatars.com/api/?name={Uri.EscapeDataString(fullName)}&background=random&color=fff"
+                        ProfilePictureUrl = $"https://ui-avatars.com/api/?name={Uri.EscapeDataString(fullName)}&background=random&color=fff",
+                        JoinedAt = DateTime.UtcNow.AddDays(-random.Next(0, 365))
                     };
 
                     int offerCount = random.Next(1, 4);
@@ -200,8 +201,14 @@ namespace PeerGrid.Backend.Data
                             LearnerId = learner.Id, TutorId = tutor.Id, Skill = session.Topic, Points = session.Cost,
                             Type = "Transfer", Timestamp = session.EndTime, Rating = random.Next(3, 6)
                         });
+                        var feedbackComments = new[] { 
+                            "Great session!", "Very helpful, thanks!", "Learned a lot today.", 
+                            "Good tutor.", "Excellent explanation.", "Cleared my doubts perfectly.", 
+                            "Highly recommended.", "Patient and knowledgeable.", "Helped me debug the issue.", "Fantastic mentor!" 
+                        };
                         feedbacks.Add(new Feedback {
-                            Session = session, FromUserId = learner.Id, Rating = random.Next(3, 6), Comment = "Great session!"
+                            Session = session, FromUserId = learner.Id, Rating = random.Next(3, 6), 
+                            Comment = feedbackComments[random.Next(feedbackComments.Length)]
                         });
                     }
 
@@ -258,6 +265,56 @@ namespace PeerGrid.Backend.Data
                     context.SaveChanges();
                     Console.WriteLine($"Seeded {newDoubts.Count} new Open doubts.");
                 }
+            }
+
+            // 4. Ensure ALL users have at least one upcoming confirmed session
+            var allUsers = context.Users.ToList();
+            if (allUsers.Any())
+            {
+                var now = DateTime.Now;
+                foreach (var user in allUsers)
+                {
+                    bool hasUpcoming = context.Sessions.Any(s => 
+                        (s.LearnerId == user.Id || s.TutorId == user.Id) &&
+                        s.Status == "Confirmed" &&
+                        s.StartTime > now);
+                    
+                    if (!hasUpcoming)
+                    {
+                        var other = allUsers.Where(u => u.Id != user.Id).OrderBy(x => random.Next()).FirstOrDefault();
+                        if (other != null)
+                        {
+                            var session = new Session();
+                            bool isLearner = random.Next(2) == 0;
+                            
+                            if (isLearner)
+                            {
+                                session.LearnerId = user.Id;
+                                session.TutorId = other.Id;
+                            }
+                            else
+                            {
+                                session.LearnerId = other.Id;
+                                session.TutorId = user.Id;
+                            }
+                            
+                            var skillSource = isLearner ? other : user; // Tutor provides skill
+                            var topic = skillSource.SkillsOffered.Any() ? skillSource.SkillsOffered[random.Next(skillSource.SkillsOffered.Count)] : "General";
+
+                            session.Title = topic + " Mentorship";
+                            session.Description = "Deep dive into " + topic;
+                            session.Topic = topic;
+                            session.Cost = random.Next(1, 6) * 100; // 100-500 points
+                            session.Status = "Confirmed";
+                            session.StartTime = DateTime.Now.AddDays(random.Next(1, 6)).AddHours(random.Next(12));
+                            session.EndTime = session.StartTime.AddHours(1);
+
+                            context.Sessions.Add(session);
+                            Console.WriteLine($"Seeded confirmed session for {user.Name}");
+                        }
+                    }
+                }
+                context.SaveChanges();
             }
         }
     }

@@ -119,5 +119,22 @@ export const adminService = {
             body: JSON.stringify({ status })
         });
         return handleResponse(response);
+    },
+
+    deleteSession: async (sessionId) => {
+        const response = await fetch(`${API_BASE_URL}/admin/sessions/${sessionId}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+        });
+        return handleResponse(response);
+    },
+
+    updateSessionStatus: async (sessionId, status) => {
+        const response = await fetch(`${API_BASE_URL}/admin/sessions/${sessionId}/status`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ status })
+        });
+        return handleResponse(response);
     }
 };

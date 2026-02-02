@@ -51,7 +51,7 @@ const UserManagement = () => {
                 role: u.role || 'User',
                 status: u.banned ? 'Banned' : (u.available ? 'Active' : 'Busy'), 
                 gp: u.gridPoints || 0,
-                joinDate: u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '2023-01-01',
+                joinDate: u.joinedAt ? new Date(u.joinedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : new Date().toLocaleDateString(),
                 lastActive: 'Recently'
             }));
             setUsers(formattedUsers);
@@ -427,58 +427,87 @@ const UserManagement = () => {
             )}
 
             {/* User Details Modal */}
+            {/* User Details Modal - Premium Redesign */}
             {selectedUser && (
-                <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ background: 'rgba(0,0,0,0.6)', zIndex: 1060, backdropFilter: 'blur(4px)' }}>
-                    <div className="glass-card p-0 overflow-hidden" style={{ width: '600px', maxWidth: '90%' }}>
-                        <div className="p-4 bg-primary bg-opacity-10 text-center border-bottom" style={{ borderColor: 'var(--border-color)' }}>
-                            <div className="rounded-circle bg-white text-primary d-inline-flex align-items-center justify-content-center fw-bold mb-3 shadow" style={{ width: '80px', height: '80px', fontSize: '2rem' }}>
-                                {getInitials(selectedUser.name)}
-                            </div>
-                            <h4 className="fw-bold mb-1" style={{ color: 'var(--text-main)' }}>{selectedUser.name}</h4>
-                            <p className="text-muted mb-2">{selectedUser.email}</p>
-                            <span className={`badge ${selectedUser.status === 'Active' ? 'bg-success' : 'bg-secondary'}`}>{selectedUser.status}</span>
+                <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ background: 'rgba(0,0,0,0.6)', zIndex: 1060, backdropFilter: 'blur(8px)' }}>
+                    <div className="glass-card p-0 overflow-hidden shadow-lg" style={{ width: '500px', maxWidth: '90%', animation: 'slideUp 0.3s ease', borderRadius: '24px', border: '1px solid var(--border-color)' }}>
+                        
+                        {/* Header with Gradient */}
+                        <div className="position-relative" style={{ height: '140px', background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))' }}>
+                            <button 
+                                onClick={() => setSelectedUser(null)}
+                                className="position-absolute top-0 end-0 m-3 btn btn-sm btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+                                style={{ width: '32px', height: '32px', opacity: 0.9 }}
+                            >
+                                <i className="bi bi-x fs-5 text-dark"></i>
+                            </button>
                         </div>
-                        <div className="p-4">
-                            <div className="row g-3 mb-4">
-                                <div className="col-6">
-                                    <div className="p-3 rounded border bg-secondary bg-opacity-5 text-center" style={{ borderColor: 'var(--border-color)' }}>
-                                        <div className="small text-muted text-uppercase fw-bold mb-1">Grid Points</div>
-                                        <div className="h3 fw-bold mb-0" style={{ color: 'var(--accent-primary)' }}>{selectedUser.gp}</div>
-                                    </div>
+
+                        {/* Avatar & Main Info */}
+                        <div className="px-4 pb-4 position-relative text-center" style={{ marginTop: '-60px' }}>
+                            <div className="d-inline-block position-relative mb-3">
+                                <div 
+                                    className="rounded-circle text-white d-flex align-items-center justify-content-center fw-bold shadow-lg" 
+                                    style={{ 
+                                        width: '120px', 
+                                        height: '120px', 
+                                        fontSize: '3rem',
+                                        background: `linear-gradient(135deg, ${['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD'][selectedUser.id % 5]}, ${['#EE5253', '#26A69A', '#2980B9', '#27AE60', '#F1C40F'][selectedUser.id % 5]})`,
+                                        border: '6px solid var(--bg-card)'
+                                    }}
+                                >
+                                    {getInitials(selectedUser.name)}
                                 </div>
-                                <div className="col-6">
-                                    <div className="p-3 rounded border bg-secondary bg-opacity-5 text-center" style={{ borderColor: 'var(--border-color)' }}>
-                                        <div className="small text-muted text-uppercase fw-bold mb-1">Joined Date</div>
-                                        <div className="h3 fw-bold mb-0 text-white">{selectedUser.joinDate}</div>
-                                    </div>
-                                </div>
+                                <span className={`position-absolute bottom-0 end-0 badge rounded-pill border border-3 border-white ${
+                                    selectedUser.status === 'Active' ? 'bg-success' : 
+                                    selectedUser.status === 'Busy' ? 'bg-warning' : 'bg-danger'
+                                }`} style={{ width: '24px', height: '24px', padding: 0, borderColor: 'var(--bg-card) !important' }}>
+                                    <span className="visually-hidden">{selectedUser.status}</span>
+                                </span>
                             </div>
                             
-                            <h5 className="small text-muted text-uppercase fw-bold mb-3">Recent Activity</h5>
-                            <div className="list-group list-group-flush rounded border" style={{ borderColor: 'var(--border-color)' }}>
-                                <div className="list-group-item bg-transparent text-white border-bottom border-secondary border-opacity-25 py-3">
-                                    <div className="d-flex justify-content-between">
-                                        <span>Logged in</span>
-                                        <span className="text-muted small">2 hours ago</span>
+                            <h3 className="fw-bold mb-1" style={{ color: 'var(--text-main)' }}>{selectedUser.name}</h3>
+                            <p className="text-muted mb-3">{selectedUser.email}</p>
+                            
+                            <div className="d-flex justify-content-center gap-2 mb-4">
+                                <span className="badge px-3 py-2 rounded-pill" style={{ background: 'rgba(99, 102, 241, 0.1)', color: 'var(--accent-primary)', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
+                                    {selectedUser.role}
+                                </span>
+                                <span className={`badge px-3 py-2 rounded-pill ${
+                                    selectedUser.status === 'Active' ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 
+                                    selectedUser.status === 'Busy' ? 'bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25' : 
+                                    'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'
+                                }`}>
+                                    {selectedUser.status}
+                                </span>
+                            </div>
+
+                            {/* Stats Cards */}
+                            <div className="row g-3">
+                                <div className="col-6">
+                                    <div className="p-3 rounded-4 h-100" style={{ background: 'var(--bg-card-hover)', border: '1px solid var(--border-color)' }}>
+                                        <div className="d-flex flex-column align-items-center">
+                                            <div className="mb-2 p-2 rounded-circle bg-primary bg-opacity-10 text-primary">
+                                                <i className="bi bi-star-fill"></i>
+                                            </div>
+                                            <div className="small text-muted text-uppercase fw-bold" style={{ fontSize: '0.7rem', letterSpacing: '0.1em' }}>Grid Points</div>
+                                            <div className="h3 fw-bold mb-0 mt-1" style={{ color: 'var(--text-main)' }}>{selectedUser.gp}</div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="list-group-item bg-transparent text-white border-bottom border-secondary border-opacity-25 py-3">
-                                    <div className="d-flex justify-content-between">
-                                        <span>Completed a bounty</span>
-                                        <span className="text-muted small">Yesterday</span>
-                                    </div>
-                                </div>
-                                <div className="list-group-item bg-transparent text-white py-3">
-                                    <div className="d-flex justify-content-between">
-                                        <span>Updated profile</span>
-                                        <span className="text-muted small">3 days ago</span>
+                                <div className="col-6">
+                                    <div className="p-3 rounded-4 h-100" style={{ background: 'var(--bg-card-hover)', border: '1px solid var(--border-color)' }}>
+                                        <div className="d-flex flex-column align-items-center">
+                                            <div className="mb-2 p-2 rounded-circle bg-info bg-opacity-10 text-info">
+                                                <i className="bi bi-calendar-event"></i>
+                                            </div>
+                                            <div className="small text-muted text-uppercase fw-bold" style={{ fontSize: '0.7rem', letterSpacing: '0.1em' }}>Joined On</div>
+                                            <div className="h5 fw-bold mb-0 mt-1" style={{ color: 'var(--text-main)' }}>{selectedUser.joinDate}</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="d-grid mt-4">
-                                <button className="btn btn-secondary" onClick={() => setSelectedUser(null)}>Close Details</button>
-                            </div>
                         </div>
                     </div>
                 </div>
