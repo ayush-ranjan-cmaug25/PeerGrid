@@ -274,8 +274,11 @@ public class DataInitializer implements CommandLineRunner {
         List<User> allUsers = userRepository.findAll().stream()
                 .filter(u -> !"Admin".equals(u.getRole()))
                 .collect(java.util.stream.Collectors.toList());
+        
+        List<com.peergrid.backend.entity.Session> allSessions = sessionRepository.findAll();
+
         for (User user : allUsers) {
-            long currentSessionCount = sessionRepository.findAll().stream()
+            long currentSessionCount = allSessions.stream()
                     .filter(s -> (s.getLearner().getId().equals(user.getId()) || (s.getTutor() != null && s.getTutor().getId().equals(user.getId()))))
                     .count();
             
