@@ -144,10 +144,30 @@ public class SessionService {
         return transactionRepository.save(transaction);
     }
 
+    @Autowired
+    private com.peergrid.backend.repository.FeedbackRepository feedbackRepository;
+
     @Transactional
-    public void rateSession(@NonNull Integer transactionId, Double rating) {
+    public void rateSession(@NonNull Integer transactionId, Integer sessionId, Double rating, String comment) {
         Transaction transaction = transactionRepository.findById(transactionId).orElseThrow(() -> new RuntimeException("Transaction not found"));
         transaction.setRating(rating);
         transactionRepository.save(transaction);
+
+        if (sessionId != null) {
+            Session session = sessionRepository.findById(sessionId).orElse(null);
+            if (session != null) {
+                if (!"Completed".equals(session.getStatus())) {
+                    session.setStatus("Completed");
+                    sessionRepository.save(session);
+                }
+                
+                com.peergrid.backend.entity.Feedback feedback = new com.peergrid.backend.entity.Feedback();
+                feedback.setSession(session);
+                feedback.setFromUserId(transaction.getLearner().getId());
+                feedback.setRating(rating.intValue());
+                feedback.setComment(comment != null ? comment : "");
+                feedbackRepository.save(feedback);
+            }
+        }
     }
 }

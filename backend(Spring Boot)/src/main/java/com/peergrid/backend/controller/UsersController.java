@@ -160,6 +160,7 @@ public class UsersController {
                     dto.setLearnerId(s.getLearner() != null ? s.getLearner().getId() : null);
                     dto.setTime(s.getStartTime());
                     dto.setStatus(s.getStatus());
+                    dto.setCost(s.getCost());
                     return dto;
                 })
                 .collect(Collectors.toList());

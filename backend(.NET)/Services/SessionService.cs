@@ -143,12 +143,30 @@ namespace PeerGrid.Backend.Services
             }
         }
 
-        public async Task RateSessionAsync(int transactionId, double rating)
+        public async Task RateSessionAsync(int transactionId, int sessionId, double rating, string comment)
         {
             var transactionRecord = await _context.Transactions.FindAsync(transactionId);
             if (transactionRecord == null) throw new Exception("Transaction not found");
 
             transactionRecord.Rating = rating;
+
+            // Save Feedback
+            var feedback = new Feedback
+            {
+                SessionId = sessionId,
+                FromUserId = transactionRecord.LearnerId, // Assuming learner rates
+                Rating = (int)Math.Round(rating),
+                Comment = comment ?? ""
+            };
+            _context.Feedbacks.Add(feedback);
+            
+            // Ensure session is completed
+            var session = await _context.Sessions.FindAsync(sessionId);
+            if (session != null && session.Status != "Completed")
+            {
+                 session.Status = "Completed";
+            }
+
             await _context.SaveChangesAsync();
         }
 

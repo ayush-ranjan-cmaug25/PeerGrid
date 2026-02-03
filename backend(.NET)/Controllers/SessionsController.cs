@@ -65,6 +65,7 @@ namespace PeerGrid.Backend.Controllers
                     Topic = s.Topic,
                     Points = s.Cost,
                     Learner = s.Learner.Name,
+                    LearnerId = s.LearnerId, // Added LearnerId for frontend check
                     Tags = new[] { s.Topic }
                 })
                 .ToListAsync();
@@ -170,8 +171,8 @@ namespace PeerGrid.Backend.Controllers
         {
             try
             {
-                await _sessionService.RateSessionAsync(request.TransactionId, request.Rating);
-                return Ok(new { message = "Session rated successfully" });
+                await _sessionService.RateSessionAsync(request.TransactionId, request.SessionId, request.Rating, request.Comment);
+                return Ok(new { message = "Session rated and feedback submitted successfully" });
             }
             catch (Exception ex)
             {
@@ -199,7 +200,9 @@ namespace PeerGrid.Backend.Controllers
     public class RateSessionRequest
     {
         public int TransactionId { get; set; }
+        public int SessionId { get; set; }
         public double Rating { get; set; }
+        public string Comment { get; set; }
     }
 
     public class CreateDoubtRequest

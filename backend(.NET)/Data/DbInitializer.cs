@@ -20,45 +20,45 @@ namespace PeerGrid.Backend.Data
             {
                 var names = new string[]
                 {
-                    "Aakash Ashok Kharade", "Aasif Jamal", "Abhishek Anilkumar Borse", "Abhishek Dasondhi", "Abhishek Narayan Jagtap", "Abhishek Vilas Gaikwad",
-                    "Adarsh Kumar Chandel", "Adarsh Kushwah", "Aditya Abhijeet Adhikari", "Aditya Sachin Korde", "Afsha Zarreen Sayeed Khan", "Ajay Raysing Patil",
-                    "Akanksha Jeevan Puri", "Akanksha Somnath Dhanawade", "Akash Pandurang Kokulwar", "Akash Raghunath Bhadane", "Akshay Keshav Balte", "Amar Balasaheb Toge",
-                    "Amarnath Ambadas Malpuri", "Amey Arun Parab", "Amey Shekhar Raut", "Aniket Bhagwat Sherkar", "Aniket Hanumant Darade", "Anirudha Dinesh Shinde",
-                    "Ankita Ashok Kanthe", "Ankita Yatin Kher", "Annu Yadav", "Anuj Trivedi", "Anurag More", "Anushka Chavan", "Apurva Nandkishor Dhonde",
-                    "Aryan Genbhau Gawade", "Aryan Manohar Pate", "Aryan Sunil Shambharkar", "Asfiya Naveed Ahmed Shaikh", "Asmit Ajay Upganlawar", "Asmita Vijaykumar Mhetre",
-                    "Atharva Anil Thumbare", "Avneesh Dubey", "Ayush Ranjan", "Bhagyesh Tushar Wani", "Bhavna Yadav Balpande", "Bhushan Chandan Dhavan",
-                    "Bhushan Narendra Attarde", "Bhushan Vasantrao Thate", "Chaitali Bhagwat Barhate", "Chetankumar Badusing Banjara", "Chinmay Vijay Bonde", "Darshan Suryabhan Gadakh",
-                    "Darshana Sopandas Malewar", "Deepa Sushil Jadhav", "Deepra Banerjee", "Devendra Kakaji Deore", "Dhananjay Tansen Shitole", "Dhanashree Deepak Pawar",
-                    "Dhaval Manik Patil", "Dhiraj Divakar Patil", "Digvijay Maruti Thanekar", "Dipak Chandrakant Firake", "Dipali Amit Vasave", "Dipti Sampat Akhade",
-                    "Dnyaneshvar Bibhishan Suryavanshi", "Fameshwari", "Gaurav Anil Patil", "Gaurav Anil Sontakke", "Gaurav Aniruddha Apte", "Gaurav Baikunth Nath Mishra",
-                    "Gaurav Suresh Salunkhe", "Gauri Pratul Kolte", "Goutam Soni", "Gunjan Pravin Chaudhari", "Hanuman Bhagwat Jadhav", "Harshal Vilas Tarmale",
-                    "Heramb Dilip Shinde", "Himanshu Dhananjay Patil", "Himanshu Jagdish Samrit", "Hitesh Ravindra Singh Chaudhari", "Hrishikesh Deepak Tappe", "Isha Anant Puranik",
-                    "Isha Pralhad Gulhane", "Ishan Raizada", "Jaydeep Patidar", "Kalyanee Ravindra Pachghare", "Kamlini Govardhan Bhasme", "Kapil Umakant Katte",
-                    "Kaushal Rajendra Patil", "Khetesh Ummedram Choudhary", "Kiran Vishwas Mahajan", "Komal Kadnor", "Komal Ramrao Jadhav", "Krishna Aditya Chikkala",
-                    "Krushna Vikas Chavan", "Madhuri Kedarnath Chavan", "Manali Sharad Bharati Bhujbal", "Manish Laxmikant Chaudhari", "Mickey Manohar", "Minal Ashok Kamde",
-                    "Mohammad Rehan Ansari", "Mohammad Salik Zameer Ahmed Mulla", "Mohd Allahuddin", "Mohini Nikhil Kasar", "Mohit Rahul Sarode", "Mujahid Jamshed Bagwan",
-                    "Nandini Nitin Rasal", "Nandini Wasant Wahane", "Naushin Yusuf Sayyad", "Neha Devidas Patil", "Neha Nandu Wagh", "Neha Pravin Kothavade",
-                    "Neha Vijay Ahire", "Nidhi Kumari", "Niket Devendra Malviya", "Nikhil Anil Shingare", "Nikhil Dubey", "Nikhil Samadhan Nikam", "Nishant Sharad Desle",
-                    "Nutesh Vinod Tajne", "Om Bhagirath Londhe", "Om Santosh Pawar", "Omkar Pramod Nalawade", "Parikshit Mahendra Urkande", "Parikshit Vijay Patil",
-                    "Pooja Kundlik Athare", "Poonam Balaji More", "Pradip Prakash Patil", "Prajakta Manik Kamble", "Prajwal Rathod", "Pranali Ramesh Mahadik",
-                    "Pranali Vilas Magar", "Pranavkumar Sanjay Munot", "Pranjali Pramod Rane", "Prasad Sagar Talekar", "Prashant Aba Patil", "Prateek Gupta",
-                    "Prathamesh Sunil Maharnur", "Prathmesh Mane", "Pratik Ashok Avhad", "Pratik Kailas Barse", "Prem Satyanarayan Myana", "Priyanka Bhausaheb Thange",
-                    "Purva Pradeep Thavai", "Purvesh Ravindra Khandare", "Rachana Namdeo Khadse", "Ragini Yadav", "Rahul Dhondu Pawar", "Raj Jaydev Tangadi",
-                    "Rajat Lonkar", "Ravina Punjarao Gadekar", "Ritik Gupta", "Rohini Bhagwatkar", "Rohit Bhalse", "Rohit Deshpande", "Ronak Ravindra Kolhe",
-                    "Roshan Sanjay Kosare", "Rugvedi Dilipkumar Wankhede", "Rushikesh Sandeep Temkar", "Rushikesh Vijay Dhavan", "Ruttik Prakash Hiwase", "Rutuja Pravin Gholap",
-                    "Sachin Rajesh Dabewar", "Sachin Sanjay Waghchaure", "Sagar Band", "Sagar Shyam Udgiri", "Sakshi Purushottam Baitule", "Sakshi Sandip Ostwal",
-                    "Sakshi Umesh Chaudhari", "Saloni", "Samarth Ramchandra Burkule", "Samiksha Vilas Wagaj", "Samir Bharati", "Sanghapal Ishwar Gavhane",
-                    "Sanjukta Sarkar", "Sanket Kulkarni", "Sanket Purushottam Mandavgane", "Sanket Sanjay Shalukar", "Sanskruti Shankar Dhole", "Sarthak Satish Sambare",
-                    "Satyajit Tanaji Kadam", "Saurabh Anil Mahajan", "Saurabh Pramod Walanj", "Saurabh Raju Vaidya", "Shamal Manik Bhujbal", "Shantanu Laxman Chaudhari",
-                    "Shashibhushan Avdhesh Mishra", "Shilpa Jayesh Gharat", "Shital Janardan Sabale", "Shivanjali Bhanudas Mote", "Shraddha Chandrashekhar Hade", "Shreya Ajay Pandharipande",
-                    "Shreya Raj", "Shruti Dhanalal Wadile", "Shruti Dinkar Jadhav", "Shubham Chandrakant Ghaware", "Shubham Chandrikapure", "Shubham Dnyaneshwar Thakur",
-                    "Shubham Santosh Rokade", "Shubham Shriram Chaudhari", "Siddhi Machhindra Adkitte", "Sneha Gorakhnath Bhong", "Snehal Kailas Kharde", "Snehal Shivaji Shinde",
-                    "Sofiya Taiyaballi Sutar", "Soma Vasudev", "Someshvar Tiwari", "Soumya Prasad Sahu", "Suchit Prashant Sawant", "Sudhansu Dalchand Kapgate",
-                    "Sumit Prabhakar Mote", "Supriya Mahesh Suryawanshi", "Suraj Rawat", "Suyog Avinash Joshi", "Swapna Sanjay Saste", "Tanmay Chandrakant Sawant",
-                    "Tanmay Mukesh Raut", "Tanmay Vasant Salwe", "Tejal Sunil Mahajan", "Tejas Anil Jadhao", "Tushar Gajanan Gedam", "Tushar Hanmant Rupnavar",
-                    "Tushar Vilas Lahamge", "Vaibhav Sanjay Sonawane", "Vaishakh Lalchand Malode", "Vaishnavi Dhanaji Salvi", "Vaishnavi Dhanraj Pokale", "Vaishnavi Pramod Pardeshi",
-                    "Vaishnavi Sanjay Jagtap", "Varsha Shivaji Matsagar", "Vasundhara Vitthal Nanaware", "Vedant Ramrao Shiradhonkar", "Vedant Suryakant Mali", "Vedant Vishwanath Padave",
-                    "Vibhav Vikas Chavan", "Virag Hote", "Vrushabh Vyankatesh Bhaskar", "Yash Gulabrao Mankumare", "Yash Pramod Bambal", "Yash Sunil Patil", "Yukta Ravindra Jadhav"
+                    "Aakash Kharade", "Aasif Jamal", "Abhishek Borse", "Abhishek Dasondhi", "Abhishek Jagtap", "Abhishek Gaikwad",
+                    "Adarsh Chandel", "Adarsh Kushwah", "Aditya Adhikari", "Aditya Korde", "Afsha Khan", "Ajay Patil",
+                    "Akanksha Puri", "Akanksha Dhanawade", "Akash Kokulwar", "Akash Bhadane", "Akshay Balte", "Amar Toge",
+                    "Amarnath Malpuri", "Amey Parab", "Amey Raut", "Aniket Sherkar", "Aniket Darade", "Anirudha Shinde",
+                    "Ankita Kanthe", "Ankita Kher", "Annu Yadav", "Anuj Trivedi", "Anurag More", "Anushka Chavan", "Apurva Dhonde",
+                    "Aryan Gawade", "Aryan Pate", "Aryan Shambharkar", "Asfiya Shaikh", "Asmit Upganlawar", "Asmita Mhetre",
+                    "Atharva Thumbare", "Avneesh Dubey", "Ayush Ranjan", "Bhagyesh Wani", "Bhavna Balpande", "Bhushan Dhavan",
+                    "Bhushan Attarde", "Bhushan Thate", "Chaitali Barhate", "Chetankumar Banjara", "Chinmay Bonde", "Darshan Gadakh",
+                    "Darshana Malewar", "Deepa Jadhav", "Deepra Banerjee", "Devendra Deore", "Dhananjay Shitole", "Dhanashree Pawar",
+                    "Dhaval Patil", "Dhiraj Patil", "Digvijay Thanekar", "Dipak Firake", "Dipali Vasave", "Dipti Akhade",
+                    "Dnyaneshvar Suryavanshi", "Fameshwari", "Gaurav Patil", "Gaurav Sontakke", "Gaurav Apte", "Gaurav Mishra",
+                    "Gaurav Salunkhe", "Gauri Kolte", "Goutam Soni", "Gunjan Chaudhari", "Hanuman Jadhav", "Harshal Tarmale",
+                    "Heramb Shinde", "Himanshu Patil", "Himanshu Samrit", "Hitesh Chaudhari", "Hrishikesh Tappe", "Isha Puranik",
+                    "Isha Gulhane", "Ishan Raizada", "Jaydeep Patidar", "Kalyanee Pachghare", "Kamlini Bhasme", "Kapil Katte",
+                    "Kaushal Patil", "Khetesh Choudhary", "Kiran Mahajan", "Komal Kadnor", "Komal Jadhav", "Krishna Chikkala",
+                    "Krushna Chavan", "Madhuri Chavan", "Manali Bhujbal", "Manish Chaudhari", "Mickey Manohar", "Minal Kamde",
+                    "Mohammad Ansari", "Mohammad Mulla", "Mohd Allahuddin", "Mohini Kasar", "Mohit Sarode", "Mujahid Bagwan",
+                    "Nandini Rasal", "Nandini Wahane", "Naushin Sayyad", "Neha Patil", "Neha Wagh", "Neha Kothavade",
+                    "Neha Ahire", "Nidhi Kumari", "Niket Malviya", "Nikhil Shingare", "Nikhil Dubey", "Nikhil Nikam", "Nishant Desle",
+                    "Nutesh Tajne", "Om Londhe", "Om Pawar", "Omkar Nalawade", "Parikshit Urkande", "Parikshit Patil",
+                    "Pooja Athare", "Poonam More", "Pradip Patil", "Prajakta Kamble", "Prajwal Rathod", "Pranali Mahadik",
+                    "Pranali Magar", "Pranavkumar Munot", "Pranjali Rane", "Prasad Talekar", "Prashant Patil", "Prateek Gupta",
+                    "Prathamesh Maharnur", "Prathmesh Mane", "Pratik Avhad", "Pratik Barse", "Prem Myana", "Priyanka Thange",
+                    "Purva Thavai", "Purvesh Khandare", "Rachana Khadse", "Ragini Yadav", "Rahul Pawar", "Raj Tangadi",
+                    "Rajat Lonkar", "Ravina Gadekar", "Ritik Gupta", "Rohini Bhagwatkar", "Rohit Bhalse", "Rohit Deshpande", "Ronak Kolhe",
+                    "Roshan Kosare", "Rugvedi Wankhede", "Rushikesh Temkar", "Rushikesh Dhavan", "Ruttik Hiwase", "Rutuja Gholap",
+                    "Sachin Dabewar", "Sachin Waghchaure", "Sagar Band", "Sagar Udgiri", "Sakshi Baitule", "Sakshi Ostwal",
+                    "Sakshi Chaudhari", "Saloni", "Samarth Burkule", "Samiksha Wagaj", "Samir Bharati", "Sanghapal Gavhane",
+                    "Sanjukta Sarkar", "Sanket Kulkarni", "Sanket Mandavgane", "Sanket Shalukar", "Sanskruti Dhole", "Sarthak Sambare",
+                    "Satyajit Kadam", "Saurabh Mahajan", "Saurabh Walanj", "Saurabh Vaidya", "Shamal Bhujbal", "Shantanu Chaudhari",
+                    "Shashibhushan Mishra", "Shilpa Gharat", "Shital Sabale", "Shivanjali Mote", "Shraddha Hade", "Shreya Pandharipande",
+                    "Shreya Raj", "Shruti Wadile", "Shruti Jadhav", "Shubham Ghaware", "Shubham Chandrikapure", "Shubham Thakur",
+                    "Shubham Rokade", "Shubham Chaudhari", "Siddhi Adkitte", "Sneha Bhong", "Snehal Kharde", "Snehal Shinde",
+                    "Sofiya Sutar", "Soma Vasudev", "Someshvar Tiwari", "Soumya Sahu", "Suchit Sawant", "Sudhansu Kapgate",
+                    "Sumit Mote", "Supriya Suryawanshi", "Suraj Rawat", "Suyog Joshi", "Swapna Saste", "Tanmay Sawant",
+                    "Tanmay Raut", "Tanmay Salwe", "Tejal Mahajan", "Tejas Jadhao", "Tushar Gedam", "Tushar Rupnavar",
+                    "Tushar Lahamge", "Vaibhav Sonawane", "Vaishakh Malode", "Vaishnavi Salvi", "Vaishnavi Pokale", "Vaishnavi Pardeshi",
+                    "Vaishnavi Jagtap", "Varsha Matsagar", "Vasundhara Nanaware", "Vedant Shiradhonkar", "Vedant Mali", "Vedant Padave",
+                    "Vibhav Chavan", "Virag Hote", "Vrushabh Bhaskar", "Yash Mankumare", "Yash Bambal", "Yash Patil", "Yukta Jadhav"
                 };
 
                 var users = new List<User>();
@@ -93,7 +93,7 @@ namespace PeerGrid.Backend.Data
                         SkillsOffered = new List<string>(),
                         SkillsNeeded = new List<string>(),
                         ProfilePictureUrl = $"https://ui-avatars.com/api/?name={Uri.EscapeDataString(fullName)}&background=random&color=fff",
-                        JoinedAt = DateTime.UtcNow.AddDays(-random.Next(0, 365))
+                        JoinedAt = DateTime.UtcNow.AddDays(-random.Next(0, 365)).AddHours(random.Next(0, 24)).AddMinutes(random.Next(0, 60))
                     };
 
                     int offerCount = random.Next(1, 4);
@@ -213,11 +213,22 @@ namespace PeerGrid.Backend.Data
                     }
 
                     if (status != "Open" && tutor != null) {
-                        int msgCount = random.Next(2, 6);
-                        for(int m=0; m<msgCount; m++) {
+                        var conversations = new[] {
+                            new[] { "Hi, I have a few questions about the session topic.", "Sure, I'd be happy to help. What specific areas are you looking at?", "Mostly around the advanced concepts.", "Great, we can cover that. See you in the session!" },
+                            new[] { "Is the schedule fixed or can we move it by 30 mins?", "I can accommodate a 30 min delay. Let's meet then.", "Perfect, thank you!", "No problem." },
+                            new[] { "Do I need to install any software beforehand?", "Yes, please have VS Code and Node.js ready.", "Okay, I will set them up.", "See you soon." },
+                            new[] { "I'm really excited for this mentorship!", "Me too! We'll make good progress.", "I've prepared some notes.", "That's excellent. It will help us focus." }
+                        };
+                        
+                        var selectedConversation = conversations[random.Next(conversations.Length)];
+                        
+                        for(int m=0; m<selectedConversation.Length; m++) {
                             messages.Add(new Message {
-                                SenderId = (m % 2 == 0) ? learner.Id : tutor.Id, ReceiverId = (m % 2 == 0) ? tutor.Id : learner.Id,
-                                Content = (m % 2 == 0) ? "Hi, can you help?" : "Sure, I'm available.", Timestamp = startTime.AddMinutes(m * 5), IsRead = true
+                                SenderId = (m % 2 == 0) ? learner.Id : tutor.Id, 
+                                ReceiverId = (m % 2 == 0) ? tutor.Id : learner.Id,
+                                Content = selectedConversation[m], 
+                                Timestamp = startTime.AddMinutes(m * 10 - 60), // Messages happened before session or during start
+                                IsRead = true
                             });
                         }
                     }
@@ -267,50 +278,88 @@ namespace PeerGrid.Backend.Data
                 }
             }
 
-            // 4. Ensure ALL users have at least one upcoming confirmed session
-            var allUsers = context.Users.ToList();
+            // 4. Ensure ALL users have at least THREE sessions (Confirmed or Completed) with Chat History
+            var allUsers = context.Users.Where(u => u.Role != "Admin").ToList();
             if (allUsers.Any())
             {
                 var now = DateTime.Now;
                 foreach (var user in allUsers)
                 {
-                    bool hasUpcoming = context.Sessions.Any(s => 
-                        (s.LearnerId == user.Id || s.TutorId == user.Id) &&
-                        s.Status == "Confirmed" &&
-                        s.StartTime > now);
-                    
-                    if (!hasUpcoming)
+                    int currentSessionCount = context.Sessions.Count(s => s.LearnerId == user.Id || (s.TutorId != null && s.TutorId == user.Id));
+                    int sessionsNeeded = 3 - currentSessionCount;
+
+                    if (sessionsNeeded > 0)
                     {
-                        var other = allUsers.Where(u => u.Id != user.Id).OrderBy(x => random.Next()).FirstOrDefault();
-                        if (other != null)
+                        for (int k = 0; k < sessionsNeeded; k++)
                         {
-                            var session = new Session();
-                            bool isLearner = random.Next(2) == 0;
-                            
-                            if (isLearner)
+                            var other = allUsers.Where(u => u.Id != user.Id).OrderBy(x => random.Next()).FirstOrDefault();
+                            if (other != null)
                             {
-                                session.LearnerId = user.Id;
-                                session.TutorId = other.Id;
-                            }
-                            else
-                            {
-                                session.LearnerId = other.Id;
-                                session.TutorId = user.Id;
-                            }
-                            
-                            var skillSource = isLearner ? other : user; // Tutor provides skill
-                            var topic = skillSource.SkillsOffered.Any() ? skillSource.SkillsOffered[random.Next(skillSource.SkillsOffered.Count)] : "General";
+                                var session = new Session();
+                                bool isLearner = random.Next(2) == 0;
+                                
+                                int learnerId = isLearner ? user.Id : other.Id;
+                                int tutorId = isLearner ? other.Id : user.Id;
+                                
+                                session.LearnerId = learnerId;
+                                session.TutorId = tutorId;
+                                
+                                var skillSource = isLearner ? other : user; 
+                                var topic = skillSource.SkillsOffered.Any() ? skillSource.SkillsOffered[random.Next(skillSource.SkillsOffered.Count)] : "General";
 
-                            session.Title = topic + " Mentorship";
-                            session.Description = "Deep dive into " + topic;
-                            session.Topic = topic;
-                            session.Cost = random.Next(1, 6) * 100; // 100-500 points
-                            session.Status = "Confirmed";
-                            session.StartTime = DateTime.Now.AddDays(random.Next(1, 6)).AddHours(random.Next(12));
-                            session.EndTime = session.StartTime.AddHours(1);
+                                session.Title = topic + " Session";
+                                session.Description = "Discussing " + topic;
+                                session.Topic = topic;
+                                session.Cost = random.Next(1, 6) * 100;
+                                
+                                // Randomize Status (Confirmed or Completed)
+                                bool isCompleted = random.Next(2) == 0;
+                                session.Status = isCompleted ? "Completed" : "Confirmed";
+                                
+                                if (isCompleted) {
+                                    session.StartTime = DateTime.Now.AddDays(-random.Next(1, 30)).AddHours(random.Next(12));
+                                } else {
+                                    session.StartTime = DateTime.Now.AddDays(random.Next(1, 14)).AddHours(random.Next(12));
+                                }
+                                session.EndTime = session.StartTime.AddHours(1);
 
-                            context.Sessions.Add(session);
-                            Console.WriteLine($"Seeded confirmed session for {user.Name}");
+                                context.Sessions.Add(session);
+                                
+                                // Add Chat History
+                                var conversations = new[] {
+                                    new[] { "Hi, looking forward to our session!", "Same here! Do you have the agenda?", "Yes, I'll share it shortly.", "Great, thanks." },
+                                    new[] { "Just confirming our time.", "Yes, seeing you then.", "Perfect.", "Have a good day!" },
+                                    new[] { "I have some questions about " + topic, "Sure, list them out.", "I will send them via email.", "Okay, sounds good." },
+                                    new[] { "Can we reschedule by 10 mins?", "No problem, see you then.", "Thanks for understanding.", "You're welcome." }
+                                };
+                                var selectedConversation = conversations[random.Next(conversations.Length)];
+                                for(int m=0; m<selectedConversation.Length; m++) {
+                                    context.Messages.Add(new Message {
+                                        SenderId = (m % 2 == 0) ? learnerId : tutorId, 
+                                        ReceiverId = (m % 2 == 0) ? tutorId : learnerId,
+                                        Content = selectedConversation[m], 
+                                        Timestamp = session.StartTime.AddMinutes(m * 10 - 60), // Before session
+                                        IsRead = true
+                                    });
+                                }
+
+                                // If Completed, Add Transaction and Feedback
+                                if (isCompleted)
+                                {
+                                    context.Transactions.Add(new Transaction {
+                                        LearnerId = learnerId, TutorId = tutorId, Skill = topic, Points = session.Cost,
+                                        Type = "Transfer", Timestamp = session.EndTime, Rating = random.Next(3, 6)
+                                    });
+
+                                    var feedbackComments = new[] { "Great session!", "Very helpful.", "Good mentor.", "Learned a lot." };
+                                    context.Feedbacks.Add(new Feedback {
+                                        Session = session, FromUserId = learnerId, Rating = random.Next(3, 6), 
+                                        Comment = feedbackComments[random.Next(feedbackComments.Length)]
+                                    });
+                                }
+
+                                Console.WriteLine($"Seeded {session.Status} session for {user.Name}");
+                            }
                         }
                     }
                 }

@@ -28,45 +28,45 @@ public class DataInitializer implements CommandLineRunner {
         // 1. Ensure Users Exist
         if (userRepository.count() == 0) {
            String[] names = {
-                "Aakash Ashok Kharade", "Aasif Jamal", "Abhishek Anilkumar Borse", "Abhishek Dasondhi", "Abhishek Narayan Jagtap", "Abhishek Vilas Gaikwad",
-                "Adarsh Kumar Chandel", "Adarsh Kushwah", "Aditya Abhijeet Adhikari", "Aditya Sachin Korde", "Afsha Zarreen Sayeed Khan", "Ajay Raysing Patil",
-                "Akanksha Jeevan Puri", "Akanksha Somnath Dhanawade", "Akash Pandurang Kokulwar", "Akash Raghunath Bhadane", "Akshay Keshav Balte", "Amar Balasaheb Toge",
-                "Amarnath Ambadas Malpuri", "Amey Arun Parab", "Amey Shekhar Raut", "Aniket Bhagwat Sherkar", "Aniket Hanumant Darade", "Anirudha Dinesh Shinde",
-                "Ankita Ashok Kanthe", "Ankita Yatin Kher", "Annu Yadav", "Anuj Trivedi", "Anurag More", "Anushka Chavan", "Apurva Nandkishor Dhonde",
-                "Aryan Genbhau Gawade", "Aryan Manohar Pate", "Aryan Sunil Shambharkar", "Asfiya Naveed Ahmed Shaikh", "Asmit Ajay Upganlawar", "Asmita Vijaykumar Mhetre",
-                "Atharva Anil Thumbare", "Avneesh Dubey", "Ayush Ranjan", "Bhagyesh Tushar Wani", "Bhavna Yadav Balpande", "Bhushan Chandan Dhavan",
-                "Bhushan Narendra Attarde", "Bhushan Vasantrao Thate", "Chaitali Bhagwat Barhate", "Chetankumar Badusing Banjara", "Chinmay Vijay Bonde", "Darshan Suryabhan Gadakh",
-                "Darshana Sopandas Malewar", "Deepa Sushil Jadhav", "Deepra Banerjee", "Devendra Kakaji Deore", "Dhananjay Tansen Shitole", "Dhanashree Deepak Pawar",
-                "Dhaval Manik Patil", "Dhiraj Divakar Patil", "Digvijay Maruti Thanekar", "Dipak Chandrakant Firake", "Dipali Amit Vasave", "Dipti Sampat Akhade",
-                "Dnyaneshvar Bibhishan Suryavanshi", "Fameshwari", "Gaurav Anil Patil", "Gaurav Anil Sontakke", "Gaurav Aniruddha Apte", "Gaurav Baikunth Nath Mishra",
-                "Gaurav Suresh Salunkhe", "Gauri Pratul Kolte", "Goutam Soni", "Gunjan Pravin Chaudhari", "Hanuman Bhagwat Jadhav", "Harshal Vilas Tarmale",
-                "Heramb Dilip Shinde", "Himanshu Dhananjay Patil", "Himanshu Jagdish Samrit", "Hitesh Ravindra Singh Chaudhari", "Hrishikesh Deepak Tappe", "Isha Anant Puranik",
-                "Isha Pralhad Gulhane", "Ishan Raizada", "Jaydeep Patidar", "Kalyanee Ravindra Pachghare", "Kamlini Govardhan Bhasme", "Kapil Umakant Katte",
-                "Kaushal Rajendra Patil", "Khetesh Ummedram Choudhary", "Kiran Vishwas Mahajan", "Komal Kadnor", "Komal Ramrao Jadhav", "Krishna Aditya Chikkala",
-                "Krushna Vikas Chavan", "Madhuri Kedarnath Chavan", "Manali Sharad Bharati Bhujbal", "Manish Laxmikant Chaudhari", "Mickey Manohar", "Minal Ashok Kamde",
-                "Mohammad Rehan Ansari", "Mohammad Salik Zameer Ahmed Mulla", "Mohd Allahuddin", "Mohini Nikhil Kasar", "Mohit Rahul Sarode", "Mujahid Jamshed Bagwan",
-                "Nandini Nitin Rasal", "Nandini Wasant Wahane", "Naushin Yusuf Sayyad", "Neha Devidas Patil", "Neha Nandu Wagh", "Neha Pravin Kothavade",
-                "Neha Vijay Ahire", "Nidhi Kumari", "Niket Devendra Malviya", "Nikhil Anil Shingare", "Nikhil Dubey", "Nikhil Samadhan Nikam", "Nishant Sharad Desle",
-                "Nutesh Vinod Tajne", "Om Bhagirath Londhe", "Om Santosh Pawar", "Omkar Pramod Nalawade", "Parikshit Mahendra Urkande", "Parikshit Vijay Patil",
-                "Pooja Kundlik Athare", "Poonam Balaji More", "Pradip Prakash Patil", "Prajakta Manik Kamble", "Prajwal Rathod", "Pranali Ramesh Mahadik",
-                "Pranali Vilas Magar", "Pranavkumar Sanjay Munot", "Pranjali Pramod Rane", "Prasad Sagar Talekar", "Prashant Aba Patil", "Prateek Gupta",
-                "Prathamesh Sunil Maharnur", "Prathmesh Mane", "Pratik Ashok Avhad", "Pratik Kailas Barse", "Prem Satyanarayan Myana", "Priyanka Bhausaheb Thange",
-                "Purva Pradeep Thavai", "Purvesh Ravindra Khandare", "Rachana Namdeo Khadse", "Ragini Yadav", "Rahul Dhondu Pawar", "Raj Jaydev Tangadi",
-                "Rajat Lonkar", "Ravina Punjarao Gadekar", "Ritik Gupta", "Rohini Bhagwatkar", "Rohit Bhalse", "Rohit Deshpande", "Ronak Ravindra Kolhe",
-                "Roshan Sanjay Kosare", "Rugvedi Dilipkumar Wankhede", "Rushikesh Sandeep Temkar", "Rushikesh Vijay Dhavan", "Ruttik Prakash Hiwase", "Rutuja Pravin Gholap",
-                "Sachin Rajesh Dabewar", "Sachin Sanjay Waghchaure", "Sagar Band", "Sagar Shyam Udgiri", "Sakshi Purushottam Baitule", "Sakshi Sandip Ostwal",
-                "Sakshi Umesh Chaudhari", "Saloni", "Samarth Ramchandra Burkule", "Samiksha Vilas Wagaj", "Samir Bharati", "Sanghapal Ishwar Gavhane",
-                "Sanjukta Sarkar", "Sanket Kulkarni", "Sanket Purushottam Mandavgane", "Sanket Sanjay Shalukar", "Sanskruti Shankar Dhole", "Sarthak Satish Sambare",
-                "Satyajit Tanaji Kadam", "Saurabh Anil Mahajan", "Saurabh Pramod Walanj", "Saurabh Raju Vaidya", "Shamal Manik Bhujbal", "Shantanu Laxman Chaudhari",
-                "Shashibhushan Avdhesh Mishra", "Shilpa Jayesh Gharat", "Shital Janardan Sabale", "Shivanjali Bhanudas Mote", "Shraddha Chandrashekhar Hade", "Shreya Ajay Pandharipande",
-                "Shreya Raj", "Shruti Dhanalal Wadile", "Shruti Dinkar Jadhav", "Shubham Chandrakant Ghaware", "Shubham Chandrikapure", "Shubham Dnyaneshwar Thakur",
-                "Shubham Santosh Rokade", "Shubham Shriram Chaudhari", "Siddhi Machhindra Adkitte", "Sneha Gorakhnath Bhong", "Snehal Kailas Kharde", "Snehal Shivaji Shinde",
-                "Sofiya Taiyaballi Sutar", "Soma Vasudev", "Someshvar Tiwari", "Soumya Prasad Sahu", "Suchit Prashant Sawant", "Sudhansu Dalchand Kapgate",
-                "Sumit Prabhakar Mote", "Supriya Mahesh Suryawanshi", "Suraj Rawat", "Suyog Avinash Joshi", "Swapna Sanjay Saste", "Tanmay Chandrakant Sawant",
-                "Tanmay Mukesh Raut", "Tanmay Vasant Salwe", "Tejal Sunil Mahajan", "Tejas Anil Jadhao", "Tushar Gajanan Gedam", "Tushar Hanmant Rupnavar",
-                "Tushar Vilas Lahamge", "Vaibhav Sanjay Sonawane", "Vaishakh Lalchand Malode", "Vaishnavi Dhanaji Salvi", "Vaishnavi Dhanraj Pokale", "Vaishnavi Pramod Pardeshi",
-                "Vaishnavi Sanjay Jagtap", "Varsha Shivaji Matsagar", "Vasundhara Vitthal Nanaware", "Vedant Ramrao Shiradhonkar", "Vedant Suryakant Mali", "Vedant Vishwanath Padave",
-                "Vibhav Vikas Chavan", "Virag Hote", "Vrushabh Vyankatesh Bhaskar", "Yash Gulabrao Mankumare", "Yash Pramod Bambal", "Yash Sunil Patil", "Yukta Ravindra Jadhav"
+                "Aakash Kharade", "Aasif Jamal", "Abhishek Borse", "Abhishek Dasondhi", "Abhishek Jagtap", "Abhishek Gaikwad",
+                "Adarsh Chandel", "Adarsh Kushwah", "Aditya Adhikari", "Aditya Korde", "Afsha Khan", "Ajay Patil",
+                "Akanksha Puri", "Akanksha Dhanawade", "Akash Kokulwar", "Akash Bhadane", "Akshay Balte", "Amar Toge",
+                "Amarnath Malpuri", "Amey Parab", "Amey Raut", "Aniket Sherkar", "Aniket Darade", "Anirudha Shinde",
+                "Ankita Kanthe", "Ankita Kher", "Annu Yadav", "Anuj Trivedi", "Anurag More", "Anushka Chavan", "Apurva Dhonde",
+                "Aryan Gawade", "Aryan Pate", "Aryan Shambharkar", "Asfiya Shaikh", "Asmit Upganlawar", "Asmita Mhetre",
+                "Atharva Thumbare", "Avneesh Dubey", "Ayush Ranjan", "Bhagyesh Wani", "Bhavna Balpande", "Bhushan Dhavan",
+                "Bhushan Attarde", "Bhushan Thate", "Chaitali Barhate", "Chetankumar Banjara", "Chinmay Bonde", "Darshan Gadakh",
+                "Darshana Malewar", "Deepa Jadhav", "Deepra Banerjee", "Devendra Deore", "Dhananjay Shitole", "Dhanashree Pawar",
+                "Dhaval Patil", "Dhiraj Patil", "Digvijay Thanekar", "Dipak Firake", "Dipali Vasave", "Dipti Akhade",
+                "Dnyaneshvar Suryavanshi", "Fameshwari", "Gaurav Patil", "Gaurav Sontakke", "Gaurav Apte", "Gaurav Mishra",
+                "Gaurav Salunkhe", "Gauri Kolte", "Goutam Soni", "Gunjan Chaudhari", "Hanuman Jadhav", "Harshal Tarmale",
+                "Heramb Shinde", "Himanshu Patil", "Himanshu Samrit", "Hitesh Chaudhari", "Hrishikesh Tappe", "Isha Puranik",
+                "Isha Gulhane", "Ishan Raizada", "Jaydeep Patidar", "Kalyanee Pachghare", "Kamlini Bhasme", "Kapil Katte",
+                "Kaushal Patil", "Khetesh Choudhary", "Kiran Mahajan", "Komal Kadnor", "Komal Jadhav", "Krishna Chikkala",
+                "Krushna Chavan", "Madhuri Chavan", "Manali Bhujbal", "Manish Chaudhari", "Mickey Manohar", "Minal Kamde",
+                "Mohammad Ansari", "Mohammad Mulla", "Mohd Allahuddin", "Mohini Kasar", "Mohit Sarode", "Mujahid Bagwan",
+                "Nandini Rasal", "Nandini Wahane", "Naushin Sayyad", "Neha Patil", "Neha Wagh", "Neha Kothavade",
+                "Neha Ahire", "Nidhi Kumari", "Niket Malviya", "Nikhil Shingare", "Nikhil Dubey", "Nikhil Nikam", "Nishant Desle",
+                "Nutesh Tajne", "Om Londhe", "Om Pawar", "Omkar Nalawade", "Parikshit Urkande", "Parikshit Patil",
+                "Pooja Athare", "Poonam More", "Pradip Patil", "Prajakta Kamble", "Prajwal Rathod", "Pranali Mahadik",
+                "Pranali Magar", "Pranavkumar Munot", "Pranjali Rane", "Prasad Talekar", "Prashant Patil", "Prateek Gupta",
+                "Prathamesh Maharnur", "Prathmesh Mane", "Pratik Avhad", "Pratik Barse", "Prem Myana", "Priyanka Thange",
+                "Purva Thavai", "Purvesh Khandare", "Rachana Khadse", "Ragini Yadav", "Rahul Pawar", "Raj Tangadi",
+                "Rajat Lonkar", "Ravina Gadekar", "Ritik Gupta", "Rohini Bhagwatkar", "Rohit Bhalse", "Rohit Deshpande", "Ronak Kolhe",
+                "Roshan Kosare", "Rugvedi Wankhede", "Rushikesh Temkar", "Rushikesh Dhavan", "Ruttik Hiwase", "Rutuja Gholap",
+                "Sachin Dabewar", "Sachin Waghchaure", "Sagar Band", "Sagar Udgiri", "Sakshi Baitule", "Sakshi Ostwal",
+                "Sakshi Chaudhari", "Saloni", "Samarth Burkule", "Samiksha Wagaj", "Samir Bharati", "Sanghapal Gavhane",
+                "Sanjukta Sarkar", "Sanket Kulkarni", "Sanket Mandavgane", "Sanket Shalukar", "Sanskruti Dhole", "Sarthak Sambare",
+                "Satyajit Kadam", "Saurabh Mahajan", "Saurabh Walanj", "Saurabh Vaidya", "Shamal Bhujbal", "Shantanu Chaudhari",
+                "Shashibhushan Mishra", "Shilpa Gharat", "Shital Sabale", "Shivanjali Mote", "Shraddha Hade", "Shreya Pandharipande",
+                "Shreya Raj", "Shruti Wadile", "Shruti Jadhav", "Shubham Ghaware", "Shubham Chandrikapure", "Shubham Thakur",
+                "Shubham Rokade", "Shubham Chaudhari", "Siddhi Adkitte", "Sneha Bhong", "Snehal Kharde", "Snehal Shinde",
+                "Sofiya Sutar", "Soma Vasudev", "Someshvar Tiwari", "Soumya Sahu", "Suchit Sawant", "Sudhansu Kapgate",
+                "Sumit Mote", "Supriya Suryawanshi", "Suraj Rawat", "Suyog Joshi", "Swapna Saste", "Tanmay Sawant",
+                "Tanmay Raut", "Tanmay Salwe", "Tejal Mahajan", "Tejas Jadhao", "Tushar Gedam", "Tushar Rupnavar",
+                "Tushar Lahamge", "Vaibhav Sonawane", "Vaishakh Malode", "Vaishnavi Salvi", "Vaishnavi Pokale", "Vaishnavi Pardeshi",
+                "Vaishnavi Jagtap", "Varsha Matsagar", "Vasundhara Nanaware", "Vedant Shiradhonkar", "Vedant Mali", "Vedant Padave",
+                "Vibhav Chavan", "Virag Hote", "Vrushabh Bhaskar", "Yash Mankumare", "Yash Bambal", "Yash Patil", "Yukta Jadhav"
             };
             String[] skills = { "C#", "Java", "Python", "React", "Angular", "SQL", "Docker", "Kubernetes", "Azure", "AWS", "Machine Learning", "Data Science", "Figma", "UI/UX", "Node.js", "HTML", "CSS", "JavaScript", "TypeScript", "Go", "Rust", "C++" };
             String[] bios = { "Passionate developer.", "Learning every day.", "Tech enthusiast.", "Full stack wizard.", "Data nerd.", "Design lover.", "Coding is life.", "Building the future.", "Student eager to learn.", "Professional developer." };
@@ -89,7 +89,7 @@ public class DataInitializer implements CommandLineRunner {
                 user.setRole("User"); user.setBio(bios[random.nextInt(bios.length)]);
                 user.setGridPoints(new BigDecimal(random.nextInt(5000))); user.setLockedPoints(BigDecimal.ZERO); user.setAvailable(true);
                 user.setProfilePictureUrl("https://ui-avatars.com/api/?name=" + fullName.replace(" ", "+") + "&background=random&color=fff");
-                user.setJoinedAt(java.time.LocalDateTime.now().minusDays(random.nextInt(365)));
+                user.setJoinedAt(java.time.LocalDateTime.now().minusDays(random.nextInt(365)).minusHours(random.nextInt(24)).minusMinutes(random.nextInt(60)));
                 
                 int offerCount = random.nextInt(3) + 1;
                 for (int i = 0; i < offerCount; i++) {
@@ -212,13 +212,21 @@ public class DataInitializer implements CommandLineRunner {
                     feedbacks.add(feedback);
                 }
                 
-                int msgCount = random.nextInt(4) + 2;
-                for(int m=0; m<msgCount; m++) {
+                String[][] conversations = {
+                    { "Hi, I have a few questions about the session topic.", "Sure, I'd be happy to help. What specific areas are you looking at?", "Mostly around the advanced concepts.", "Great, we can cover that. See you in the session!" },
+                    { "Is the schedule fixed or can we move it by 30 mins?", "I can accommodate a 30 min delay. Let's meet then.", "Perfect, thank you!", "No problem." },
+                    { "Do I need to install any software beforehand?", "Yes, please have VS Code and Node.js ready.", "Okay, I will set them up.", "See you soon." },
+                    { "I'm really excited for this mentorship!", "Me too! We'll make good progress.", "I've prepared some notes.", "That's excellent. It will help us focus." }
+                };
+                
+                String[] selectedConversation = conversations[random.nextInt(conversations.length)];
+
+                for(int m=0; m<selectedConversation.length; m++) {
                     com.peergrid.backend.entity.Message msg = new com.peergrid.backend.entity.Message();
                     msg.setSender((m % 2 == 0) ? session.getLearner() : session.getTutor());
                     msg.setReceiver((m % 2 == 0) ? session.getTutor() : session.getLearner());
-                    msg.setContent((m % 2 == 0) ? "Hi, can you help?" : "Sure.");
-                    msg.setTimestamp(session.getStartTime().plusMinutes(m * 5));
+                    msg.setContent(selectedConversation[m]);
+                    msg.setTimestamp(session.getStartTime().plusMinutes(m * 10 - 60)); // Messages happened before session
                     msg.setRead(true);
                     messages.add(msg);
                 }
@@ -262,46 +270,94 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         
-        // 4. Ensure ALL users have at least one upcoming confirmed session
-        List<User> allUsers = userRepository.findAll();
+        // 4. Ensure ALL users have at least THREE sessions (Confirmed or Completed) with Chat History
+        List<User> allUsers = userRepository.findAll().stream()
+                .filter(u -> !"Admin".equals(u.getRole()))
+                .collect(java.util.stream.Collectors.toList());
         for (User user : allUsers) {
-            long upcomingCount = sessionRepository.findAll().stream()
-                    .filter(s -> (s.getLearner().getId().equals(user.getId()) || (s.getTutor() != null && s.getTutor().getId().equals(user.getId())))
-                            && "Confirmed".equals(s.getStatus()) && s.getStartTime().isAfter(java.time.LocalDateTime.now()))
+            long currentSessionCount = sessionRepository.findAll().stream()
+                    .filter(s -> (s.getLearner().getId().equals(user.getId()) || (s.getTutor() != null && s.getTutor().getId().equals(user.getId()))))
                     .count();
+            
+            long sessionsNeeded = 3 - currentSessionCount;
 
-            if (upcomingCount == 0) {
-                // Find a random partner different from current user
-                 allUsers.stream()
-                        .filter(u -> !u.getId().equals(user.getId()))
-                        .findAny() // Use findAny for non-deterministic selection if stream allows, or just pick one
-                        .ifPresent(other -> {
-                            com.peergrid.backend.entity.Session session = new com.peergrid.backend.entity.Session();
-                            
-                            // 50% chance to be learner, 50% chance to be tutor
-                            boolean isLearner = random.nextBoolean();
-                            if (isLearner) {
-                                session.setLearner(user);
-                                session.setTutor(other);
-                            } else {
-                                session.setLearner(other);
-                                session.setTutor(user);
-                            }
-                            
-                            String topic = user.getSkillsOffered().isEmpty() ? "General" : user.getSkillsOffered().get(random.nextInt(user.getSkillsOffered().size()));
-                            
-                            session.setTitle(topic + " Mentorship");
-                            session.setDescription("Deep dive into " + topic);
-                            session.setTopic(topic);
-                            session.setCost(new BigDecimal(random.nextInt(5) * 100 + 100)); // 100-500 points
-                            session.setStatus("Confirmed");
-                            // Schedule 1 to 5 days in the future
-                            session.setStartTime(java.time.LocalDateTime.now().plusDays(random.nextInt(5) + 1).plusHours(random.nextInt(12)));
-                            session.setEndTime(session.getStartTime().plusHours(1));
-                            
-                            sessionRepository.save(session);
-                            System.out.println("Seeded confirmed session for " + user.getName());
-                        });
+            if (sessionsNeeded > 0) {
+                for (int k = 0; k < sessionsNeeded; k++) {
+                    allUsers.stream()
+                            .filter(u -> !u.getId().equals(user.getId()))
+                            .findAny()
+                            .ifPresent(other -> {
+                                com.peergrid.backend.entity.Session session = new com.peergrid.backend.entity.Session();
+                                
+                                boolean isLearner = random.nextBoolean();
+                                User learner = isLearner ? user : other;
+                                User tutor = isLearner ? other : user;
+
+                                session.setLearner(learner);
+                                session.setTutor(tutor);
+                                
+                                User skillSource = isLearner ? other : user;
+                                String topic = skillSource.getSkillsOffered().isEmpty() ? "General" : skillSource.getSkillsOffered().get(random.nextInt(skillSource.getSkillsOffered().size()));
+                                
+                                session.setTitle(topic + " Session");
+                                session.setDescription("Discussing " + topic);
+                                session.setTopic(topic);
+                                session.setCost(new BigDecimal(random.nextInt(5) * 100 + 100));
+                                
+                                // Randomize Status
+                                boolean isCompleted = random.nextBoolean();
+                                session.setStatus(isCompleted ? "Completed" : "Confirmed");
+                                
+                                if (isCompleted) {
+                                    session.setStartTime(java.time.LocalDateTime.now().minusDays(random.nextInt(30) + 1).plusHours(random.nextInt(12)));
+                                } else {
+                                    session.setStartTime(java.time.LocalDateTime.now().plusDays(random.nextInt(14) + 1).plusHours(random.nextInt(12)));
+                                }
+                                session.setEndTime(session.getStartTime().plusHours(1));
+                                
+                                session = sessionRepository.save(session);
+                                
+                                // Add Chat History
+                                String[][] conversations = {
+                                    { "Hi, looking forward to our session!", "Same here! Do you have the agenda?", "Yes, I'll share it shortly.", "Great, thanks." },
+                                    { "Just confirming our time.", "Yes, seeing you then.", "Perfect.", "Have a good day!" },
+                                    { "I have some questions about " + topic, "Sure, list them out.", "I will send them via email.", "Okay, sounds good." },
+                                    { "Can we reschedule by 10 mins?", "No problem, see you then.", "Thanks for understanding.", "You're welcome." }
+                                };
+                                String[] selectedConversation = conversations[random.nextInt(conversations.length)];
+                                List<com.peergrid.backend.entity.Message> newMessages = new ArrayList<>();
+                                for(int m=0; m<selectedConversation.length; m++) {
+                                    com.peergrid.backend.entity.Message msg = new com.peergrid.backend.entity.Message();
+                                    msg.setSender((m % 2 == 0) ? learner : tutor);
+                                    msg.setReceiver((m % 2 == 0) ? tutor : learner);
+                                    msg.setContent(selectedConversation[m]);
+                                    msg.setTimestamp(session.getStartTime().plusMinutes(m * 10 - 60)); 
+                                    msg.setRead(true);
+                                    newMessages.add(msg);
+                                }
+                                messageRepository.saveAll(newMessages);
+
+                                // If Completed, Add Transaction and Feedback
+                                if (isCompleted) {
+                                    com.peergrid.backend.entity.Transaction transaction = new com.peergrid.backend.entity.Transaction();
+                                    transaction.setLearner(learner); transaction.setTutor(tutor);
+                                    transaction.setSkill(topic); transaction.setPoints(session.getCost());
+                                    transaction.setType("Transfer"); transaction.setTimestamp(session.getEndTime());
+                                    transaction.setRating((double) (random.nextInt(3) + 3));
+                                    transactionRepository.save(transaction);
+
+                                    com.peergrid.backend.entity.Feedback feedback = new com.peergrid.backend.entity.Feedback();
+                                    feedback.setSession(session); 
+                                    feedback.setFromUserId(learner.getId());
+                                    feedback.setRating(random.nextInt(3) + 3); 
+                                    String[] feedbackComments = { "Great session!", "Very helpful.", "Good mentor.", "Learned a lot." };
+                                    feedback.setComment(feedbackComments[random.nextInt(feedbackComments.length)]);
+                                    feedbackRepository.save(feedback);
+                                }
+
+                                System.out.println("Seeded " + session.getStatus() + " session for " + user.getName());
+                            });
+                }
             }
         }
     }

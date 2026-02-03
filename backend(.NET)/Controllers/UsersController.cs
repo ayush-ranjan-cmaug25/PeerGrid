@@ -138,7 +138,10 @@ namespace PeerGrid.Backend.Controllers
                     Topic = s.Topic,
                     OtherParty = s.TutorId == userId ? s.Learner!.Name : s.Tutor!.Name,
                     Time = s.StartTime,
-                    Status = s.Status
+                    Status = s.Status,
+                    LearnerId = s.LearnerId,
+                    TutorId = s.TutorId,
+                    Cost = s.Cost
                 })
                 .ToListAsync();
 

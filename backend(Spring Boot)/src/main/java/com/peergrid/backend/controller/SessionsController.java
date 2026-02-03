@@ -86,6 +86,7 @@ public class SessionsController {
             map.put("topic", s.getTopic());
             map.put("points", s.getCost());
             map.put("learner", s.getLearner().getName());
+            map.put("learnerId", s.getLearner().getId());
             map.put("tags", new String[]{s.getTopic()});
             return map;
         }).collect(Collectors.toList());
@@ -172,7 +173,7 @@ public class SessionsController {
     public ResponseEntity<?> rateSession(@RequestBody RateSessionRequest request) {
         try {
             if (request.getTransactionId() == null) throw new RuntimeException("Transaction ID is required");
-            sessionService.rateSession(Objects.requireNonNull(request.getTransactionId()), request.getRating());
+            sessionService.rateSession(Objects.requireNonNull(request.getTransactionId()), request.getSessionId(), request.getRating(), request.getComment());
             return ResponseEntity.ok(Map.of("message", "Session rated successfully"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));

@@ -56,7 +56,7 @@ const DoubtBoard = () => {
                         {loading ? (
                             <div className="text-center text-muted">Loading doubts...</div>
                         ) : (
-                            <DoubtBoardWidget doubts={doubts} onRefresh={fetchData} />
+                            <DoubtBoardWidget doubts={doubts} onRefresh={fetchData} user={JSON.parse(localStorage.getItem('user') || '{}')} />
                         )}
                     </ScrollReveal>
                 </div>

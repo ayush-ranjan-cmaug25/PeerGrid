@@ -5,7 +5,7 @@ import GlassCard from './GlassCard';
 import { API_BASE_URL } from '../config';
 import './DoubtBoardWidget.css';
 
-const DoubtBoardWidget = ({ doubts, onRefresh }) => {
+const DoubtBoardWidget = ({ doubts, onRefresh, user }) => {
     const [selectedBounty, setSelectedBounty] = useState(null);
     const [loading, setLoading] = useState(false);
     const bountyList = doubts || [];
@@ -84,14 +84,19 @@ const DoubtBoardWidget = ({ doubts, onRefresh }) => {
                             <button 
                                 onClick={handleAccept} 
                                 className={`btn-accept ${loading ? 'loading' : ''}`} 
-                                disabled={loading}
+                                disabled={loading || (user && user.id === selectedBounty.learnerId)}
+                                style={{ 
+                                    opacity: (user && user.id === selectedBounty.learnerId) ? 0.5 : 1,
+                                    cursor: (user && user.id === selectedBounty.learnerId) ? 'not-allowed' : 'pointer'
+                                }}
+                                title={(user && user.id === selectedBounty.learnerId) ? "You cannot accept your own challenge" : ""}
                             >
                                 {loading ? (
                                     <span className="d-flex align-items-center justify-content-center gap-2">
                                         <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                                         Accepting...
                                     </span>
-                                ) : 'Accept Challenge'}
+                                ) : (user && user.id === selectedBounty.learnerId) ? 'Your Challenge' : 'Accept Challenge'}
                             </button>
                             <button onClick={() => setSelectedBounty(null)} className="btn-close" disabled={loading}>
                                 Cancel

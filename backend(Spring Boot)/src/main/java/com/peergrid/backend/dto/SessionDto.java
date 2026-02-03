@@ -19,5 +19,6 @@ public class SessionDto {
     private String title;
     private String description;
     private BigDecimal points;
+    private BigDecimal cost;
     private String[] tags;
 }
