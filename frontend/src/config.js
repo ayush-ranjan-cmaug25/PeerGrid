@@ -5,4 +5,4 @@ export const HUB_URL = `${BASE_URL}/chatHub`;
 export const WS_URL = `${BASE_URL}/ws`;
 
 // Change this to 'SPRING' or 'DOTNET'
-export const BACKEND_TYPE = 'DOTNET';
+export const BACKEND_TYPE = "SPRING";

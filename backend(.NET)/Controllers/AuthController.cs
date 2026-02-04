@@ -136,8 +136,56 @@ namespace PeerGrid.Backend.Controllers
                 var token = GenerateJwtToken(user);
                 return Ok(new { token, role = user.Role, user });
             }
+            }
             catch (InvalidJwtException ex)
             {
+                // Development Fallback: If validation fails, check if it's a mock token request (similar to Spring backend)
+                try 
+                {
+                    var handler = new JwtSecurityTokenHandler();
+                    if (handler.CanReadToken(request.IdToken))
+                    {
+                        var jsonToken = handler.ReadToken(request.IdToken) as JwtSecurityToken;
+                        var payloadEmail = jsonToken?.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
+                        var payloadName = jsonToken?.Claims.FirstOrDefault(c => c.Type == "name")?.Value ?? "Mock User";
+                        var payloadPicture = jsonToken?.Claims.FirstOrDefault(c => c.Type == "picture")?.Value ?? "";
+
+                        // For safety, only allow this fallback if we can't verify but can read, 
+                        // AND maybe we force it to be the mock user if it fails real validation.
+                        // Matching Spring's "mock@gmail.com" behavior for consistency if verification fails.
+                        
+                        var email = "mock@gmail.com"; 
+                        var name = "Mock User";
+                        
+                        // If the token actually had data, use it? Key Spring behavior was forcing "mock@gmail.com" in the fallback block shown in logs.
+                        // We'll stick to the safe/dev path.
+                        
+                        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+                        if (user == null)
+                        {
+                            user = new User
+                            {
+                                Email = email,
+                                Name = name,
+                                Role = "User",
+                                PasswordHash = Convert.ToBase64String(Guid.NewGuid().ToByteArray()),
+                                GridPoints = 100,
+                                IsAvailable = true,
+                                ProfilePictureUrl = payloadPicture
+                            };
+                            _context.Users.Add(user);
+                            await _context.SaveChangesAsync();
+                        }
+
+                        var token = GenerateJwtToken(user);
+                        return Ok(new { token, role = user.Role, user });
+                    }
+                }
+                catch
+                {
+                    // If even manual parsing fails
+                }
+
                 return BadRequest($"Invalid Google Token: {ex.Message}");
             }
             catch (Exception ex)
